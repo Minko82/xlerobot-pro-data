@@ -151,10 +151,25 @@ def build_buses():
             "base_left_wheel": Motor(3, "sts3215", MotorNormMode.DEGREES),
             "base_back_wheel": Motor(4, "sts3215", MotorNormMode.DEGREES),
             "base_right_wheel": Motor(5, "sts3215", MotorNormMode.DEGREES)}
-    return (
-        ("arms", FeetechMotorsBus(port=ARMS_PORT, motors=arms)),
-        ("head", FeetechMotorsBus(port=HEAD_PORT, motors=head)),
-    )
+    buses = [("arms", FeetechMotorsBus(port=ARMS_PORT, motors=arms))]
+
+    # Drop the head bus when it resolves to the same device as the arms.
+    #
+    # With only one working adapter the arms run on /dev/xle_head, and
+    # ARMS_PORT is pointed there via XLEROBOT_ARMS_PORT. Opening a second
+    # handle on that same port puts two readers on one half-duplex bus: they
+    # interleave, corrupt each other's replies, and the run dies partway
+    # through with a sync_read or Lock failure. A 100-minute hold is far too
+    # expensive to lose that way.
+    #
+    # Nothing is lost by dropping it -- the neck and wheels are only logged
+    # for context, and the load joint (right_shoulder_lift) is on the arms bus.
+    if Path(ARMS_PORT).resolve() != Path(HEAD_PORT).resolve():
+        buses.append(("head", FeetechMotorsBus(port=HEAD_PORT, motors=head)))
+    else:
+        print(f"  NOTE: head bus skipped -- {HEAD_PORT} is carrying the arms.\n"
+              "        Neck and wheel telemetry will be absent from this run.")
+    return tuple(buses)
 
 
 def read_annotations(out_dir: Path, stop: threading.Event) -> None:
