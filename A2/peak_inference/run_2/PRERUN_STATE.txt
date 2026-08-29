@@ -1,0 +1,9 @@
+=== pre-run state ===
+timestamp_utc: 2026-08-01T05:20:25Z
+gpu_temp_c: 49.8
+cpu_temp_c: 49.4
+nvpmodel: pmode:0002
+gpu_cur_mhz: 306
+gpu_max_mhz: 1020
+ambient_c: 24.4
+torque_state: all 17 motors verified FREE before start

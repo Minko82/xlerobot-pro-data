@@ -1,0 +1,152 @@
+You have video processor config saved in `preprocessor.json` file which is deprecated. Video processor configs should be saved in their own `video_preprocessor.json` file. You can rename the file or load and save the processor back which renames it automatically. Loading from `preprocessor.json` will be removed in v5.0.
+[12:45:29] Device: cuda
+[12:45:29] Loading 'rlodhi/smolvla_screw_picking_5000' …
+Reducing the number of VLM layers to 16 ...
+[12:46:02] Policy ready on cuda (fp16)
+[12:46:02] chunk_size=5, n_action_steps=5, num_steps=10
+[12:46:02] resize_imgs=(512, 512)
+[12:46:02] Image keys : ['observation.images.base', 'observation.images.wrist']
+[12:46:02] Action dim : 6
+[12:46:02] Task       : 'pick up the object and place it in the box'
+[12:46:02] Camera /dev/video2 opened at 424×240
+[12:46:02] SW resize   : 424×240 → 320×240
+
+[12:46:02] Warming up for 5 steps, then benchmarking for 60s …
+
+[12:46:04] #    1 [warm ] e2e= 1697.0ms  infer= 1678.2ms  cap= 14.0ms
+[12:46:05] #    2 [warm ] e2e=  992.3ms  infer=  988.6ms  cap=  3.4ms
+[12:46:06] #    3 [warm ] e2e= 1039.1ms  infer= 1036.8ms  cap=  2.1ms
+[12:46:07] #    4 [warm ] e2e= 1002.6ms  infer= 1000.1ms  cap=  2.3ms
+[12:46:08] #    5 [warm ] e2e= 1001.5ms  infer=  999.2ms  cap=  2.1ms
+[12:46:09] #    6 [bench] e2e= 1001.8ms  infer=  999.4ms  cap=  2.1ms
+[12:46:10] #    7 [bench] e2e= 1038.5ms  infer= 1036.0ms  cap=  2.4ms
+[12:46:11] #    8 [bench] e2e=  998.5ms  infer=  996.2ms  cap=  2.2ms
+[12:46:12] #    9 [bench] e2e= 1001.4ms  infer=  999.1ms  cap=  2.1ms
+[12:46:13] #   10 [bench] e2e= 1003.2ms  infer= 1000.7ms  cap=  2.3ms
+[12:46:14] #   11 [bench] e2e=  989.6ms  infer=  987.4ms  cap=  1.9ms
+[12:46:15] #   12 [bench] e2e=  992.1ms  infer=  989.9ms  cap=  2.1ms
+[12:46:16] #   13 [bench] e2e=  994.7ms  infer=  992.2ms  cap=  2.3ms
+[12:46:17] #   14 [bench] e2e= 1040.1ms  infer= 1036.9ms  cap=  3.1ms
+[12:46:18] #   15 [bench] e2e= 1038.1ms  infer= 1035.7ms  cap=  2.2ms
+[12:46:19] #   16 [bench] e2e= 1002.3ms  infer=  999.8ms  cap=  2.3ms
+[12:46:20] #   17 [bench] e2e= 1020.4ms  infer= 1017.7ms  cap=  2.6ms
+[12:46:21] #   18 [bench] e2e= 1003.6ms  infer= 1001.2ms  cap=  2.2ms
+[12:46:22] #   19 [bench] e2e= 1002.4ms  infer=  999.8ms  cap=  2.5ms
+[12:46:23] #   20 [bench] e2e=  996.6ms  infer=  994.8ms  cap=  1.7ms
+[12:46:24] #   21 [bench] e2e= 1035.7ms  infer= 1033.1ms  cap=  2.4ms
+[12:46:25] #   22 [bench] e2e=  996.8ms  infer=  994.1ms  cap=  2.5ms
+[12:46:26] #   23 [bench] e2e= 1002.0ms  infer=  999.0ms  cap=  2.8ms
+[12:46:27] #   24 [bench] e2e= 1006.0ms  infer= 1002.2ms  cap=  3.6ms
+[12:46:28] #   25 [bench] e2e= 1001.4ms  infer=  998.0ms  cap=  3.2ms
+
+  [live] after 20 bench steps — e2e mean=1008.3ms  |  max replan freq=0.99 Hz  |  max control freq=4.96 Hz (n_action_steps=5)
+
+[12:46:29] #   26 [bench] e2e=  992.9ms  infer=  990.6ms  cap=  2.1ms
+[12:46:30] #   27 [bench] e2e= 1014.1ms  infer= 1011.8ms  cap=  2.1ms
+[12:46:31] #   28 [bench] e2e=  994.7ms  infer=  991.0ms  cap=  3.5ms
+[12:46:32] #   29 [bench] e2e=  998.1ms  infer=  995.6ms  cap=  2.4ms
+[12:46:33] #   30 [bench] e2e=  992.9ms  infer=  989.6ms  cap=  3.0ms
+[12:46:34] #   31 [bench] e2e=  992.0ms  infer=  989.2ms  cap=  2.7ms
+[12:46:35] #   32 [bench] e2e=  993.4ms  infer=  990.2ms  cap=  3.1ms
+[12:46:36] #   33 [bench] e2e=  993.0ms  infer=  990.1ms  cap=  2.8ms
+[12:46:37] #   34 [bench] e2e=  996.2ms  infer=  992.2ms  cap=  3.8ms
+[12:46:38] #   35 [bench] e2e=  993.1ms  infer=  990.2ms  cap=  2.7ms
+[12:46:39] #   36 [bench] e2e=  996.1ms  infer=  992.7ms  cap=  3.2ms
+[12:46:40] #   37 [bench] e2e=  993.1ms  infer=  990.6ms  cap=  2.3ms
+[12:46:41] #   38 [bench] e2e=  994.3ms  infer=  991.7ms  cap=  2.4ms
+[12:46:42] #   39 [bench] e2e=  991.4ms  infer=  988.5ms  cap=  2.7ms
+[12:46:43] #   40 [bench] e2e=  993.3ms  infer=  990.5ms  cap=  2.6ms
+[12:46:44] #   41 [bench] e2e=  992.5ms  infer=  989.6ms  cap=  2.7ms
+[12:46:45] #   42 [bench] e2e=  995.1ms  infer=  991.9ms  cap=  3.0ms
+[12:46:46] #   43 [bench] e2e=  992.9ms  infer=  989.7ms  cap=  3.0ms
+[12:46:47] #   44 [bench] e2e=  996.5ms  infer=  993.3ms  cap=  3.0ms
+[12:46:48] #   45 [bench] e2e=  991.5ms  infer=  988.6ms  cap=  2.7ms
+
+  [live] after 40 bench steps — e2e mean=1001.6ms  |  max replan freq=1.00 Hz  |  max control freq=4.99 Hz (n_action_steps=5)
+
+[12:46:49] #   46 [bench] e2e=  999.2ms  infer=  996.0ms  cap=  3.1ms
+[12:46:50] #   47 [bench] e2e=  997.5ms  infer=  994.3ms  cap=  3.0ms
+[12:46:51] #   48 [bench] e2e=  992.7ms  infer=  989.6ms  cap=  3.0ms
+[12:46:52] #   49 [bench] e2e=  994.4ms  infer=  991.3ms  cap=  3.0ms
+[12:46:53] #   50 [bench] e2e=  995.1ms  infer=  991.6ms  cap=  3.2ms
+[12:46:54] #   51 [bench] e2e=  993.4ms  infer=  990.2ms  cap=  3.0ms
+[12:46:55] #   52 [bench] e2e= 1029.6ms  infer= 1026.7ms  cap=  2.7ms
+[12:46:56] #   53 [bench] e2e=  991.9ms  infer=  989.0ms  cap=  2.7ms
+[12:46:57] #   54 [bench] e2e=  995.4ms  infer=  991.8ms  cap=  3.4ms
+[12:46:58] #   55 [bench] e2e=  998.0ms  infer=  994.8ms  cap=  3.0ms
+[12:46:59] #   56 [bench] e2e=  993.1ms  infer=  989.9ms  cap=  3.0ms
+[12:47:00] #   57 [bench] e2e=  995.8ms  infer=  992.5ms  cap=  3.2ms
+[12:47:01] #   58 [bench] e2e=  996.7ms  infer=  993.5ms  cap=  3.0ms
+[12:47:02] #   59 [bench] e2e=  996.2ms  infer=  993.7ms  cap=  2.3ms
+[12:47:03] #   60 [bench] e2e=  993.8ms  infer=  991.2ms  cap=  2.5ms
+[12:47:04] #   61 [bench] e2e=  992.6ms  infer=  990.0ms  cap=  2.4ms
+[12:47:05] #   62 [bench] e2e=  993.9ms  infer=  991.3ms  cap=  2.4ms
+[12:47:06] #   63 [bench] e2e=  994.5ms  infer=  991.9ms  cap=  2.4ms
+[12:47:07] #   64 [bench] e2e=  992.4ms  infer=  989.7ms  cap=  2.5ms
+[12:47:08] #   65 [bench] e2e=  992.6ms  infer=  989.8ms  cap=  2.6ms
+
+  [live] after 60 bench steps — e2e mean=999.9ms  |  max replan freq=1.00 Hz  |  max control freq=5.00 Hz (n_action_steps=5)
+
+
+============================================================
+  SmolVLA-base inference benchmark — final report
+  model  : rlodhi/smolvla_screw_picking_5000
+  device : cuda
+  num_steps: 10
+  task   : pick up the object and place it in the box
+============================================================
+  wall time      : 65.7s
+  warmup steps   : 5
+  benchmark steps: 60
+
+  capture + preprocess:
+    n      = 60
+    mean   = 2.68 ms
+    median = 2.70 ms
+    std    = 0.43 ms
+    min    = 1.65 ms
+    p90    = 3.19 ms
+    p95    = 3.39 ms
+    p99    = 3.67 ms
+    max    = 3.80 ms
+
+  batch construction:
+    n      = 60
+    mean   = 0.18 ms
+    median = 0.17 ms
+    std    = 0.02 ms
+    min    = 0.16 ms
+    p90    = 0.20 ms
+    p95    = 0.25 ms
+    p99    = 0.25 ms
+    max    = 0.25 ms
+
+  model forward (select_action):
+    n      = 60
+    mean   = 996.99 ms
+    median = 992.04 ms
+    std    = 12.31 ms
+    min    = 987.45 ms
+    p90    = 1012.42 ms
+    p95    = 1033.24 ms
+    p99    = 1036.33 ms
+    max    = 1036.86 ms
+
+  end-to-end (capture → action):
+    n      = 60
+    mean   = 999.85 ms
+    median = 995.24 ms
+    std    = 12.25 ms
+    min    = 989.57 ms
+    p90    = 1014.72 ms
+    p95    = 1035.83 ms
+    p99    = 1039.17 ms
+    max    = 1040.11 ms
+
+  chunk_size     : 5
+  n_action_steps : 5
+
+  >> max replan frequency : 1.000 Hz  (1 / e2e latency)
+  >> max control frequency: 5.001 Hz  (replan_hz × n_action_steps)
+============================================================
+  wrote /home/xle/xlerobot-pro/results/A2/C2_stage1/chunk5_rep1.json

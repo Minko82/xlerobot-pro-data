@@ -1,0 +1,11 @@
+timestamp_utc: 2026-08-02T03:41:03Z
+gpu_temp_c: 50.7
+cpu_temp_c: 49.8
+nvpmodel: pmode:0002
+clock_policy: DVFS (306-1020 MHz)
+ambient_c: 24.4
+battery_pct: 67
+torque_state: all 17 motors powered and verified FREE
+workload: NONE
+duration: 60 min
+note: conditions identical to active_idle run_1 and run_2

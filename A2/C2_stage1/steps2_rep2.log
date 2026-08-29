@@ -1,0 +1,272 @@
+You have video processor config saved in `preprocessor.json` file which is deprecated. Video processor configs should be saved in their own `video_preprocessor.json` file. You can rename the file or load and save the processor back which renames it automatically. Loading from `preprocessor.json` will be removed in v5.0.
+[12:41:52] Device: cuda
+[12:41:52] Loading 'rlodhi/smolvla_screw_picking_5000' …
+Reducing the number of VLM layers to 16 ...
+[12:42:24] Policy ready on cuda (fp16)
+[12:42:24] chunk_size=50, n_action_steps=50, num_steps=2
+[12:42:24] resize_imgs=(512, 512)
+[12:42:24] Image keys : ['observation.images.base', 'observation.images.wrist']
+[12:42:24] Action dim : 6
+[12:42:24] Task       : 'pick up the object and place it in the box'
+[12:42:25] Camera /dev/video2 opened at 424×240
+[12:42:25] SW resize   : 424×240 → 320×240
+
+[12:42:25] Warming up for 5 steps, then benchmarking for 60s …
+
+[12:42:26] #    1 [warm ] e2e=  989.1ms  infer=  969.2ms  cap= 15.1ms
+[12:42:26] #    2 [warm ] e2e=  399.1ms  infer=  394.6ms  cap=  4.3ms
+[12:42:26] #    3 [warm ] e2e=  392.5ms  infer=  388.9ms  cap=  3.4ms
+[12:42:27] #    4 [warm ] e2e=  375.2ms  infer=  372.2ms  cap=  2.9ms
+[12:42:27] #    5 [warm ] e2e=  360.3ms  infer=  357.3ms  cap=  2.9ms
+[12:42:27] #    6 [bench] e2e=  358.4ms  infer=  354.8ms  cap=  3.4ms
+[12:42:28] #    7 [bench] e2e=  359.3ms  infer=  355.3ms  cap=  3.9ms
+[12:42:28] #    8 [bench] e2e=  364.8ms  infer=  361.1ms  cap=  3.4ms
+[12:42:29] #    9 [bench] e2e=  370.6ms  infer=  368.2ms  cap=  2.2ms
+[12:42:29] #   10 [bench] e2e=  365.4ms  infer=  362.8ms  cap=  2.4ms
+[12:42:29] #   11 [bench] e2e=  362.8ms  infer=  360.6ms  cap=  2.1ms
+[12:42:30] #   12 [bench] e2e=  368.9ms  infer=  366.7ms  cap=  2.1ms
+[12:42:30] #   13 [bench] e2e=  366.4ms  infer=  362.8ms  cap=  3.4ms
+[12:42:30] #   14 [bench] e2e=  363.4ms  infer=  360.9ms  cap=  2.3ms
+[12:42:31] #   15 [bench] e2e=  365.4ms  infer=  362.0ms  cap=  3.1ms
+[12:42:31] #   16 [bench] e2e=  362.7ms  infer=  359.4ms  cap=  3.2ms
+[12:42:31] #   17 [bench] e2e=  358.6ms  infer=  355.3ms  cap=  3.2ms
+[12:42:32] #   18 [bench] e2e=  367.0ms  infer=  363.7ms  cap=  3.2ms
+[12:42:32] #   19 [bench] e2e=  363.0ms  infer=  360.3ms  cap=  2.5ms
+[12:42:33] #   20 [bench] e2e=  360.0ms  infer=  357.4ms  cap=  2.5ms
+[12:42:33] #   21 [bench] e2e=  358.8ms  infer=  356.0ms  cap=  2.7ms
+[12:42:33] #   22 [bench] e2e=  364.9ms  infer=  362.8ms  cap=  2.0ms
+[12:42:34] #   23 [bench] e2e=  364.0ms  infer=  361.1ms  cap=  2.7ms
+[12:42:34] #   24 [bench] e2e=  363.1ms  infer=  360.0ms  cap=  3.0ms
+[12:42:34] #   25 [bench] e2e=  359.8ms  infer=  356.9ms  cap=  2.7ms
+
+  [live] after 20 bench steps — e2e mean=363.4ms  |  max replan freq=2.75 Hz  |  max control freq=137.60 Hz (n_action_steps=50)
+
+[12:42:35] #   26 [bench] e2e=  366.0ms  infer=  362.9ms  cap=  2.9ms
+[12:42:35] #   27 [bench] e2e=  362.2ms  infer=  359.1ms  cap=  3.0ms
+[12:42:35] #   28 [bench] e2e=  359.6ms  infer=  357.0ms  cap=  2.4ms
+[12:42:36] #   29 [bench] e2e=  366.8ms  infer=  363.7ms  cap=  2.9ms
+[12:42:36] #   30 [bench] e2e=  364.7ms  infer=  361.7ms  cap=  2.9ms
+[12:42:37] #   31 [bench] e2e=  359.9ms  infer=  357.0ms  cap=  2.7ms
+[12:42:37] #   32 [bench] e2e=  357.8ms  infer=  354.7ms  cap=  2.9ms
+[12:42:37] #   33 [bench] e2e=  365.0ms  infer=  362.1ms  cap=  2.7ms
+[12:42:38] #   34 [bench] e2e=  362.4ms  infer=  359.3ms  cap=  3.0ms
+[12:42:38] #   35 [bench] e2e=  362.0ms  infer=  359.2ms  cap=  2.7ms
+[12:42:38] #   36 [bench] e2e=  357.3ms  infer=  354.2ms  cap=  3.0ms
+[12:42:39] #   37 [bench] e2e=  364.7ms  infer=  361.7ms  cap=  2.9ms
+[12:42:39] #   38 [bench] e2e=  361.8ms  infer=  358.6ms  cap=  3.0ms
+[12:42:39] #   39 [bench] e2e=  359.8ms  infer=  357.0ms  cap=  2.7ms
+[12:42:40] #   40 [bench] e2e=  365.9ms  infer=  362.8ms  cap=  3.0ms
+[12:42:40] #   41 [bench] e2e=  363.7ms  infer=  360.5ms  cap=  3.0ms
+[12:42:41] #   42 [bench] e2e=  364.3ms  infer=  361.4ms  cap=  2.7ms
+[12:42:41] #   43 [bench] e2e=  361.5ms  infer=  358.3ms  cap=  3.0ms
+[12:42:41] #   44 [bench] e2e=  359.1ms  infer=  356.3ms  cap=  2.6ms
+[12:42:42] #   45 [bench] e2e=  358.8ms  infer=  356.0ms  cap=  2.6ms
+
+  [live] after 40 bench steps — e2e mean=362.8ms  |  max replan freq=2.76 Hz  |  max control freq=137.83 Hz (n_action_steps=50)
+
+[12:42:42] #   46 [bench] e2e=  365.2ms  infer=  361.5ms  cap=  3.5ms
+[12:42:42] #   47 [bench] e2e=  364.5ms  infer=  361.3ms  cap=  3.0ms
+[12:42:43] #   48 [bench] e2e=  360.5ms  infer=  357.6ms  cap=  2.8ms
+[12:42:43] #   49 [bench] e2e=  365.5ms  infer=  362.4ms  cap=  3.0ms
+[12:42:43] #   50 [bench] e2e=  365.1ms  infer=  361.8ms  cap=  3.1ms
+[12:42:44] #   51 [bench] e2e=  360.9ms  infer=  357.1ms  cap=  3.6ms
+[12:42:44] #   52 [bench] e2e=  358.3ms  infer=  355.5ms  cap=  2.6ms
+[12:42:45] #   53 [bench] e2e=  367.2ms  infer=  363.8ms  cap=  3.2ms
+[12:42:45] #   54 [bench] e2e=  361.2ms  infer=  358.4ms  cap=  2.7ms
+[12:42:45] #   55 [bench] e2e=  359.8ms  infer=  357.6ms  cap=  2.0ms
+[12:42:46] #   56 [bench] e2e=  367.6ms  infer=  364.8ms  cap=  2.6ms
+[12:42:46] #   57 [bench] e2e=  362.0ms  infer=  358.9ms  cap=  2.9ms
+[12:42:46] #   58 [bench] e2e=  359.7ms  infer=  356.6ms  cap=  3.0ms
+[12:42:47] #   59 [bench] e2e=  357.2ms  infer=  354.1ms  cap=  3.0ms
+[12:42:47] #   60 [bench] e2e=  365.7ms  infer=  362.1ms  cap=  3.4ms
+[12:42:47] #   61 [bench] e2e=  363.8ms  infer=  361.6ms  cap=  2.1ms
+[12:42:48] #   62 [bench] e2e=  362.4ms  infer=  359.8ms  cap=  2.4ms
+[12:42:48] #   63 [bench] e2e=  365.5ms  infer=  362.5ms  cap=  2.9ms
+[12:42:49] #   64 [bench] e2e=  362.9ms  infer=  359.5ms  cap=  3.2ms
+[12:42:49] #   65 [bench] e2e=  360.2ms  infer=  356.9ms  cap=  3.2ms
+
+  [live] after 60 bench steps — e2e mean=362.8ms  |  max replan freq=2.76 Hz  |  max control freq=137.83 Hz (n_action_steps=50)
+
+[12:42:49] #   66 [bench] e2e=  364.7ms  infer=  361.6ms  cap=  2.9ms
+[12:42:50] #   67 [bench] e2e=  371.5ms  infer=  368.4ms  cap=  2.9ms
+[12:42:50] #   68 [bench] e2e=  361.9ms  infer=  358.6ms  cap=  3.1ms
+[12:42:50] #   69 [bench] e2e=  372.7ms  infer=  369.9ms  cap=  2.6ms
+[12:42:51] #   70 [bench] e2e=  367.8ms  infer=  364.9ms  cap=  2.7ms
+[12:42:51] #   71 [bench] e2e=  366.0ms  infer=  362.9ms  cap=  2.9ms
+[12:42:51] #   72 [bench] e2e=  357.8ms  infer=  354.9ms  cap=  2.7ms
+[12:42:52] #   73 [bench] e2e=  364.8ms  infer=  360.8ms  cap=  3.9ms
+[12:42:52] #   74 [bench] e2e=  362.0ms  infer=  357.8ms  cap=  4.0ms
+[12:42:53] #   75 [bench] e2e=  360.9ms  infer=  357.5ms  cap=  3.2ms
+[12:42:53] #   76 [bench] e2e=  371.3ms  infer=  367.2ms  cap=  3.9ms
+[12:42:53] #   77 [bench] e2e=  360.7ms  infer=  358.3ms  cap=  2.2ms
+[12:42:54] #   78 [bench] e2e=  362.5ms  infer=  358.5ms  cap=  3.9ms
+[12:42:54] #   79 [bench] e2e=  369.5ms  infer=  366.8ms  cap=  2.5ms
+[12:42:54] #   80 [bench] e2e=  366.9ms  infer=  364.4ms  cap=  2.4ms
+[12:42:55] #   81 [bench] e2e=  361.3ms  infer=  357.4ms  cap=  3.6ms
+[12:42:55] #   82 [bench] e2e=  366.1ms  infer=  362.5ms  cap=  3.4ms
+[12:42:55] #   83 [bench] e2e=  363.4ms  infer=  360.4ms  cap=  2.9ms
+[12:42:56] #   84 [bench] e2e=  360.6ms  infer=  357.1ms  cap=  3.4ms
+[12:42:56] #   85 [bench] e2e=  366.4ms  infer=  362.9ms  cap=  3.3ms
+
+  [live] after 80 bench steps — e2e mean=363.3ms  |  max replan freq=2.75 Hz  |  max control freq=137.62 Hz (n_action_steps=50)
+
+[12:42:57] #   86 [bench] e2e=  363.2ms  infer=  359.7ms  cap=  3.3ms
+[12:42:57] #   87 [bench] e2e=  361.9ms  infer=  358.6ms  cap=  3.1ms
+[12:42:57] #   88 [bench] e2e=  361.0ms  infer=  358.2ms  cap=  2.6ms
+[12:42:58] #   89 [bench] e2e=  366.5ms  infer=  363.4ms  cap=  2.9ms
+[12:42:58] #   90 [bench] e2e=  362.8ms  infer=  359.5ms  cap=  3.1ms
+[12:42:58] #   91 [bench] e2e=  362.6ms  infer=  359.3ms  cap=  3.2ms
+[12:42:59] #   92 [bench] e2e=  364.7ms  infer=  361.9ms  cap=  2.6ms
+[12:42:59] #   93 [bench] e2e=  367.6ms  infer=  364.7ms  cap=  2.7ms
+[12:42:59] #   94 [bench] e2e=  361.8ms  infer=  358.0ms  cap=  3.6ms
+[12:43:00] #   95 [bench] e2e=  359.2ms  infer=  354.6ms  cap=  4.4ms
+[12:43:00] #   96 [bench] e2e=  366.0ms  infer=  362.9ms  cap=  2.9ms
+[12:43:01] #   97 [bench] e2e=  365.0ms  infer=  361.4ms  cap=  3.3ms
+[12:43:01] #   98 [bench] e2e=  361.2ms  infer=  358.1ms  cap=  3.0ms
+[12:43:01] #   99 [bench] e2e=  370.0ms  infer=  367.0ms  cap=  2.7ms
+[12:43:02] #  100 [bench] e2e=  370.3ms  infer=  367.8ms  cap=  2.3ms
+[12:43:02] #  101 [bench] e2e=  364.1ms  infer=  361.7ms  cap=  2.3ms
+[12:43:02] #  102 [bench] e2e=  368.7ms  infer=  366.3ms  cap=  2.3ms
+[12:43:03] #  103 [bench] e2e=  361.7ms  infer=  358.1ms  cap=  3.4ms
+[12:43:03] #  104 [bench] e2e=  360.7ms  infer=  357.6ms  cap=  2.9ms
+[12:43:03] #  105 [bench] e2e=  362.0ms  infer=  359.6ms  cap=  2.3ms
+
+  [live] after 100 bench steps — e2e mean=363.5ms  |  max replan freq=2.75 Hz  |  max control freq=137.57 Hz (n_action_steps=50)
+
+[12:43:04] #  106 [bench] e2e=  365.8ms  infer=  362.3ms  cap=  3.3ms
+[12:43:04] #  107 [bench] e2e=  360.3ms  infer=  357.8ms  cap=  2.3ms
+[12:43:05] #  108 [bench] e2e=  360.3ms  infer=  357.3ms  cap=  2.8ms
+[12:43:05] #  109 [bench] e2e=  365.7ms  infer=  362.6ms  cap=  2.9ms
+[12:43:05] #  110 [bench] e2e=  362.5ms  infer=  359.1ms  cap=  3.2ms
+[12:43:06] #  111 [bench] e2e=  359.7ms  infer=  357.1ms  cap=  2.4ms
+[12:43:06] #  112 [bench] e2e=  357.2ms  infer=  355.0ms  cap=  2.1ms
+[12:43:06] #  113 [bench] e2e=  365.4ms  infer=  363.0ms  cap=  2.2ms
+[12:43:07] #  114 [bench] e2e=  362.2ms  infer=  359.5ms  cap=  2.6ms
+[12:43:07] #  115 [bench] e2e=  366.6ms  infer=  363.8ms  cap=  2.6ms
+[12:43:07] #  116 [bench] e2e=  362.5ms  infer=  359.8ms  cap=  2.5ms
+[12:43:08] #  117 [bench] e2e=  369.3ms  infer=  366.2ms  cap=  3.0ms
+[12:43:08] #  118 [bench] e2e=  366.7ms  infer=  364.2ms  cap=  2.4ms
+[12:43:09] #  119 [bench] e2e=  372.2ms  infer=  369.2ms  cap=  2.7ms
+[12:43:09] #  120 [bench] e2e=  367.1ms  infer=  363.8ms  cap=  3.2ms
+[12:43:09] #  121 [bench] e2e=  364.3ms  infer=  361.2ms  cap=  3.0ms
+[12:43:10] #  122 [bench] e2e=  370.0ms  infer=  367.5ms  cap=  2.4ms
+[12:43:10] #  123 [bench] e2e=  363.4ms  infer=  359.9ms  cap=  3.2ms
+[12:43:10] #  124 [bench] e2e=  359.3ms  infer=  356.8ms  cap=  2.4ms
+[12:43:11] #  125 [bench] e2e=  366.2ms  infer=  363.7ms  cap=  2.3ms
+
+  [live] after 120 bench steps — e2e mean=363.6ms  |  max replan freq=2.75 Hz  |  max control freq=137.51 Hz (n_action_steps=50)
+
+[12:43:11] #  126 [bench] e2e=  362.1ms  infer=  359.6ms  cap=  2.4ms
+[12:43:11] #  127 [bench] e2e=  359.7ms  infer=  357.2ms  cap=  2.4ms
+[12:43:12] #  128 [bench] e2e=  371.1ms  infer=  367.5ms  cap=  3.4ms
+[12:43:12] #  129 [bench] e2e=  368.5ms  infer=  365.9ms  cap=  2.5ms
+[12:43:13] #  130 [bench] e2e=  359.5ms  infer=  356.3ms  cap=  3.0ms
+[12:43:13] #  131 [bench] e2e=  365.1ms  infer=  362.1ms  cap=  2.8ms
+[12:43:13] #  132 [bench] e2e=  362.7ms  infer=  360.6ms  cap=  2.0ms
+[12:43:14] #  133 [bench] e2e=  362.0ms  infer=  359.4ms  cap=  2.4ms
+[12:43:14] #  134 [bench] e2e=  359.9ms  infer=  356.8ms  cap=  2.9ms
+[12:43:14] #  135 [bench] e2e=  368.1ms  infer=  365.5ms  cap=  2.5ms
+[12:43:15] #  136 [bench] e2e=  364.2ms  infer=  361.3ms  cap=  2.8ms
+[12:43:15] #  137 [bench] e2e=  360.8ms  infer=  357.7ms  cap=  3.0ms
+[12:43:15] #  138 [bench] e2e=  363.6ms  infer=  360.9ms  cap=  2.5ms
+[12:43:16] #  139 [bench] e2e=  362.4ms  infer=  359.8ms  cap=  2.4ms
+[12:43:16] #  140 [bench] e2e=  358.9ms  infer=  356.4ms  cap=  2.4ms
+[12:43:17] #  141 [bench] e2e=  357.3ms  infer=  355.0ms  cap=  2.2ms
+[12:43:17] #  142 [bench] e2e=  366.0ms  infer=  362.3ms  cap=  3.6ms
+[12:43:17] #  143 [bench] e2e=  365.6ms  infer=  362.4ms  cap=  3.0ms
+[12:43:18] #  144 [bench] e2e=  363.5ms  infer=  360.9ms  cap=  2.5ms
+[12:43:18] #  145 [bench] e2e=  359.9ms  infer=  356.8ms  cap=  2.9ms
+
+  [live] after 140 bench steps — e2e mean=363.5ms  |  max replan freq=2.75 Hz  |  max control freq=137.54 Hz (n_action_steps=50)
+
+[12:43:18] #  146 [bench] e2e=  366.6ms  infer=  363.4ms  cap=  3.0ms
+[12:43:19] #  147 [bench] e2e=  357.7ms  infer=  354.1ms  cap=  3.4ms
+[12:43:19] #  148 [bench] e2e=  366.5ms  infer=  363.9ms  cap=  2.5ms
+[12:43:19] #  149 [bench] e2e=  360.9ms  infer=  358.2ms  cap=  2.6ms
+[12:43:20] #  150 [bench] e2e=  358.8ms  infer=  356.3ms  cap=  2.4ms
+[12:43:20] #  151 [bench] e2e=  365.1ms  infer=  362.2ms  cap=  2.7ms
+[12:43:21] #  152 [bench] e2e=  363.0ms  infer=  360.3ms  cap=  2.6ms
+[12:43:21] #  153 [bench] e2e=  359.6ms  infer=  356.7ms  cap=  2.7ms
+[12:43:21] #  154 [bench] e2e=  360.1ms  infer=  357.4ms  cap=  2.6ms
+[12:43:22] #  155 [bench] e2e=  357.4ms  infer=  354.6ms  cap=  2.6ms
+[12:43:22] #  156 [bench] e2e=  359.7ms  infer=  356.8ms  cap=  2.8ms
+[12:43:22] #  157 [bench] e2e=  364.3ms  infer=  361.4ms  cap=  2.8ms
+[12:43:23] #  158 [bench] e2e=  362.8ms  infer=  359.4ms  cap=  3.2ms
+[12:43:23] #  159 [bench] e2e=  358.4ms  infer=  355.9ms  cap=  2.4ms
+[12:43:23] #  160 [bench] e2e=  368.7ms  infer=  365.5ms  cap=  3.0ms
+[12:43:24] #  161 [bench] e2e=  370.3ms  infer=  367.7ms  cap=  2.4ms
+[12:43:24] #  162 [bench] e2e=  361.8ms  infer=  359.2ms  cap=  2.3ms
+[12:43:25] #  163 [bench] e2e=  371.9ms  infer=  369.6ms  cap=  2.2ms
+[12:43:25] #  164 [bench] e2e=  367.0ms  infer=  364.7ms  cap=  2.1ms
+[12:43:25] #  165 [bench] e2e=  375.8ms  infer=  373.2ms  cap=  2.4ms
+
+  [live] after 160 bench steps — e2e mean=363.6ms  |  max replan freq=2.75 Hz  |  max control freq=137.53 Hz (n_action_steps=50)
+
+[12:43:26] #  166 [bench] e2e=  366.3ms  infer=  364.2ms  cap=  2.0ms
+[12:43:26] #  167 [bench] e2e=  363.6ms  infer=  361.8ms  cap=  1.7ms
+[12:43:26] #  168 [bench] e2e=  372.5ms  infer=  370.0ms  cap=  2.3ms
+[12:43:27] #  169 [bench] e2e=  367.2ms  infer=  364.9ms  cap=  2.1ms
+[12:43:27] #  170 [bench] e2e=  367.3ms  infer=  364.4ms  cap=  2.7ms
+
+============================================================
+  SmolVLA-base inference benchmark — final report
+  model  : rlodhi/smolvla_screw_picking_5000
+  device : cuda
+  num_steps: 2
+  task   : pick up the object and place it in the box
+============================================================
+  wall time      : 62.5s
+  warmup steps   : 5
+  benchmark steps: 165
+
+  capture + preprocess:
+    n      = 165
+    mean   = 2.80 ms
+    median = 2.77 ms
+    std    = 0.46 ms
+    min    = 1.68 ms
+    p90    = 3.39 ms
+    p95    = 3.59 ms
+    p99    = 3.94 ms
+    max    = 4.37 ms
+
+  batch construction:
+    n      = 165
+    mean   = 0.17 ms
+    median = 0.16 ms
+    std    = 0.03 ms
+    min    = 0.14 ms
+    p90    = 0.19 ms
+    p95    = 0.25 ms
+    p99    = 0.25 ms
+    max    = 0.27 ms
+
+  model forward (select_action):
+    n      = 165
+    mean   = 360.71 ms
+    median = 360.49 ms
+    std    = 3.82 ms
+    min    = 354.07 ms
+    p90    = 366.06 ms
+    p95    = 367.67 ms
+    p99    = 369.96 ms
+    max    = 373.23 ms
+
+  end-to-end (capture → action):
+    n      = 165
+    mean   = 363.68 ms
+    median = 363.35 ms
+    std    = 3.76 ms
+    min    = 357.21 ms
+    p90    = 368.74 ms
+    p95    = 370.53 ms
+    p99    = 372.54 ms
+    max    = 375.79 ms
+
+  chunk_size     : 50
+  n_action_steps : 50
+
+  >> max replan frequency : 2.750 Hz  (1 / e2e latency)
+  >> max control frequency: 137.484 Hz  (replan_hz × n_action_steps)
+============================================================
+  wrote /home/xle/xlerobot-pro/results/A2/C2_stage1/steps2_rep2.json

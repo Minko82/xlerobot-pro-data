@@ -1,0 +1,10 @@
+timestamp_utc: 2026-08-01T16:14:49Z
+uptime: up 6 minutes
+gpu_temp_c: 50.0
+cpu_temp_c: 49.3
+nvpmodel: pmode:0002
+gpu_cur_mhz: 306
+gpu_max_mhz: 1020
+battery_pct: 100
+torque_state: all 17 motors verified FREE (left arm, right arm, head, wheels)
+note: started from a COLD BOOT (uptime ~2 min) unlike run_2 which began at 49.8 C

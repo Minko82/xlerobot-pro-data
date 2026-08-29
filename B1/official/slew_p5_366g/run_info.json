@@ -1,0 +1,19 @@
+{
+  "started": "2026-08-05T21:20:11.005758+00:00",
+  "test": "B1 arm slew with payload",
+  "mass_g": 366.0,
+  "object": "500 ml water bottle",
+  "battery_pct_start": 100.0,
+  "ambient_c": 24.4,
+  "sweep_joints": [
+    "right_shoulder_pan",
+    "right_elbow_flex"
+  ],
+  "amplitude": 200,
+  "lift_amplitude": 150,
+  "period_s": 5.0,
+  "cycles": 5,
+  "torque_limit": 450,
+  "xlerobot_pro_commit": "f4956bf",
+  "note": ""
+}

@@ -1,0 +1,70 @@
+Logging 'active-idle' for 60 min into /home/xle/xlerobot-pro/results/A2/active_idle/run_2/log/active-idle_20260801-222017
+Type 'bat 87', 'seat 41.2', or 'note ...' then ENTER to annotate. Ctrl-C to stop.
+
+    1.0 min | GPU 50.625 C | 5.4 W | peak GPU 51.187 C
+    2.0 min | GPU 50.656 C | 5.4 W | peak GPU 51.187 C
+    3.0 min | GPU 50.5 C | 5.4 W | peak GPU 51.187 C
+    4.0 min | GPU 50.75 C | 5.4 W | peak GPU 51.187 C
+    5.0 min | GPU 50.375 C | 5.4 W | peak GPU 51.187 C
+    6.0 min | GPU 50.593 C | 5.4 W | peak GPU 51.187 C
+    7.0 min | GPU 50.718 C | 5.4 W | peak GPU 51.187 C
+    8.0 min | GPU 50.406 C | 5.4 W | peak GPU 51.187 C
+    9.1 min | GPU 50.218 C | 5.4 W | peak GPU 51.187 C
+   10.1 min | GPU 50.25 C | 5.4 W | peak GPU 51.187 C
+   11.1 min | GPU 50.75 C | 5.4 W | peak GPU 51.187 C
+   12.1 min | GPU 50.187 C | 5.4 W | peak GPU 51.187 C
+   13.1 min | GPU 50.281 C | 5.4 W | peak GPU 51.187 C
+   14.1 min | GPU 50.437 C | 5.4 W | peak GPU 51.187 C
+   15.1 min | GPU 50.687 C | 5.4 W | peak GPU 51.187 C
+   16.1 min | GPU 50.375 C | 5.4 W | peak GPU 51.187 C
+   17.1 min | GPU 50.562 C | 5.4 W | peak GPU 51.187 C
+   18.1 min | GPU 50.343 C | 5.4 W | peak GPU 51.187 C
+   19.1 min | GPU 50.593 C | 5.4 W | peak GPU 51.187 C
+   20.1 min | GPU 50.75 C | 5.4 W | peak GPU 51.187 C
+   21.1 min | GPU 50.687 C | 5.4 W | peak GPU 51.187 C
+   22.1 min | GPU 50.468 C | 5.4 W | peak GPU 51.187 C
+   23.1 min | GPU 50 C | 5.4 W | peak GPU 51.187 C
+   24.1 min | GPU 49.937 C | 5.4 W | peak GPU 51.187 C
+   25.1 min | GPU 49.906 C | 5.4 W | peak GPU 51.187 C
+   26.2 min | GPU 49.75 C | 5.4 W | peak GPU 51.187 C
+   27.2 min | GPU 49.843 C | 5.4 W | peak GPU 51.187 C
+   28.2 min | GPU 49.437 C | 5.4 W | peak GPU 51.187 C
+   29.2 min | GPU 49.75 C | 5.4 W | peak GPU 51.187 C
+   30.2 min | GPU 49.375 C | 5.4 W | peak GPU 51.187 C
+   31.2 min | GPU 49.312 C | 5.4 W | peak GPU 51.187 C
+   32.2 min | GPU 49.406 C | 5.4 W | peak GPU 51.187 C
+   33.2 min | GPU 49.531 C | 5.4 W | peak GPU 51.187 C
+   34.2 min | GPU 49.25 C | 5.4 W | peak GPU 51.187 C
+   35.2 min | GPU 49.156 C | 5.4 W | peak GPU 51.187 C
+   36.2 min | GPU 49.031 C | 5.4 W | peak GPU 51.187 C
+   37.2 min | GPU 49.25 C | 5.4 W | peak GPU 51.187 C
+   38.2 min | GPU 48.968 C | 5.4 W | peak GPU 51.187 C
+   39.2 min | GPU 49.281 C | 5.4 W | peak GPU 51.187 C
+   40.2 min | GPU 49 C | 5.4 W | peak GPU 51.187 C
+   41.2 min | GPU 49.125 C | 5.4 W | peak GPU 51.187 C
+   42.2 min | GPU 49.156 C | 5.4 W | peak GPU 51.187 C
+   43.2 min | GPU 49.062 C | 5.4 W | peak GPU 51.187 C
+   44.3 min | GPU 49.5 C | 5.4 W | peak GPU 51.187 C
+   45.3 min | GPU 49.093 C | 5.4 W | peak GPU 51.187 C
+   46.3 min | GPU 49.187 C | 5.4 W | peak GPU 51.187 C
+   47.3 min | GPU 49.312 C | 5.4 W | peak GPU 51.187 C
+   48.3 min | GPU 49.218 C | 5.4 W | peak GPU 51.187 C
+   49.3 min | GPU 49.312 C | 5.4 W | peak GPU 51.187 C
+   50.3 min | GPU 49.156 C | 5.4 W | peak GPU 51.187 C
+   51.3 min | GPU 49.562 C | 5.4 W | peak GPU 51.187 C
+   52.3 min | GPU 49.343 C | 5.4 W | peak GPU 51.187 C
+   53.3 min | GPU 49.968 C | 5.4 W | peak GPU 51.187 C
+   54.3 min | GPU 49.875 C | 5.4 W | peak GPU 51.187 C
+   55.3 min | GPU 49.843 C | 5.4 W | peak GPU 51.187 C
+   56.3 min | GPU 50.187 C | 5.4 W | peak GPU 51.187 C
+   57.3 min | GPU 50 C | 5.4 W | peak GPU 51.187 C
+   58.3 min | GPU 50.468 C | 5.4 W | peak GPU 51.187 C
+   59.3 min | GPU 50.312 C | 5.4 W | peak GPU 51.187 C
+
+============================================================
+phase           active-idle
+samples         3579
+max GPU temp    51.187 C   <- A2 results table
+peak VDD_IN     5.8 W
+data            /home/xle/xlerobot-pro/results/A2/active_idle/run_2/log/active-idle_20260801-222017
+============================================================

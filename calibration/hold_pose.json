@@ -1,0 +1,16 @@
+{
+  "arms": {
+    "left_shoulder_pan": 1857,
+    "left_shoulder_lift": 2389,
+    "left_elbow_flex": 1629,
+    "left_wrist_flex": 2169,
+    "left_wrist_roll": 1989,
+    "left_gripper": 2014,
+    "right_shoulder_pan": 1974,
+    "right_shoulder_lift": 2049,
+    "right_elbow_flex": 2097,
+    "right_wrist_flex": 1976,
+    "right_wrist_roll": 2114,
+    "right_gripper": 2459
+  }
+}

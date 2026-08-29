@@ -1,0 +1,20 @@
+{
+  "model": "rlodhi/smolvla_screw_picking_5000",
+  "device": "cuda",
+  "num_steps": 10,
+  "chunk": 50,
+  "n_action_steps": 50,
+  "compile_requested": false,
+  "compiled": false,
+  "warmup_steps": 5,
+  "bench_steps": 66,
+  "wall_s": 65.99,
+  "e2e_mean_ms": 922.1107204848385,
+  "e2e_median_ms": 921.9528374997026,
+  "e2e_p90_ms": 923.415809999824,
+  "infer_median_ms": 920.564751499569,
+  "capture_median_ms": 1.253009500032931,
+  "replan_hz": 1.0844684675981295,
+  "control_hz": 54.22342337990648,
+  "gpu_temp_start_c": 60.031
+}

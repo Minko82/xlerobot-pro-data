@@ -1,0 +1,81 @@
+=== steps10_chunk5 ===
+  [12:57:23] chunk_size=5, n_action_steps=5, num_steps=10
+    [live] after 20 bench steps — e2e mean=996.4ms  |  max replan freq=1.00 Hz  |  max control freq=5.02 Hz (n_action_steps=5)
+    [live] after 40 bench steps — e2e mean=997.7ms  |  max replan freq=1.00 Hz  |  max control freq=5.01 Hz (n_action_steps=5)
+    num_steps: 10
+      median = 2.62 ms
+      median = 0.16 ms
+      median = 994.27 ms
+      median = 997.05 ms
+    >> max replan frequency : 1.002 Hz  (1 / e2e latency)
+    >> max control frequency: 5.011 Hz  (replan_hz × n_action_steps)
+=== steps5_chunk5 ===
+  [12:59:06] chunk_size=5, n_action_steps=5, num_steps=5
+    [live] after 20 bench steps — e2e mean=607.0ms  |  max replan freq=1.65 Hz  |  max control freq=8.24 Hz (n_action_steps=5)
+    [live] after 40 bench steps — e2e mean=607.8ms  |  max replan freq=1.65 Hz  |  max control freq=8.23 Hz (n_action_steps=5)
+    [live] after 60 bench steps — e2e mean=607.7ms  |  max replan freq=1.65 Hz  |  max control freq=8.23 Hz (n_action_steps=5)
+    [live] after 80 bench steps — e2e mean=608.2ms  |  max replan freq=1.64 Hz  |  max control freq=8.22 Hz (n_action_steps=5)
+    num_steps: 5
+      median = 2.70 ms
+      median = 0.16 ms
+      median = 605.87 ms
+      median = 608.63 ms
+    >> max replan frequency : 1.644 Hz  (1 / e2e latency)
+    >> max control frequency: 8.222 Hz  (replan_hz × n_action_steps)
+=== steps3_chunk5 ===
+  [13:00:49] chunk_size=5, n_action_steps=5, num_steps=3
+    [live] after 20 bench steps — e2e mean=444.5ms  |  max replan freq=2.25 Hz  |  max control freq=11.25 Hz (n_action_steps=5)
+    [live] after 40 bench steps — e2e mean=445.2ms  |  max replan freq=2.25 Hz  |  max control freq=11.23 Hz (n_action_steps=5)
+    [live] after 60 bench steps — e2e mean=446.3ms  |  max replan freq=2.24 Hz  |  max control freq=11.20 Hz (n_action_steps=5)
+    [live] after 80 bench steps — e2e mean=446.1ms  |  max replan freq=2.24 Hz  |  max control freq=11.21 Hz (n_action_steps=5)
+    [live] after 100 bench steps — e2e mean=446.3ms  |  max replan freq=2.24 Hz  |  max control freq=11.20 Hz (n_action_steps=5)
+    [live] after 120 bench steps — e2e mean=446.0ms  |  max replan freq=2.24 Hz  |  max control freq=11.21 Hz (n_action_steps=5)
+    num_steps: 3
+      median = 2.78 ms
+      median = 0.16 ms
+      median = 443.73 ms
+      median = 446.62 ms
+    >> max replan frequency : 2.243 Hz  (1 / e2e latency)
+    >> max control frequency: 11.213 Hz  (replan_hz × n_action_steps)
+=== steps2_chunk5 ===
+  [13:02:32] chunk_size=5, n_action_steps=5, num_steps=2
+    [live] after 20 bench steps — e2e mean=358.8ms  |  max replan freq=2.79 Hz  |  max control freq=13.93 Hz (n_action_steps=5)
+    [live] after 40 bench steps — e2e mean=358.4ms  |  max replan freq=2.79 Hz  |  max control freq=13.95 Hz (n_action_steps=5)
+    [live] after 60 bench steps — e2e mean=357.6ms  |  max replan freq=2.80 Hz  |  max control freq=13.98 Hz (n_action_steps=5)
+    [live] after 80 bench steps — e2e mean=357.3ms  |  max replan freq=2.80 Hz  |  max control freq=13.99 Hz (n_action_steps=5)
+    [live] after 100 bench steps — e2e mean=357.4ms  |  max replan freq=2.80 Hz  |  max control freq=13.99 Hz (n_action_steps=5)
+    [live] after 120 bench steps — e2e mean=357.1ms  |  max replan freq=2.80 Hz  |  max control freq=14.00 Hz (n_action_steps=5)
+    [live] after 140 bench steps — e2e mean=356.7ms  |  max replan freq=2.80 Hz  |  max control freq=14.02 Hz (n_action_steps=5)
+    [live] after 160 bench steps — e2e mean=356.5ms  |  max replan freq=2.80 Hz  |  max control freq=14.02 Hz (n_action_steps=5)
+    num_steps: 2
+      median = 2.62 ms
+      median = 0.15 ms
+      median = 352.93 ms
+      median = 355.85 ms
+    >> max replan frequency : 2.805 Hz  (1 / e2e latency)
+    >> max control frequency: 14.023 Hz  (replan_hz × n_action_steps)
+=== steps10_chunk10 ===
+  [13:04:14] chunk_size=10, n_action_steps=10, num_steps=10
+    [live] after 20 bench steps — e2e mean=987.5ms  |  max replan freq=1.01 Hz  |  max control freq=10.13 Hz (n_action_steps=10)
+    [live] after 40 bench steps — e2e mean=986.8ms  |  max replan freq=1.01 Hz  |  max control freq=10.13 Hz (n_action_steps=10)
+    num_steps: 10
+      median = 2.72 ms
+      median = 0.16 ms
+      median = 986.32 ms
+      median = 988.86 ms
+    >> max replan frequency : 1.013 Hz  (1 / e2e latency)
+    >> max control frequency: 10.135 Hz  (replan_hz × n_action_steps)
+=== steps5_chunk10 ===
+  [13:05:57] chunk_size=10, n_action_steps=10, num_steps=5
+    [live] after 20 bench steps — e2e mean=613.0ms  |  max replan freq=1.63 Hz  |  max control freq=16.31 Hz (n_action_steps=10)
+    [live] after 40 bench steps — e2e mean=612.5ms  |  max replan freq=1.63 Hz  |  max control freq=16.33 Hz (n_action_steps=10)
+    [live] after 60 bench steps — e2e mean=614.3ms  |  max replan freq=1.63 Hz  |  max control freq=16.28 Hz (n_action_steps=10)
+    [live] after 80 bench steps — e2e mean=614.1ms  |  max replan freq=1.63 Hz  |  max control freq=16.28 Hz (n_action_steps=10)
+    num_steps: 5
+      median = 2.74 ms
+      median = 0.16 ms
+      median = 608.83 ms
+      median = 611.88 ms
+    >> max replan frequency : 1.630 Hz  (1 / e2e latency)
+    >> max control frequency: 16.298 Hz  (replan_hz × n_action_steps)
+SWEEP COMPLETE

@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+Icon?
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Scratch
+*.tmp
+tmp*/

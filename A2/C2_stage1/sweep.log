@@ -1,0 +1,51 @@
+=== C2 Stage 1 started 2026-08-04T12:23:02-04:00 ===
+[1/24] base_s10_c50 rep1  (steps=10 chunk=50 clocks=dvfs compile=0 gpu=52C)
+     e2e median 971.8 ms | replan 1.03 Hz | control 51.3 Hz | compiled=False | n=62
+[2/24] base_s10_c50 rep2  (steps=10 chunk=50 clocks=dvfs compile=0 gpu=55.781C)
+     e2e median 964.6 ms | replan 1.03 Hz | control 51.6 Hz | compiled=False | n=62
+[3/24] base_s10_c50 rep3  (steps=10 chunk=50 clocks=dvfs compile=0 gpu=56.531C)
+     e2e median 1027.7 ms | replan 0.97 Hz | control 48.6 Hz | compiled=False | n=59
+[4/24] steps5 rep1  (steps=5 chunk=50 clocks=dvfs compile=0 gpu=57.031C)
+     e2e median 606.3 ms | replan 1.65 Hz | control 82.7 Hz | compiled=False | n=100
+[5/24] steps5 rep2  (steps=5 chunk=50 clocks=dvfs compile=0 gpu=58C)
+     e2e median 610.9 ms | replan 1.64 Hz | control 81.8 Hz | compiled=False | n=99
+[6/24] steps5 rep3  (steps=5 chunk=50 clocks=dvfs compile=0 gpu=58.25C)
+     e2e median 635.7 ms | replan 1.58 Hz | control 78.8 Hz | compiled=False | n=95
+[7/24] steps3 rep1  (steps=3 chunk=50 clocks=dvfs compile=0 gpu=57.812C)
+     e2e median 439.4 ms | replan 2.28 Hz | control 113.9 Hz | compiled=False | n=137
+[8/24] steps3 rep2  (steps=3 chunk=50 clocks=dvfs compile=0 gpu=58.656C)
+     e2e median 445.9 ms | replan 2.24 Hz | control 112.2 Hz | compiled=False | n=135
+[9/24] steps3 rep3  (steps=3 chunk=50 clocks=dvfs compile=0 gpu=59.312C)
+     e2e median 462.3 ms | replan 2.16 Hz | control 108.0 Hz | compiled=False | n=130
+[10/24] steps2 rep1  (steps=2 chunk=50 clocks=dvfs compile=0 gpu=58.968C)
+     e2e median 362.3 ms | replan 2.76 Hz | control 138.0 Hz | compiled=False | n=166
+[11/24] steps2 rep2  (steps=2 chunk=50 clocks=dvfs compile=0 gpu=59.625C)
+     e2e median 363.4 ms | replan 2.75 Hz | control 137.5 Hz | compiled=False | n=165
+[12/24] steps2 rep3  (steps=2 chunk=50 clocks=dvfs compile=0 gpu=59.812C)
+     e2e median 363.9 ms | replan 2.75 Hz | control 137.5 Hz | compiled=False | n=165
+[13/24] chunk5 rep1  (steps=10 chunk=5 clocks=dvfs compile=0 gpu=59.937C)
+     e2e median 995.2 ms | replan 1.00 Hz | control 5.0 Hz | compiled=False | n=60
+[14/24] chunk5 rep2  (steps=10 chunk=5 clocks=dvfs compile=0 gpu=57.968C)
+     e2e median 996.4 ms | replan 1.00 Hz | control 5.0 Hz | compiled=False | n=61
+[15/24] chunk5 rep3  (steps=10 chunk=5 clocks=dvfs compile=0 gpu=57.406C)
+     e2e median 995.7 ms | replan 1.00 Hz | control 5.0 Hz | compiled=False | n=61
+[16/24] chunk25 rep1  (steps=10 chunk=25 clocks=dvfs compile=0 gpu=57.156C)
+     e2e median 995.2 ms | replan 1.01 Hz | control 25.1 Hz | compiled=False | n=61
+[17/24] chunk25 rep2  (steps=10 chunk=25 clocks=dvfs compile=0 gpu=57.093C)
+     e2e median 992.9 ms | replan 1.01 Hz | control 25.2 Hz | compiled=False | n=61
+[18/24] chunk25 rep3  (steps=10 chunk=25 clocks=dvfs compile=0 gpu=57.031C)
+     e2e median 963.8 ms | replan 1.04 Hz | control 25.9 Hz | compiled=False | n=63
+[19/24] clocks_max rep1  (steps=10 chunk=50 clocks=jetson_clocks compile=0 gpu=57.812C)
+     e2e median 919.5 ms | replan 1.09 Hz | control 54.4 Hz | compiled=False | n=66
+[20/24] clocks_max rep2  (steps=10 chunk=50 clocks=jetson_clocks compile=0 gpu=59.656C)
+     e2e median 929.1 ms | replan 1.08 Hz | control 53.8 Hz | compiled=False | n=65
+[21/24] clocks_max rep3  (steps=10 chunk=50 clocks=jetson_clocks compile=0 gpu=60.031C)
+     e2e median 922.0 ms | replan 1.08 Hz | control 54.2 Hz | compiled=False | n=66
+[22/24] compile_on rep1  (steps=10 chunk=50 clocks=dvfs compile=1 gpu=59.781C)
+     e2e median 996.0 ms | replan 1.00 Hz | control 50.1 Hz | compiled=True | n=61
+[23/24] compile_on rep2  (steps=10 chunk=50 clocks=dvfs compile=1 gpu=58.125C)
+     e2e median 1046.5 ms | replan 0.96 Hz | control 47.8 Hz | compiled=True | n=58
+[24/24] compile_on rep3  (steps=10 chunk=50 clocks=dvfs compile=1 gpu=58.125C)
+     e2e median 997.5 ms | replan 1.00 Hz | control 50.1 Hz | compiled=True | n=61
+  [clocks] restoring DVFS
+=== C2 Stage 1 complete 2026-08-04T13:08:28-04:00 ===

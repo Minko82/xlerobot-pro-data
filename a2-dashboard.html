@@ -1,0 +1,930 @@
+<title>A2 Peak Inference — Jetson Orin Nano Super</title>
+<style>
+:root{
+  color-scheme:light;
+  --plane:#eff1f1; --surface:#fcfcfb; --sunk:#f5f6f5;
+  --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --hair:rgba(11,11,11,.11);
+  --gpu:#2a78d6; --cpu:#eb6834; --soc:#1baf7a;
+  --good:#0ca30c; --warn:#fab219; --crit:#d03b3b; --serious:#ec835a;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:where(:not([data-theme="light"])){
+    color-scheme:dark;
+    --plane:#0b0c0c; --surface:#1a1a19; --sunk:#141414;
+    --ink:#fff; --ink2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --axis:#383835; --hair:rgba(255,255,255,.11);
+    --gpu:#3987e5; --cpu:#d95926; --soc:#199e70;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --plane:#0b0c0c; --surface:#1a1a19; --sunk:#141414;
+  --ink:#fff; --ink2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --hair:rgba(255,255,255,.11);
+  --gpu:#3987e5; --cpu:#d95926; --soc:#199e70;
+}
+
+*{box-sizing:border-box}
+body{background:var(--plane);color:var(--ink);font-family:var(--sans);
+  -webkit-font-smoothing:antialiased;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px 72px}
+
+/* ---------- masthead ---------- */
+.mast{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end;justify-content:space-between;
+  padding:34px 0 20px;border-bottom:2px solid var(--ink)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 8px}
+.mast h1{margin:0;font-size:clamp(25px,3.4vw,36px);line-height:1.12;font-weight:650;
+  letter-spacing:-.02em;text-wrap:balance;max-width:15ch}
+.mast-meta{font-family:var(--mono);font-size:11.5px;color:var(--ink2);text-align:right;
+  line-height:1.85;letter-spacing:.01em}
+.mast-meta b{font-weight:600;color:var(--ink)}
+.chip{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;
+  letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border:1px solid var(--hair);
+  background:var(--surface);color:var(--ink);font-weight:600}
+.chip::before{content:"";width:8px;height:8px;background:var(--good);flex:none}
+.chip.is-note::before{background:var(--warn)}
+.chip.is-bad::before{background:var(--crit)}
+
+/* ---------- sections ---------- */
+section{padding-top:44px}
+.sec-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
+  border-bottom:1px solid var(--hair);padding-bottom:9px;margin-bottom:20px}
+.sec-head h2{margin:0;font-size:17px;font-weight:640;letter-spacing:-.01em}
+.sec-head .n{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em}
+.sec-head p{margin:0;font-size:13px;color:var(--ink2);flex:1 1 260px;min-width:0}
+
+/* ---------- hero ---------- */
+.hero{display:grid;grid-template-columns:minmax(210px,.9fr) 2fr;gap:0;
+  border:1px solid var(--hair);background:var(--surface);margin-top:26px}
+.hero-fig{padding:24px 26px;border-right:1px solid var(--hair);display:flex;
+  flex-direction:column;justify-content:center}
+.hero-fig .lab{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--muted)}
+.hero-fig .val{font-size:clamp(46px,6.4vw,68px);font-weight:640;letter-spacing:-.035em;
+  line-height:1;margin:12px 0 6px}
+.hero-fig .val i{font-style:normal;font-size:.42em;font-weight:520;color:var(--ink2);
+  letter-spacing:-.01em;margin-left:3px}
+.hero-fig .sub{font-size:12.5px;color:var(--ink2);line-height:1.45}
+.hero-meter{padding:22px 26px 18px;min-width:0}
+
+/* ---------- tiles ---------- */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));
+  border:1px solid var(--hair);border-bottom:0;background:var(--hair);gap:1px;margin-top:1px}
+.tile{background:var(--surface);padding:15px 17px 16px}
+.tile .lab{font-family:var(--mono);font-size:10px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--muted);display:block;margin-bottom:9px}
+.tile .val{font-size:25px;font-weight:620;letter-spacing:-.025em;line-height:1}
+.tile .val i{font-style:normal;font-size:.5em;font-weight:520;color:var(--ink2);margin-left:2px;
+  letter-spacing:0}
+.tile .note{font-size:11.5px;color:var(--ink2);margin-top:7px;line-height:1.4}
+.tile.wide{grid-column:span 2}
+@media (max-width:560px){.tile.wide{grid-column:span 1}}
+
+/* ---------- panels ---------- */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid-a{display:grid;grid-template-columns:1.45fr 1fr;gap:18px}
+@media (max-width:860px){.grid2,.grid-a{grid-template-columns:1fr}.hero{grid-template-columns:1fr}
+  .hero-fig{border-right:0;border-bottom:1px solid var(--hair)}}
+.panel{border:1px solid var(--hair);background:var(--surface);padding:16px 18px 14px;
+  position:relative;min-width:0}
+.panel h3{margin:0 0 3px;font-size:13.5px;font-weight:620;letter-spacing:-.005em}
+.panel .cap{margin:0 0 12px;font-size:12px;color:var(--ink2);line-height:1.45;max-width:66ch}
+.plot{position:relative}
+.plot svg{display:block;width:100%;height:auto;touch-action:pan-y}
+
+/* legend */
+.legend{display:flex;flex-wrap:wrap;gap:5px 16px;margin:0 0 11px;padding:0;list-style:none}
+.legend li{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink2)}
+.legend .k{width:14px;height:3px;flex:none;border-radius:1px}
+.legend .k.dot{width:9px;height:9px;border-radius:50%}
+.legend .k.dash{background:none;border-top:2px dashed var(--muted);height:0}
+
+/* tooltip */
+.tip{position:absolute;pointer-events:none;opacity:0;transition:opacity .09s;z-index:5;
+  background:var(--surface);border:1px solid var(--hair);box-shadow:0 3px 14px rgba(0,0,0,.13);
+  padding:8px 10px;font-family:var(--mono);font-size:11px;line-height:1.65;white-space:nowrap;
+  color:var(--ink)}
+.tip .th{font-weight:650;letter-spacing:.04em;color:var(--muted);text-transform:uppercase;
+  font-size:9.5px;display:block;margin-bottom:4px}
+.tip .r{display:flex;align-items:center;gap:7px;justify-content:space-between}
+.tip .r .k{width:8px;height:8px;flex:none}
+.tip .r b{font-weight:620;font-variant-numeric:tabular-nums}
+.tip .r span{color:var(--ink2)}
+
+/* data table relief */
+details{margin-top:11px;border-top:1px solid var(--hair);padding-top:9px}
+summary{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);cursor:pointer}
+summary:hover,summary:focus-visible{color:var(--ink)}
+.scroll{overflow-x:auto;max-height:270px;overflow-y:auto;margin-top:10px}
+table{border-collapse:collapse;font-family:var(--mono);font-size:11px;width:100%;
+  font-variant-numeric:tabular-nums}
+th,td{text-align:right;padding:4px 9px;border-bottom:1px solid var(--hair);white-space:nowrap}
+th{position:sticky;top:0;background:var(--surface);color:var(--muted);font-weight:600;
+  text-align:right;letter-spacing:.05em;font-size:10px;text-transform:uppercase}
+th:first-child,td:first-child{text-align:left}
+tbody tr:hover td{background:var(--sunk)}
+
+/* comparison table */
+.cmp{width:100%;font-size:12.5px}
+.cmp th,.cmp td{padding:9px 12px;border-bottom:1px solid var(--hair)}
+.cmp thead th{font-size:10.5px;vertical-align:bottom}
+.cmp tbody th{text-align:left;font-family:var(--sans);font-weight:520;color:var(--ink2);
+  font-size:12.5px;text-transform:none;letter-spacing:0;position:static;background:none}
+.cmp td{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.cmp .hi{color:var(--ink);font-weight:620}
+.cmp tr.rule td,.cmp tr.rule th{border-bottom-width:2px;border-bottom-color:var(--axis)}
+.flag{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;
+  padding:2px 6px;border:1px solid var(--hair);color:var(--ink2)}
+.flag.lost{color:var(--crit);border-color:var(--crit)}
+.flag.ok{color:var(--good);border-color:var(--good)}
+
+/* callout */
+.note-box{border:1px solid var(--hair);border-left:3px solid var(--warn);background:var(--surface);
+  padding:14px 17px;margin-top:18px;font-size:12.5px;color:var(--ink2);line-height:1.55}
+.note-box b{color:var(--ink);font-weight:620}
+.note-box.is-key{border-left-color:var(--gpu)}
+.note-box p{margin:0}
+.note-box p+p{margin-top:9px}
+
+footer{margin-top:52px;padding-top:20px;border-top:2px solid var(--ink);font-size:12px;
+  color:var(--ink2);line-height:1.6}
+footer h4{margin:0 0 8px;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted);font-weight:600}
+.foot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:24px}
+footer ul{margin:0;padding-left:17px}
+footer li{margin-bottom:5px}
+footer code{font-family:var(--mono);font-size:11px;color:var(--ink)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--gpu);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <div>
+    <p class="eyebrow">xlerobot-pro · A2 phase 2 · run 2</p>
+    <h1>Peak inference thermals &amp; power</h1>
+  </div>
+  <div class="mast-meta">
+    <span class="chip">No throttle</span><br>
+    <b>Jetson Orin Nano Super 8&nbsp;GB</b> · JetPack 6.2.1<br>
+    MAXN_SUPER · 12&nbsp;V untethered · ambient 24.4&nbsp;°C<br>
+    2026-08-01 · 1800&nbsp;s load, 2087&nbsp;s logged · n&nbsp;=&nbsp;1
+  </div>
+</header>
+
+<section id="verdict">
+  <div class="hero">
+    <div class="hero-fig">
+      <span class="lab">Peak GPU temperature</span>
+      <div class="val" id="h-peak">59.9<i>°C</i></div>
+      <p class="sub">Reached at 28.2&nbsp;min under continuous SmolVLA inference.
+        <b class="mono">+35.5&nbsp;°C</b> above ambient, and roughly
+        <b class="mono">25&nbsp;°C</b> below thermal-throttle onset.</p>
+    </div>
+    <div class="hero-meter">
+      <ul class="legend">
+        <li><span class="k" style="background:var(--gpu)"></span>Measured</li>
+        <li><span class="k dash"></span>Modelled / reference</li>
+      </ul>
+      <div class="plot"><div id="meter"></div></div>
+    </div>
+  </div>
+
+  <div class="tiles" id="tiles"></div>
+
+  <div class="note-box is-key">
+    <p><b>The binding constraint is not heat.</b> Across 30 minutes of sustained
+    load the GPU averaged <b class="mono">429&nbsp;MHz</b> against its
+    <b class="mono">1020&nbsp;MHz</b> ceiling and sat at that ceiling only
+    <b class="mono">5.5%</b> of samples, while a single CPU core ran at roughly
+    <b class="mono">92%</b>. The workload is single-thread CPU-bound. Thermal
+    headroom is abundant but idle — what limits the robot is the
+    <b class="mono">1.00&nbsp;Hz</b> replan rate.</p>
+  </div>
+</section>
+
+<section id="thermal">
+  <div class="sec-head">
+    <span class="n">01</span><h2>Thermal response</h2>
+    <p>Three on-die sensors at 1&nbsp;Hz. Ramp, steady state, and cooldown are all visible;
+       no downward step that would signal throttling.</p>
+  </div>
+  <div class="grid-a">
+    <div class="panel">
+      <h3>Die temperature over the run</h3>
+      <p class="cap">Shaded span is the 1800&nbsp;s inference window. Temperature axis is
+        truncated to the observed range — for absolute position against ambient and throttle
+        onset, see the headroom scale above.</p>
+      <ul class="legend">
+        <li><span class="k" style="background:var(--gpu)"></span>GPU</li>
+        <li><span class="k" style="background:var(--cpu)"></span>CPU</li>
+        <li><span class="k" style="background:var(--soc)"></span>SoC0</li>
+      </ul>
+      <div class="plot"><div id="c-temp"></div><div class="tip" id="t-temp"></div></div>
+      <details><summary>Data table — 60 s cadence</summary><div class="scroll" id="d-temp"></div></details>
+    </div>
+    <div class="panel">
+      <h3>Where the heat settles</h3>
+      <p class="cap">Mean over the inference window versus the idle floor measured in the
+        Phase&nbsp;1 active-idle run, both at 24.4&nbsp;°C ambient.</p>
+      <ul class="legend">
+        <li><span class="k" style="background:var(--gpu)"></span>Under inference</li>
+        <li><span class="k" style="background:var(--muted)"></span>Active idle</li>
+      </ul>
+      <div class="plot"><div id="c-delta"></div><div class="tip" id="t-delta"></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="power">
+  <div class="sec-head">
+    <span class="n">02</span><h2>Power and battery</h2>
+    <p>Board input rail and its two largest consumers, plus pack state of charge from the
+       Anker C300.</p>
+  </div>
+  <div class="grid-a">
+    <div class="panel">
+      <h3>Input power and major rails</h3>
+      <p class="cap">VDD_IN is total board draw. The CPU+GPU+CV rail carries the inference
+        work; SOC is largely fixed overhead. Load drops to the idle floor the moment the
+        benchmark ends.</p>
+      <ul class="legend">
+        <li><span class="k" style="background:var(--gpu)"></span>VDD_IN (total)</li>
+        <li><span class="k" style="background:var(--cpu)"></span>CPU+GPU+CV</li>
+        <li><span class="k" style="background:var(--soc)"></span>SOC</li>
+      </ul>
+      <div class="plot"><div id="c-pow"></div><div class="tip" id="t-pow"></div></div>
+      <details><summary>Data table — 60 s cadence</summary><div class="scroll" id="d-pow"></div></details>
+    </div>
+    <div class="panel">
+      <h3>Battery state of charge</h3>
+      <p class="cap">The C300 reports whole percent, so each step is a coarse event. The
+        span-based rate over the full 2264&nbsp;s is the defensible figure; per-interval
+        rates scatter from 6.7 to 15.4&nbsp;%/h.</p>
+      <div class="plot"><div id="c-bat"></div><div class="tip" id="t-bat"></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="clocks">
+  <div class="sec-head">
+    <span class="n">03</span><h2>Clocks and the real bottleneck</h2>
+    <p>The evidence that this workload never becomes GPU-bound — and the reason peak
+       temperature stays 25&nbsp;°C shy of onset.</p>
+  </div>
+  <div class="panel">
+    <h3>GPU core clock against its ceiling</h3>
+    <p class="cap">The achievable maximum held at 1020&nbsp;MHz for the entire run. A
+      throttling part shows the ceiling itself stepping down; this one never did — the
+      governor simply had no reason to stay up there.</p>
+    <ul class="legend">
+      <li><span class="k" style="background:var(--gpu)"></span>Core clock</li>
+      <li><span class="k dash"></span>Ceiling (1020 MHz)</li>
+    </ul>
+    <div class="plot"><div id="c-clk"></div><div class="tip" id="t-clk"></div></div>
+    <details><summary>Data table — 60 s cadence</summary><div class="scroll" id="d-clk"></div></details>
+  </div>
+  <div class="grid2" style="margin-top:18px">
+    <div class="panel">
+      <h3>Clock residency by DVFS step</h3>
+      <p class="cap">Share of all 2087 samples spent at each frequency step. The GPU is
+        parked at its 306&nbsp;MHz floor for nearly half the run.</p>
+      <div class="plot"><div id="c-res"></div><div class="tip" id="t-res"></div></div>
+      <details><summary>Data table</summary><div class="scroll" id="d-res"></div></details>
+    </div>
+    <div class="panel">
+      <h3>Utilisation: one core saturated, GPU coasting</h3>
+      <p class="cap">Means over the inference window. Effective GPU throughput is the busy
+        fraction scaled by the clock ratio — a derived first-order estimate, not a measured
+        counter.</p>
+      <ul class="legend">
+        <li><span class="k" style="background:var(--cpu)"></span>CPU</li>
+        <li><span class="k" style="background:var(--gpu)"></span>GPU</li>
+      </ul>
+      <div class="plot"><div id="c-bot"></div><div class="tip" id="t-bot"></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="latency">
+  <div class="sec-head">
+    <span class="n">04</span><h2>Inference latency</h2>
+    <p>1791 benchmarked forward passes of <span class="mono">smolvla_screw_picking_5000</span>
+       (fp16). Flat latency is the strongest single throttle check.</p>
+  </div>
+  <div class="grid-a">
+    <div class="panel">
+      <h3>Per-pass latency over 30 minutes</h3>
+      <p class="cap">Every 4th pass plotted, with a 30-pass rolling mean. A thermally
+        limited part drifts upward across a run of this length; the last 200 passes came in
+        1.5&nbsp;ms slower than the first 200, which is 0.15% — inside the noise.</p>
+      <ul class="legend">
+        <li><span class="k dot" style="background:var(--gpu);opacity:.42"></span>Single pass</li>
+        <li><span class="k" style="background:var(--gpu)"></span>Rolling mean (30)</li>
+        <li><span class="k dash"></span>First / last 200 mean</li>
+      </ul>
+      <div class="plot"><div id="c-lat"></div><div class="tip" id="t-lat"></div></div>
+    </div>
+    <div class="panel">
+      <h3>Latency distribution</h3>
+      <p class="cap">5&nbsp;ms bins over all 1791 passes. Tight and single-peaked; the p99 sits
+        just 39&nbsp;ms above the median.</p>
+      <div class="plot"><div id="c-hist"></div><div class="tip" id="t-hist"></div></div>
+      <details><summary>Percentile table</summary><div class="scroll" id="d-lat"></div></details>
+    </div>
+  </div>
+  <div class="note-box">
+    <p><b>What this rate means for control.</b> At a 1001.7&nbsp;ms end-to-end pass the policy
+    replans at <b class="mono">0.998&nbsp;Hz</b>. With <span class="mono">n_action_steps&nbsp;=&nbsp;5</span>
+    each plan is executed open-loop for five steps, so the ceiling on control rate is
+    <b class="mono">4.99&nbsp;Hz</b> — and every action after the first is executed against a
+    world observed up to a second ago.</p>
+  </div>
+</section>
+
+<section id="runs">
+  <div class="sec-head">
+    <span class="n">05</span><h2>All three runs</h2>
+    <p>Two earlier runs survive only as summaries — their raw time series were deleted before
+       it was decided to keep them, so nothing new can be derived from either.</p>
+  </div>
+  <div class="panel" style="padding:0">
+    <div class="scroll" style="max-height:none"><table class="cmp" id="cmp"></table></div>
+  </div>
+  <div class="note-box">
+    <p><b>On the locked arm.</b> Both run&nbsp;1 sessions had the right arm (IDs&nbsp;7–12)
+    torque-enabled and holding a raised pose, with the other motor groups inferred free rather
+    than verified. Every metric agrees with run&nbsp;2 — where all 17 motors were verified
+    torque-free — to within 2%, so a servo holding a static pose draws close to its standby
+    current and did not materially move these numbers.</p>
+    <p><b>Where this result stops being valid.</b> It holds at 24.4&nbsp;°C ambient. The same
+    +35.5&nbsp;°C rise starting from a 40&nbsp;°C environment lands near 76&nbsp;°C — close
+    enough to onset that the no-throttle verdict should not be carried over to a hot
+    deployment without re-measuring.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-grid">
+    <div>
+      <h4>Sources</h4>
+      <ul>
+        <li><code>samples.csv</code> — 2087 rows at 1&nbsp;Hz</li>
+        <li><code>bench.log</code> — 1791 benchmarked passes</li>
+        <li><code>annotations.csv</code> — SoC and ambient</li>
+        <li><code>RUN_INFO.md</code> — all three runs</li>
+      </ul>
+    </div>
+    <div>
+      <h4>Workload</h4>
+      <ul>
+        <li><code>rlodhi/smolvla_screw_picking_5000</code>, fp16</li>
+        <li>chunk 5 · n_action_steps 5 · num_steps 10</li>
+        <li>RealSense RGB <code>/dev/video2</code>, resize 512²</li>
+        <li>VLM reduced to 16 layers</li>
+      </ul>
+    </div>
+    <div>
+      <h4>Known gaps</h4>
+      <ul>
+        <li>Ambient is one spot reading; RH not measured</li>
+        <li>Whole-percent SoC is coarse — a clamp meter on the 12&nbsp;V rail would give
+            continuous draw</li>
+        <li>Throttle onset ~85&nbsp;°C is a reference value, not measured here</li>
+        <li>n&nbsp;=&nbsp;1 per condition</li>
+      </ul>
+    </div>
+  </div>
+</footer>
+</div>
+
+<script>const DATA={"stats":{"n_samples":2087,"duration_s":2099.6,"inf_start":60.5,"inf_end":1861.5,"gpu_min":49.781,"gpu_mean":57.19,"gpu_max":59.875,"cpu_max":58.687,"tj_max":59.875,"gpu_mean_inf":57.93,"w_mean":9.4,"w_peak":11.48,"w_mean_inf":10.0,"w_idle":5.46,"clk_min":306.0,"clk_mean":429,"clk_max":1020.0,"ceiling":1020.0,"at_ceiling":114,"at_ceiling_pct":5.5,"cpu_util_mean_inf":15.3,"cpu_util_max":29.5,"gpu_util_mean_inf":41.0,"ram_mean":3180,"ambient":24.4,"rise":35.5},"series":[{"t":1.0,"gpu":49.843,"cpu":49.015,"soc":49.406,"clk":306.0,"w":5.43,"w_cg":0.49,"w_soc":2.76,"cu":0.175,"gu":0.0,"ram":1838.0},{"t":5.0,"gpu":49.918,"cpu":49.006,"soc":49.425,"clk":306.0,"w":5.424,"w_cg":0.488,"w_soc":2.76,"cu":0.22,"gu":0.0,"ram":1838.0},{"t":10.1,"gpu":49.931,"cpu":49.025,"soc":49.406,"clk":306.0,"w":5.4,"w_cg":0.48,"w_soc":2.76,"cu":0.14,"gu":0.0,"ram":1838.0},{"t":15.1,"gpu":50.044,"cpu":49.012,"soc":49.425,"clk":306.0,"w":5.424,"w_cg":0.48,"w_soc":2.76,"cu":0.12,"gu":0.0,"ram":1838.0},{"t":20.1,"gpu":50.237,"cpu":49.8,"soc":49.5,"clk":306.0,"w":7.114,"w_cg":1.406,"w_soc":3.184,"cu":16.36,"gu":0.0,"ram":2029.6},{"t":25.2,"gpu":50.337,"cpu":50.025,"soc":49.787,"clk":306.0,"w":7.216,"w_cg":1.413,"w_soc":3.232,"cu":16.12,"gu":0.0,"ram":2206.2},{"t":30.2,"gpu":50.618,"cpu":50.206,"soc":49.862,"clk":306.0,"w":7.184,"w_cg":1.486,"w_soc":3.2,"cu":16.12,"gu":0.0,"ram":2538.2},{"t":35.2,"gpu":50.95,"cpu":50.331,"soc":50.05,"clk":306.0,"w":7.248,"w_cg":1.517,"w_soc":3.216,"cu":17.14,"gu":0.0,"ram":3190.2},{"t":40.2,"gpu":50.968,"cpu":50.381,"soc":50.162,"clk":306.0,"w":7.128,"w_cg":1.453,"w_soc":3.2,"cu":17.36,"gu":0.0,"ram":3230.0},{"t":45.3,"gpu":51.05,"cpu":50.512,"soc":50.256,"clk":306.0,"w":7.136,"w_cg":1.453,"w_soc":3.2,"cu":16.76,"gu":0.0,"ram":3235.0},{"t":50.3,"gpu":50.962,"cpu":50.393,"soc":50.375,"clk":306.0,"w":6.52,"w_cg":1.094,"w_soc":3.032,"cu":11.38,"gu":0.0,"ram":3291.2},{"t":55.3,"gpu":51.125,"cpu":50.681,"soc":50.474,"clk":306.0,"w":7.176,"w_cg":1.469,"w_soc":3.208,"cu":16.76,"gu":0.0,"ram":3339.0},{"t":60.4,"gpu":51.606,"cpu":50.881,"soc":50.637,"clk":326.4,"w":8.179,"w_cg":1.862,"w_soc":3.45,"cu":20.1,"gu":24.8,"ram":3222.8},{"t":65.4,"gpu":52.443,"cpu":51.531,"soc":51.0,"clk":510.0,"w":10.874,"w_cg":3.426,"w_soc":4.048,"cu":15.26,"gu":23.4,"ram":3373.0},{"t":70.4,"gpu":52.706,"cpu":51.962,"soc":51.431,"clk":469.2,"w":10.693,"w_cg":3.338,"w_soc":4.0,"cu":15.46,"gu":23.8,"ram":3373.0},{"t":75.5,"gpu":52.768,"cpu":52.281,"soc":51.681,"clk":408.0,"w":10.44,"w_cg":3.195,"w_soc":3.976,"cu":15.42,"gu":28.2,"ram":3373.0},{"t":80.5,"gpu":53.175,"cpu":52.362,"soc":51.987,"clk":408.0,"w":10.304,"w_cg":3.133,"w_soc":3.92,"cu":15.42,"gu":29.4,"ram":3373.0},{"t":85.5,"gpu":53.356,"cpu":52.75,"soc":52.318,"clk":408.0,"w":10.184,"w_cg":3.056,"w_soc":3.881,"cu":15.24,"gu":29.6,"ram":3373.0},{"t":90.5,"gpu":53.575,"cpu":53.175,"soc":52.549,"clk":408.0,"w":10.064,"w_cg":2.984,"w_soc":3.852,"cu":15.26,"gu":28.6,"ram":3373.0},{"t":95.6,"gpu":53.825,"cpu":53.45,"soc":52.831,"clk":408.0,"w":9.807,"w_cg":2.84,"w_soc":3.846,"cu":15.2,"gu":30.0,"ram":3373.0},{"t":100.6,"gpu":53.993,"cpu":53.637,"soc":53.037,"clk":408.0,"w":9.855,"w_cg":2.84,"w_soc":3.83,"cu":15.3,"gu":29.8,"ram":3373.0},{"t":105.6,"gpu":54.274,"cpu":53.843,"soc":53.175,"clk":408.0,"w":9.799,"w_cg":2.84,"w_soc":3.806,"cu":15.34,"gu":29.2,"ram":3373.0},{"t":110.7,"gpu":54.487,"cpu":53.956,"soc":53.4,"clk":408.0,"w":9.714,"w_cg":2.76,"w_soc":3.758,"cu":15.4,"gu":29.0,"ram":3373.0},{"t":115.7,"gpu":54.675,"cpu":54.212,"soc":53.606,"clk":346.8,"w":9.541,"w_cg":2.665,"w_soc":3.725,"cu":15.48,"gu":29.4,"ram":3373.0},{"t":120.7,"gpu":54.612,"cpu":54.243,"soc":53.768,"clk":306.0,"w":9.351,"w_cg":2.576,"w_soc":3.725,"cu":15.24,"gu":37.4,"ram":3373.0},{"t":125.7,"gpu":54.825,"cpu":54.506,"soc":53.9,"clk":306.0,"w":9.356,"w_cg":2.586,"w_soc":3.701,"cu":15.36,"gu":37.6,"ram":3373.0},{"t":130.8,"gpu":54.981,"cpu":54.656,"soc":54.112,"clk":306.0,"w":9.298,"w_cg":2.529,"w_soc":3.701,"cu":15.46,"gu":39.2,"ram":3373.0},{"t":135.8,"gpu":55.218,"cpu":54.787,"soc":54.231,"clk":306.0,"w":9.253,"w_cg":2.473,"w_soc":3.677,"cu":15.16,"gu":39.0,"ram":3373.0},{"t":140.8,"gpu":55.318,"cpu":54.762,"soc":54.394,"clk":306.0,"w":9.186,"w_cg":2.483,"w_soc":3.677,"cu":15.32,"gu":39.0,"ram":3373.0},{"t":145.9,"gpu":55.418,"cpu":54.812,"soc":54.55,"clk":306.0,"w":9.084,"w_cg":2.403,"w_soc":3.653,"cu":15.4,"gu":39.8,"ram":3373.0},{"t":150.9,"gpu":55.475,"cpu":55.287,"soc":54.65,"clk":306.0,"w":9.069,"w_cg":2.281,"w_soc":3.663,"cu":15.24,"gu":38.4,"ram":3373.0},{"t":155.9,"gpu":55.711,"cpu":55.156,"soc":54.766,"clk":306.0,"w":8.998,"w_cg":2.303,"w_soc":3.615,"cu":15.325,"gu":38.0,"ram":3373.75},{"t":160.0,"gpu":55.912,"cpu":55.293,"soc":54.937,"clk":306.0,"w":9.044,"w_cg":2.361,"w_soc":3.67,"cu":15.44,"gu":69.8,"ram":3374.0},{"t":165.0,"gpu":56.362,"cpu":55.331,"soc":55.049,"clk":632.4,"w":9.346,"w_cg":2.52,"w_soc":3.741,"cu":15.38,"gu":99.0,"ram":3374.0},{"t":170.0,"gpu":56.775,"cpu":55.5,"soc":55.169,"clk":714.0,"w":9.709,"w_cg":2.672,"w_soc":3.845,"cu":15.14,"gu":99.0,"ram":3374.0},{"t":175.0,"gpu":57.212,"cpu":55.768,"soc":55.25,"clk":1020.0,"w":10.678,"w_cg":3.282,"w_soc":4.04,"cu":15.36,"gu":94.2,"ram":3374.0},{"t":180.1,"gpu":57.468,"cpu":55.931,"soc":55.337,"clk":1020.0,"w":11.256,"w_cg":3.622,"w_soc":4.137,"cu":15.24,"gu":94.0,"ram":3374.0},{"t":185.1,"gpu":57.4,"cpu":55.893,"soc":55.437,"clk":1020.0,"w":10.626,"w_cg":3.274,"w_soc":4.048,"cu":15.24,"gu":94.6,"ram":3374.0},{"t":190.1,"gpu":57.662,"cpu":56.006,"soc":55.556,"clk":1020.0,"w":11.12,"w_cg":3.63,"w_soc":4.133,"cu":15.14,"gu":84.8,"ram":3374.0},{"t":195.2,"gpu":57.362,"cpu":56.156,"soc":55.612,"clk":816.0,"w":11.16,"w_cg":3.605,"w_soc":4.13,"cu":15.2,"gu":63.6,"ram":3374.0},{"t":200.2,"gpu":57.562,"cpu":56.187,"soc":55.719,"clk":938.4,"w":11.216,"w_cg":3.692,"w_soc":4.154,"cu":15.12,"gu":75.6,"ram":3374.0},{"t":205.2,"gpu":57.662,"cpu":56.287,"soc":55.775,"clk":775.2,"w":11.256,"w_cg":3.7,"w_soc":4.156,"cu":15.12,"gu":57.8,"ram":3374.0},{"t":210.2,"gpu":57.543,"cpu":56.675,"soc":55.893,"clk":673.2,"w":11.224,"w_cg":3.644,"w_soc":4.138,"cu":15.2,"gu":35.8,"ram":3374.0},{"t":215.3,"gpu":57.887,"cpu":56.387,"soc":55.918,"clk":775.2,"w":11.248,"w_cg":3.716,"w_soc":4.154,"cu":15.36,"gu":41.8,"ram":3374.0},{"t":220.3,"gpu":57.662,"cpu":56.393,"soc":55.95,"clk":693.6,"w":11.224,"w_cg":3.684,"w_soc":4.146,"cu":15.2,"gu":38.2,"ram":3374.0},{"t":225.3,"gpu":57.768,"cpu":56.412,"soc":55.974,"clk":856.8,"w":11.272,"w_cg":3.668,"w_soc":4.145,"cu":15.22,"gu":57.6,"ram":3374.0},{"t":230.4,"gpu":57.712,"cpu":56.381,"soc":55.968,"clk":816.0,"w":11.168,"w_cg":3.613,"w_soc":4.146,"cu":15.12,"gu":58.0,"ram":3374.2},{"t":235.4,"gpu":57.756,"cpu":56.831,"soc":55.994,"clk":612.0,"w":11.208,"w_cg":3.668,"w_soc":4.153,"cu":15.32,"gu":37.6,"ram":3375.0},{"t":240.4,"gpu":57.494,"cpu":56.824,"soc":56.018,"clk":591.6,"w":11.224,"w_cg":3.604,"w_soc":4.145,"cu":15.2,"gu":44.0,"ram":3375.0},{"t":245.4,"gpu":57.575,"cpu":56.781,"soc":55.987,"clk":612.0,"w":11.224,"w_cg":3.668,"w_soc":4.153,"cu":15.24,"gu":42.2,"ram":3374.2},{"t":250.5,"gpu":57.443,"cpu":56.694,"soc":56.093,"clk":591.6,"w":11.232,"w_cg":3.644,"w_soc":4.153,"cu":15.28,"gu":46.2,"ram":3374.0},{"t":255.5,"gpu":57.575,"cpu":56.568,"soc":56.068,"clk":530.4,"w":11.2,"w_cg":3.652,"w_soc":4.129,"cu":15.26,"gu":47.6,"ram":3374.0},{"t":260.5,"gpu":57.631,"cpu":56.6,"soc":56.1,"clk":571.2,"w":11.16,"w_cg":3.628,"w_soc":4.13,"cu":15.12,"gu":42.8,"ram":3374.0},{"t":265.6,"gpu":57.606,"cpu":56.744,"soc":56.106,"clk":652.8,"w":11.128,"w_cg":3.621,"w_soc":4.138,"cu":15.2,"gu":38.4,"ram":3374.0},{"t":270.6,"gpu":57.737,"cpu":56.599,"soc":56.125,"clk":693.6,"w":11.304,"w_cg":3.668,"w_soc":4.145,"cu":15.3,"gu":31.2,"ram":3375.0},{"t":275.6,"gpu":57.9,"cpu":56.525,"soc":56.162,"clk":836.4,"w":10.602,"w_cg":3.178,"w_soc":4.031,"cu":15.66,"gu":83.8,"ram":3380.6},{"t":280.6,"gpu":57.893,"cpu":56.468,"soc":56.156,"clk":775.2,"w":10.33,"w_cg":3.075,"w_soc":3.96,"cu":15.2,"gu":90.8,"ram":3382.0},{"t":285.7,"gpu":58.237,"cpu":56.656,"soc":56.199,"clk":1020.0,"w":10.755,"w_cg":3.353,"w_soc":4.055,"cu":15.18,"gu":94.8,"ram":3382.0},{"t":290.7,"gpu":58.162,"cpu":56.693,"soc":56.225,"clk":856.8,"w":11.208,"w_cg":3.605,"w_soc":4.129,"cu":15.34,"gu":69.0,"ram":3382.0},{"t":295.7,"gpu":57.781,"cpu":56.6,"soc":56.193,"clk":591.6,"w":11.28,"w_cg":3.7,"w_soc":4.153,"cu":15.24,"gu":42.0,"ram":3382.0},{"t":300.8,"gpu":57.624,"cpu":56.619,"soc":56.243,"clk":652.8,"w":11.176,"w_cg":3.573,"w_soc":4.146,"cu":15.18,"gu":41.6,"ram":3382.0},{"t":305.8,"gpu":57.656,"cpu":56.668,"soc":56.281,"clk":530.4,"w":11.16,"w_cg":3.612,"w_soc":4.121,"cu":15.24,"gu":34.6,"ram":3382.8},{"t":310.8,"gpu":57.531,"cpu":56.743,"soc":56.256,"clk":510.0,"w":10.944,"w_cg":3.485,"w_soc":4.092,"cu":15.34,"gu":23.8,"ram":3383.0},{"t":315.9,"gpu":57.625,"cpu":56.819,"soc":56.281,"clk":448.8,"w":10.755,"w_cg":3.313,"w_soc":4.031,"cu":14.98,"gu":25.0,"ram":3382.6},{"t":320.9,"gpu":57.406,"cpu":56.793,"soc":56.3,"clk":489.6,"w":10.8,"w_cg":3.418,"w_soc":4.04,"cu":15.24,"gu":23.4,"ram":3382.0},{"t":325.9,"gpu":57.35,"cpu":57.075,"soc":56.325,"clk":448.8,"w":10.704,"w_cg":3.346,"w_soc":4.015,"cu":15.28,"gu":22.8,"ram":3382.0},{"t":330.9,"gpu":57.578,"cpu":57.195,"soc":56.374,"clk":408.0,"w":10.64,"w_cg":3.304,"w_soc":3.99,"cu":15.45,"gu":24.75,"ram":3382.0},{"t":335.0,"gpu":57.424,"cpu":56.931,"soc":56.387,"clk":408.0,"w":10.52,"w_cg":3.25,"w_soc":3.976,"cu":15.42,"gu":28.8,"ram":3382.0},{"t":340.0,"gpu":57.481,"cpu":56.968,"soc":56.4,"clk":408.0,"w":10.381,"w_cg":3.123,"w_soc":3.944,"cu":15.36,"gu":28.4,"ram":3382.0},{"t":345.0,"gpu":57.5,"cpu":57.294,"soc":56.481,"clk":408.0,"w":10.141,"w_cg":3.059,"w_soc":3.896,"cu":15.32,"gu":29.6,"ram":3382.2},{"t":350.0,"gpu":57.425,"cpu":57.231,"soc":56.475,"clk":408.0,"w":10.064,"w_cg":2.955,"w_soc":3.888,"cu":15.24,"gu":28.4,"ram":3383.0},{"t":355.1,"gpu":57.362,"cpu":57.043,"soc":56.45,"clk":408.0,"w":10.12,"w_cg":3.004,"w_soc":3.872,"cu":15.3,"gu":28.2,"ram":3383.0},{"t":360.1,"gpu":57.637,"cpu":57.2,"soc":56.443,"clk":408.0,"w":10.032,"w_cg":2.933,"w_soc":3.856,"cu":15.32,"gu":29.2,"ram":3383.0},{"t":365.1,"gpu":57.581,"cpu":57.031,"soc":56.506,"clk":408.0,"w":9.943,"w_cg":2.875,"w_soc":3.865,"cu":15.4,"gu":29.6,"ram":3383.0},{"t":370.2,"gpu":57.518,"cpu":57.081,"soc":56.475,"clk":408.0,"w":9.791,"w_cg":2.854,"w_soc":3.844,"cu":15.22,"gu":29.0,"ram":3383.0},{"t":375.2,"gpu":57.531,"cpu":57.168,"soc":56.518,"clk":408.0,"w":9.775,"w_cg":2.8,"w_soc":3.812,"cu":15.26,"gu":28.8,"ram":3383.0},{"t":380.2,"gpu":57.45,"cpu":57.025,"soc":56.593,"clk":408.0,"w":9.775,"w_cg":2.8,"w_soc":3.813,"cu":15.28,"gu":29.0,"ram":3383.0},{"t":385.2,"gpu":57.643,"cpu":57.131,"soc":56.6,"clk":408.0,"w":9.743,"w_cg":2.752,"w_soc":3.797,"cu":15.22,"gu":29.6,"ram":3383.0},{"t":390.3,"gpu":57.656,"cpu":57.069,"soc":56.581,"clk":367.2,"w":9.647,"w_cg":2.72,"w_soc":3.79,"cu":15.4,"gu":28.2,"ram":3383.0},{"t":395.3,"gpu":57.537,"cpu":57.418,"soc":56.612,"clk":326.4,"w":9.559,"w_cg":2.664,"w_soc":3.774,"cu":15.26,"gu":29.0,"ram":3383.0},{"t":400.3,"gpu":57.506,"cpu":57.212,"soc":56.581,"clk":306.0,"w":9.567,"w_cg":2.656,"w_soc":3.757,"cu":15.3,"gu":32.8,"ram":3383.0},{"t":405.4,"gpu":57.625,"cpu":57.193,"soc":56.643,"clk":306.0,"w":9.431,"w_cg":2.608,"w_soc":3.741,"cu":15.28,"gu":38.2,"ram":3383.0},{"t":410.4,"gpu":57.506,"cpu":57.168,"soc":56.662,"clk":306.0,"w":9.399,"w_cg":2.584,"w_soc":3.733,"cu":15.22,"gu":37.8,"ram":3383.0},{"t":415.4,"gpu":57.612,"cpu":57.162,"soc":56.65,"clk":306.0,"w":9.431,"w_cg":2.584,"w_soc":3.733,"cu":15.16,"gu":38.4,"ram":3383.0},{"t":420.4,"gpu":57.556,"cpu":57.068,"soc":56.706,"clk":326.4,"w":9.527,"w_cg":2.68,"w_soc":3.782,"cu":15.04,"gu":33.0,"ram":3383.0},{"t":425.5,"gpu":57.562,"cpu":57.081,"soc":56.712,"clk":306.0,"w":9.535,"w_cg":2.656,"w_soc":3.75,"cu":15.2,"gu":35.6,"ram":3383.0},{"t":430.5,"gpu":57.619,"cpu":57.294,"soc":56.731,"clk":306.0,"w":9.53,"w_cg":2.592,"w_soc":3.741,"cu":15.18,"gu":37.4,"ram":3383.0},{"t":435.5,"gpu":57.731,"cpu":57.562,"soc":56.718,"clk":306.0,"w":9.455,"w_cg":2.592,"w_soc":3.758,"cu":15.12,"gu":38.0,"ram":3383.0},{"t":440.6,"gpu":57.587,"cpu":57.312,"soc":56.706,"clk":367.2,"w":9.655,"w_cg":2.712,"w_soc":3.796,"cu":15.14,"gu":31.4,"ram":3383.0},{"t":445.6,"gpu":57.525,"cpu":57.275,"soc":56.712,"clk":408.0,"w":9.671,"w_cg":2.76,"w_soc":3.773,"cu":15.34,"gu":29.0,"ram":3383.0},{"t":450.6,"gpu":57.718,"cpu":57.168,"soc":56.725,"clk":326.4,"w":9.527,"w_cg":2.688,"w_soc":3.782,"cu":15.24,"gu":31.4,"ram":3383.4},{"t":455.6,"gpu":57.556,"cpu":57.375,"soc":56.706,"clk":306.0,"w":9.503,"w_cg":2.664,"w_soc":3.774,"cu":15.18,"gu":31.8,"ram":3384.0},{"t":460.7,"gpu":57.893,"cpu":57.337,"soc":56.731,"clk":367.2,"w":9.583,"w_cg":2.688,"w_soc":3.774,"cu":15.28,"gu":29.2,"ram":3384.0},{"t":465.7,"gpu":57.593,"cpu":57.175,"soc":56.743,"clk":306.0,"w":9.543,"w_cg":2.64,"w_soc":3.75,"cu":15.28,"gu":37.8,"ram":3384.0},{"t":470.7,"gpu":57.693,"cpu":57.212,"soc":56.762,"clk":306.0,"w":9.415,"w_cg":2.576,"w_soc":3.733,"cu":15.22,"gu":39.4,"ram":3384.0},{"t":475.8,"gpu":57.75,"cpu":57.369,"soc":56.787,"clk":306.0,"w":9.39,"w_cg":2.576,"w_soc":3.741,"cu":15.16,"gu":38.0,"ram":3384.0},{"t":480.8,"gpu":57.593,"cpu":57.231,"soc":56.793,"clk":306.0,"w":9.471,"w_cg":2.584,"w_soc":3.741,"cu":14.94,"gu":34.0,"ram":3384.0},{"t":485.8,"gpu":57.731,"cpu":57.193,"soc":56.781,"clk":387.6,"w":9.615,"w_cg":2.736,"w_soc":3.774,"cu":15.3,"gu":29.0,"ram":3384.0},{"t":490.8,"gpu":57.681,"cpu":57.187,"soc":56.787,"clk":346.8,"w":9.607,"w_cg":2.664,"w_soc":3.754,"cu":15.14,"gu":30.6,"ram":3384.0},{"t":495.9,"gpu":57.762,"cpu":57.362,"soc":56.756,"clk":306.0,"w":9.575,"w_cg":2.664,"w_soc":3.765,"cu":15.26,"gu":33.8,"ram":3384.0},{"t":500.9,"gpu":57.65,"cpu":57.343,"soc":56.825,"clk":306.0,"w":9.463,"w_cg":2.616,"w_soc":3.733,"cu":15.26,"gu":37.8,"ram":3384.0},{"t":505.9,"gpu":57.75,"cpu":57.35,"soc":56.806,"clk":306.0,"w":9.503,"w_cg":2.632,"w_soc":3.75,"cu":15.16,"gu":39.0,"ram":3384.0},{"t":511.0,"gpu":57.75,"cpu":57.359,"soc":56.797,"clk":306.0,"w":9.615,"w_cg":2.69,"w_soc":3.764,"cu":16.525,"gu":33.0,"ram":3385.25},{"t":515.0,"gpu":57.631,"cpu":57.331,"soc":56.85,"clk":306.0,"w":9.487,"w_cg":2.6,"w_soc":3.741,"cu":15.44,"gu":37.8,"ram":3385.0},{"t":520.0,"gpu":57.731,"cpu":57.268,"soc":56.856,"clk":306.0,"w":9.439,"w_cg":2.592,"w_soc":3.75,"cu":15.28,"gu":37.8,"ram":3385.0},{"t":525.0,"gpu":57.881,"cpu":57.412,"soc":56.831,"clk":306.0,"w":9.386,"w_cg":2.56,"w_soc":3.733,"cu":15.26,"gu":39.6,"ram":3385.0},{"t":530.1,"gpu":57.7,"cpu":57.612,"soc":56.819,"clk":306.0,"w":9.313,"w_cg":2.496,"w_soc":3.693,"cu":15.22,"gu":38.6,"ram":3385.0},{"t":535.1,"gpu":57.756,"cpu":57.475,"soc":56.812,"clk":306.0,"w":9.244,"w_cg":2.448,"w_soc":3.693,"cu":15.3,"gu":39.2,"ram":3385.0},{"t":540.1,"gpu":57.712,"cpu":57.356,"soc":56.9,"clk":306.0,"w":9.183,"w_cg":2.424,"w_soc":3.685,"cu":15.32,"gu":38.0,"ram":3385.0},{"t":545.2,"gpu":57.781,"cpu":57.481,"soc":56.85,"clk":306.0,"w":9.134,"w_cg":2.425,"w_soc":3.677,"cu":15.16,"gu":38.4,"ram":3385.0},{"t":550.2,"gpu":57.675,"cpu":57.593,"soc":56.818,"clk":306.0,"w":9.142,"w_cg":2.432,"w_soc":3.685,"cu":15.32,"gu":37.8,"ram":3385.0},{"t":555.2,"gpu":57.906,"cpu":57.268,"soc":56.825,"clk":306.0,"w":9.129,"w_cg":2.409,"w_soc":3.661,"cu":15.28,"gu":38.6,"ram":3385.0},{"t":560.2,"gpu":57.675,"cpu":57.193,"soc":56.856,"clk":306.0,"w":9.06,"w_cg":2.352,"w_soc":3.653,"cu":15.22,"gu":38.4,"ram":3385.0},{"t":565.3,"gpu":57.668,"cpu":57.431,"soc":56.843,"clk":306.0,"w":9.004,"w_cg":2.289,"w_soc":3.645,"cu":15.4,"gu":38.4,"ram":3385.0},{"t":570.3,"gpu":57.668,"cpu":57.55,"soc":56.874,"clk":306.0,"w":8.988,"w_cg":2.265,"w_soc":3.653,"cu":15.28,"gu":38.0,"ram":3385.0},{"t":575.3,"gpu":57.831,"cpu":57.293,"soc":56.862,"clk":306.0,"w":9.012,"w_cg":2.298,"w_soc":3.645,"cu":15.3,"gu":31.6,"ram":3385.0},{"t":580.4,"gpu":58.106,"cpu":57.237,"soc":56.875,"clk":550.8,"w":9.257,"w_cg":2.488,"w_soc":3.733,"cu":15.12,"gu":95.0,"ram":3385.0},{"t":585.4,"gpu":58.644,"cpu":57.356,"soc":56.875,"clk":836.4,"w":10.233,"w_cg":3.002,"w_soc":3.944,"cu":15.28,"gu":95.0,"ram":3385.0},{"t":590.4,"gpu":58.9,"cpu":57.393,"soc":56.869,"clk":1020.0,"w":11.192,"w_cg":3.605,"w_soc":4.145,"cu":15.26,"gu":99.0,"ram":3385.0},{"t":595.5,"gpu":58.556,"cpu":57.325,"soc":56.843,"clk":693.6,"w":11.308,"w_cg":3.716,"w_soc":4.153,"cu":15.38,"gu":39.0,"ram":3385.0},{"t":600.5,"gpu":58.368,"cpu":57.381,"soc":56.9,"clk":550.8,"w":11.272,"w_cg":3.644,"w_soc":4.145,"cu":15.26,"gu":50.2,"ram":3385.0},{"t":605.5,"gpu":58.175,"cpu":57.368,"soc":56.962,"clk":510.0,"w":11.136,"w_cg":3.596,"w_soc":4.105,"cu":15.46,"gu":32.6,"ram":3385.0},{"t":610.5,"gpu":58.294,"cpu":57.262,"soc":56.875,"clk":510.0,"w":10.928,"w_cg":3.484,"w_soc":4.074,"cu":15.24,"gu":23.6,"ram":3385.0},{"t":615.6,"gpu":58.112,"cpu":57.281,"soc":56.918,"clk":489.6,"w":10.792,"w_cg":3.425,"w_soc":4.047,"cu":15.4,"gu":24.0,"ram":3385.0},{"t":620.6,"gpu":57.956,"cpu":57.293,"soc":56.937,"clk":408.0,"w":10.563,"w_cg":3.242,"w_soc":3.984,"cu":15.32,"gu":26.8,"ram":3385.0},{"t":625.6,"gpu":57.993,"cpu":57.45,"soc":56.9,"clk":408.0,"w":10.406,"w_cg":3.154,"w_soc":3.968,"cu":15.24,"gu":28.8,"ram":3385.0},{"t":630.7,"gpu":57.993,"cpu":57.562,"soc":56.95,"clk":408.0,"w":10.536,"w_cg":3.258,"w_soc":4.008,"cu":15.08,"gu":28.8,"ram":3385.0},{"t":635.7,"gpu":58.256,"cpu":57.468,"soc":56.981,"clk":469.2,"w":10.752,"w_cg":3.346,"w_soc":4.032,"cu":15.16,"gu":23.2,"ram":3385.0},{"t":640.7,"gpu":58.056,"cpu":57.406,"soc":56.918,"clk":510.0,"w":10.928,"w_cg":3.468,"w_soc":4.065,"cu":15.2,"gu":23.4,"ram":3385.0},{"t":645.7,"gpu":58.237,"cpu":57.612,"soc":56.962,"clk":510.0,"w":10.904,"w_cg":3.485,"w_soc":4.076,"cu":15.2,"gu":23.8,"ram":3385.0},{"t":650.8,"gpu":58.05,"cpu":57.356,"soc":57.006,"clk":448.8,"w":10.744,"w_cg":3.386,"w_soc":4.013,"cu":15.26,"gu":23.2,"ram":3385.0},{"t":655.8,"gpu":58.162,"cpu":57.374,"soc":56.931,"clk":408.0,"w":10.536,"w_cg":3.242,"w_soc":3.984,"cu":15.46,"gu":26.4,"ram":3385.0},{"t":660.8,"gpu":57.968,"cpu":57.462,"soc":56.899,"clk":408.0,"w":10.326,"w_cg":3.123,"w_soc":3.936,"cu":15.32,"gu":29.0,"ram":3385.0},{"t":665.9,"gpu":58.0,"cpu":57.431,"soc":56.981,"clk":408.0,"w":10.19,"w_cg":3.083,"w_soc":3.904,"cu":15.36,"gu":29.6,"ram":3385.0},{"t":670.9,"gpu":57.937,"cpu":57.637,"soc":56.981,"clk":408.0,"w":10.064,"w_cg":2.931,"w_soc":3.88,"cu":15.28,"gu":28.0,"ram":3385.0},{"t":675.9,"gpu":57.962,"cpu":57.587,"soc":56.981,"clk":408.0,"w":10.016,"w_cg":2.875,"w_soc":3.872,"cu":15.18,"gu":28.8,"ram":3385.0},{"t":680.9,"gpu":58.218,"cpu":57.438,"soc":57.007,"clk":408.0,"w":10.025,"w_cg":2.935,"w_soc":3.88,"cu":15.45,"gu":28.75,"ram":3385.0},{"t":685.0,"gpu":57.962,"cpu":57.718,"soc":56.943,"clk":408.0,"w":9.919,"w_cg":2.861,"w_soc":3.841,"cu":15.18,"gu":28.8,"ram":3385.0},{"t":690.0,"gpu":58.025,"cpu":57.606,"soc":56.987,"clk":408.0,"w":9.991,"w_cg":2.932,"w_soc":3.856,"cu":15.28,"gu":29.4,"ram":3385.0},{"t":695.0,"gpu":57.918,"cpu":57.606,"soc":56.975,"clk":408.0,"w":10.029,"w_cg":2.947,"w_soc":3.88,"cu":15.16,"gu":27.4,"ram":3385.0},{"t":700.1,"gpu":58.062,"cpu":57.443,"soc":56.975,"clk":408.0,"w":10.016,"w_cg":2.963,"w_soc":3.856,"cu":15.18,"gu":29.2,"ram":3383.4},{"t":705.1,"gpu":58.206,"cpu":57.462,"soc":56.956,"clk":408.0,"w":10.008,"w_cg":2.916,"w_soc":3.856,"cu":15.28,"gu":29.6,"ram":3383.0},{"t":710.1,"gpu":57.943,"cpu":57.9,"soc":57.0,"clk":408.0,"w":9.984,"w_cg":2.871,"w_soc":3.832,"cu":15.34,"gu":29.6,"ram":3383.0},{"t":715.1,"gpu":57.862,"cpu":57.481,"soc":57.031,"clk":408.0,"w":9.983,"w_cg":2.876,"w_soc":3.84,"cu":15.28,"gu":29.4,"ram":3383.0},{"t":720.2,"gpu":58.006,"cpu":57.581,"soc":56.95,"clk":408.0,"w":9.887,"w_cg":2.838,"w_soc":3.84,"cu":15.24,"gu":28.4,"ram":3383.0},{"t":725.2,"gpu":57.937,"cpu":57.543,"soc":57.006,"clk":408.0,"w":9.791,"w_cg":2.798,"w_soc":3.801,"cu":15.26,"gu":29.6,"ram":3383.0},{"t":730.2,"gpu":58.025,"cpu":57.593,"soc":57.031,"clk":387.6,"w":9.743,"w_cg":2.76,"w_soc":3.786,"cu":15.1,"gu":31.2,"ram":3383.0},{"t":735.3,"gpu":57.837,"cpu":57.6,"soc":56.987,"clk":367.2,"w":9.631,"w_cg":2.704,"w_soc":3.78,"cu":15.28,"gu":29.0,"ram":3383.0},{"t":740.3,"gpu":58.025,"cpu":57.475,"soc":56.975,"clk":326.4,"w":9.599,"w_cg":2.664,"w_soc":3.765,"cu":15.16,"gu":32.6,"ram":3383.0},{"t":745.3,"gpu":57.974,"cpu":57.368,"soc":56.987,"clk":306.0,"w":9.471,"w_cg":2.632,"w_soc":3.774,"cu":15.14,"gu":38.6,"ram":3383.0},{"t":750.3,"gpu":57.862,"cpu":57.344,"soc":57.043,"clk":306.0,"w":9.439,"w_cg":2.608,"w_soc":3.741,"cu":15.24,"gu":39.0,"ram":3383.0},{"t":755.4,"gpu":57.756,"cpu":57.349,"soc":57.043,"clk":306.0,"w":9.385,"w_cg":2.544,"w_soc":3.75,"cu":15.3,"gu":39.4,"ram":3383.6},{"t":760.4,"gpu":57.881,"cpu":57.656,"soc":57.037,"clk":306.0,"w":9.302,"w_cg":2.512,"w_soc":3.717,"cu":15.3,"gu":39.2,"ram":3384.0},{"t":765.4,"gpu":57.806,"cpu":57.631,"soc":57.043,"clk":306.0,"w":9.353,"w_cg":2.464,"w_soc":3.709,"cu":15.26,"gu":38.0,"ram":3384.0},{"t":770.5,"gpu":57.937,"cpu":57.287,"soc":56.987,"clk":306.0,"w":9.329,"w_cg":2.488,"w_soc":3.709,"cu":15.44,"gu":39.2,"ram":3384.0},{"t":775.5,"gpu":58.068,"cpu":57.4,"soc":57.012,"clk":306.0,"w":9.222,"w_cg":2.472,"w_soc":3.677,"cu":15.24,"gu":39.4,"ram":3384.0},{"t":780.5,"gpu":57.95,"cpu":57.462,"soc":57.006,"clk":306.0,"w":9.209,"w_cg":2.424,"w_soc":3.685,"cu":15.3,"gu":38.6,"ram":3384.0},{"t":785.5,"gpu":57.775,"cpu":57.518,"soc":57.056,"clk":306.0,"w":9.129,"w_cg":2.409,"w_soc":3.677,"cu":15.38,"gu":39.6,"ram":3384.0},{"t":790.6,"gpu":57.887,"cpu":57.356,"soc":57.024,"clk":306.0,"w":9.13,"w_cg":2.368,"w_soc":3.677,"cu":15.2,"gu":39.4,"ram":3383.4},{"t":795.6,"gpu":57.956,"cpu":57.3,"soc":57.006,"clk":306.0,"w":9.084,"w_cg":2.345,"w_soc":3.661,"cu":15.2,"gu":38.4,"ram":3384.0},{"t":800.6,"gpu":57.887,"cpu":57.35,"soc":56.999,"clk":306.0,"w":9.044,"w_cg":2.32,"w_soc":3.653,"cu":15.36,"gu":35.8,"ram":3384.0},{"t":805.7,"gpu":58.043,"cpu":57.456,"soc":56.974,"clk":306.0,"w":9.057,"w_cg":2.328,"w_soc":3.677,"cu":15.34,"gu":47.4,"ram":3384.0},{"t":810.7,"gpu":58.437,"cpu":57.362,"soc":57.05,"clk":714.0,"w":9.591,"w_cg":2.687,"w_soc":3.787,"cu":15.98,"gu":99.0,"ram":3384.8},{"t":815.7,"gpu":58.012,"cpu":57.469,"soc":57.075,"clk":306.0,"w":9.18,"w_cg":2.408,"w_soc":3.685,"cu":15.16,"gu":74.0,"ram":3387.0},{"t":820.8,"gpu":58.237,"cpu":57.493,"soc":57.062,"clk":306.0,"w":9.122,"w_cg":2.392,"w_soc":3.685,"cu":15.1,"gu":51.4,"ram":3387.0},{"t":825.8,"gpu":58.137,"cpu":57.531,"soc":57.025,"clk":306.0,"w":9.183,"w_cg":2.416,"w_soc":3.701,"cu":15.42,"gu":92.8,"ram":3387.0},{"t":830.8,"gpu":58.481,"cpu":57.312,"soc":57.031,"clk":714.0,"w":9.543,"w_cg":2.608,"w_soc":3.789,"cu":15.24,"gu":99.0,"ram":3387.0},{"t":835.8,"gpu":58.275,"cpu":57.293,"soc":57.031,"clk":632.4,"w":9.454,"w_cg":2.584,"w_soc":3.787,"cu":15.18,"gu":99.0,"ram":3387.0},{"t":840.9,"gpu":58.393,"cpu":57.3,"soc":57.031,"clk":714.0,"w":9.671,"w_cg":2.686,"w_soc":3.844,"cu":15.22,"gu":99.0,"ram":3387.0},{"t":845.9,"gpu":58.469,"cpu":57.306,"soc":57.006,"clk":632.4,"w":9.382,"w_cg":2.536,"w_soc":3.733,"cu":15.3,"gu":99.0,"ram":3387.0},{"t":850.9,"gpu":58.234,"cpu":57.242,"soc":57.039,"clk":510.0,"w":9.338,"w_cg":2.5,"w_soc":3.725,"cu":15.175,"gu":97.75,"ram":3387.0},{"t":855.0,"gpu":58.575,"cpu":57.368,"soc":57.012,"clk":632.4,"w":9.506,"w_cg":2.568,"w_soc":3.789,"cu":15.22,"gu":99.0,"ram":3387.0},{"t":860.0,"gpu":58.312,"cpu":57.331,"soc":57.056,"clk":632.4,"w":9.486,"w_cg":2.6,"w_soc":3.789,"cu":15.1,"gu":99.0,"ram":3387.0},{"t":865.0,"gpu":58.406,"cpu":57.393,"soc":57.0,"clk":714.0,"w":9.439,"w_cg":2.56,"w_soc":3.758,"cu":15.14,"gu":99.0,"ram":3387.0},{"t":870.0,"gpu":58.631,"cpu":57.437,"soc":57.068,"clk":775.2,"w":10.093,"w_cg":2.891,"w_soc":3.936,"cu":15.22,"gu":96.8,"ram":3387.0},{"t":875.1,"gpu":59.337,"cpu":57.55,"soc":57.056,"clk":1020.0,"w":10.86,"w_cg":3.471,"w_soc":4.092,"cu":15.24,"gu":94.0,"ram":3387.0},{"t":880.1,"gpu":59.012,"cpu":57.631,"soc":57.087,"clk":856.8,"w":11.36,"w_cg":3.7,"w_soc":4.161,"cu":15.32,"gu":44.8,"ram":3387.0},{"t":885.1,"gpu":58.706,"cpu":57.656,"soc":57.087,"clk":632.4,"w":11.212,"w_cg":3.621,"w_soc":4.145,"cu":15.1,"gu":31.4,"ram":3387.0},{"t":890.2,"gpu":58.606,"cpu":57.706,"soc":57.056,"clk":612.0,"w":11.276,"w_cg":3.7,"w_soc":4.161,"cu":15.24,"gu":34.8,"ram":3387.0},{"t":895.2,"gpu":58.712,"cpu":57.662,"soc":57.15,"clk":571.2,"w":11.304,"w_cg":3.7,"w_soc":4.153,"cu":15.22,"gu":43.6,"ram":3387.0},{"t":900.2,"gpu":58.7,"cpu":57.618,"soc":57.143,"clk":591.6,"w":11.272,"w_cg":3.684,"w_soc":4.153,"cu":15.28,"gu":46.2,"ram":3387.0},{"t":905.2,"gpu":58.525,"cpu":57.668,"soc":57.15,"clk":550.8,"w":11.228,"w_cg":3.7,"w_soc":4.153,"cu":15.32,"gu":39.0,"ram":3387.0},{"t":910.3,"gpu":58.2,"cpu":57.731,"soc":57.131,"clk":510.0,"w":10.952,"w_cg":3.534,"w_soc":4.077,"cu":15.26,"gu":24.0,"ram":3385.8},{"t":915.3,"gpu":58.324,"cpu":57.675,"soc":57.112,"clk":489.6,"w":10.736,"w_cg":3.385,"w_soc":4.056,"cu":15.14,"gu":23.6,"ram":3386.0},{"t":920.3,"gpu":58.437,"cpu":57.956,"soc":57.106,"clk":489.6,"w":10.92,"w_cg":3.414,"w_soc":4.058,"cu":15.28,"gu":23.0,"ram":3385.8},{"t":925.4,"gpu":58.212,"cpu":57.768,"soc":57.131,"clk":408.0,"w":10.576,"w_cg":3.281,"w_soc":4.016,"cu":15.14,"gu":28.0,"ram":3385.0},{"t":930.4,"gpu":58.206,"cpu":57.775,"soc":57.112,"clk":428.4,"w":10.656,"w_cg":3.337,"w_soc":4.016,"cu":15.34,"gu":26.0,"ram":3385.0},{"t":935.4,"gpu":58.124,"cpu":57.918,"soc":57.162,"clk":408.0,"w":10.576,"w_cg":3.242,"w_soc":3.992,"cu":15.3,"gu":28.8,"ram":3385.0},{"t":940.4,"gpu":58.356,"cpu":57.825,"soc":57.15,"clk":408.0,"w":10.408,"w_cg":3.186,"w_soc":3.96,"cu":15.22,"gu":28.6,"ram":3385.0},{"t":945.5,"gpu":58.393,"cpu":57.768,"soc":57.237,"clk":408.0,"w":10.35,"w_cg":3.115,"w_soc":3.936,"cu":15.36,"gu":28.4,"ram":3385.0},{"t":950.5,"gpu":58.187,"cpu":57.769,"soc":57.175,"clk":408.0,"w":10.248,"w_cg":3.051,"w_soc":3.904,"cu":15.2,"gu":29.6,"ram":3385.6},{"t":955.5,"gpu":58.168,"cpu":57.681,"soc":57.187,"clk":408.0,"w":10.056,"w_cg":2.979,"w_soc":3.88,"cu":15.22,"gu":27.8,"ram":3384.0},{"t":960.6,"gpu":58.168,"cpu":57.518,"soc":57.231,"clk":408.0,"w":10.031,"w_cg":2.947,"w_soc":3.872,"cu":15.26,"gu":29.2,"ram":3384.0},{"t":965.6,"gpu":58.318,"cpu":57.744,"soc":57.181,"clk":408.0,"w":9.847,"w_cg":2.901,"w_soc":3.841,"cu":15.16,"gu":28.8,"ram":3384.0},{"t":970.6,"gpu":58.225,"cpu":57.969,"soc":57.206,"clk":408.0,"w":9.775,"w_cg":2.782,"w_soc":3.833,"cu":15.24,"gu":29.0,"ram":3385.2},{"t":975.6,"gpu":58.043,"cpu":57.744,"soc":57.181,"clk":408.0,"w":9.847,"w_cg":2.831,"w_soc":3.841,"cu":15.24,"gu":29.0,"ram":3386.0},{"t":980.7,"gpu":58.087,"cpu":57.687,"soc":57.168,"clk":408.0,"w":9.927,"w_cg":2.853,"w_soc":3.84,"cu":15.22,"gu":29.4,"ram":3386.0},{"t":985.7,"gpu":58.137,"cpu":57.668,"soc":57.15,"clk":408.0,"w":10.08,"w_cg":2.963,"w_soc":3.88,"cu":15.1,"gu":28.4,"ram":3386.0},{"t":990.7,"gpu":58.368,"cpu":57.612,"soc":57.175,"clk":408.0,"w":10.013,"w_cg":2.939,"w_soc":3.88,"cu":15.14,"gu":29.0,"ram":3387.6},{"t":995.8,"gpu":58.206,"cpu":57.95,"soc":57.15,"clk":408.0,"w":10.096,"w_cg":2.924,"w_soc":3.896,"cu":15.06,"gu":29.0,"ram":3390.0},{"t":1000.8,"gpu":58.068,"cpu":58.043,"soc":57.137,"clk":408.0,"w":10.152,"w_cg":3.004,"w_soc":3.904,"cu":15.18,"gu":29.6,"ram":3390.0},{"t":1005.8,"gpu":58.275,"cpu":57.775,"soc":57.162,"clk":408.0,"w":10.261,"w_cg":3.099,"w_soc":3.92,"cu":15.22,"gu":29.2,"ram":3390.0},{"t":1010.8,"gpu":58.212,"cpu":57.937,"soc":57.181,"clk":408.0,"w":10.346,"w_cg":3.115,"w_soc":3.928,"cu":15.18,"gu":28.8,"ram":3390.8},{"t":1015.9,"gpu":58.256,"cpu":58.131,"soc":57.162,"clk":408.0,"w":10.35,"w_cg":3.115,"w_soc":3.952,"cu":15.22,"gu":27.8,"ram":3392.0},{"t":1020.9,"gpu":58.35,"cpu":58.143,"soc":57.175,"clk":408.0,"w":10.261,"w_cg":3.067,"w_soc":3.944,"cu":15.14,"gu":29.6,"ram":3392.4},{"t":1025.9,"gpu":58.219,"cpu":57.912,"soc":57.187,"clk":408.0,"w":10.424,"w_cg":3.186,"w_soc":3.96,"cu":15.16,"gu":29.2,"ram":3393.0},{"t":1031.0,"gpu":58.336,"cpu":58.0,"soc":57.148,"clk":408.0,"w":10.258,"w_cg":3.064,"w_soc":3.95,"cu":15.35,"gu":28.0,"ram":3393.0},{"t":1035.0,"gpu":58.187,"cpu":57.65,"soc":57.169,"clk":408.0,"w":10.44,"w_cg":3.218,"w_soc":3.96,"cu":15.26,"gu":29.0,"ram":3392.4},{"t":1040.0,"gpu":58.181,"cpu":57.7,"soc":57.175,"clk":408.0,"w":10.528,"w_cg":3.266,"w_soc":3.984,"cu":15.2,"gu":27.4,"ram":3392.0},{"t":1045.0,"gpu":58.168,"cpu":57.7,"soc":57.193,"clk":408.0,"w":10.462,"w_cg":3.186,"w_soc":3.984,"cu":15.3,"gu":28.2,"ram":3393.0},{"t":1050.1,"gpu":58.1,"cpu":57.837,"soc":57.181,"clk":408.0,"w":10.29,"w_cg":3.091,"w_soc":3.92,"cu":15.38,"gu":29.2,"ram":3393.0},{"t":1055.1,"gpu":58.1,"cpu":57.4,"soc":57.119,"clk":408.0,"w":10.234,"w_cg":3.075,"w_soc":3.928,"cu":15.3,"gu":29.8,"ram":3393.0},{"t":1060.1,"gpu":58.206,"cpu":57.45,"soc":57.162,"clk":408.0,"w":10.149,"w_cg":3.035,"w_soc":3.888,"cu":15.26,"gu":29.2,"ram":3393.0},{"t":1065.1,"gpu":58.043,"cpu":57.475,"soc":57.149,"clk":408.0,"w":10.024,"w_cg":2.916,"w_soc":3.856,"cu":15.38,"gu":29.6,"ram":3393.0},{"t":1070.2,"gpu":58.068,"cpu":57.506,"soc":57.112,"clk":408.0,"w":9.847,"w_cg":2.815,"w_soc":3.808,"cu":15.24,"gu":29.2,"ram":3393.0},{"t":1075.2,"gpu":58.081,"cpu":57.5,"soc":57.212,"clk":408.0,"w":9.743,"w_cg":2.776,"w_soc":3.788,"cu":15.34,"gu":29.8,"ram":3396.0},{"t":1080.2,"gpu":58.037,"cpu":57.506,"soc":57.181,"clk":346.8,"w":9.607,"w_cg":2.728,"w_soc":3.766,"cu":15.26,"gu":30.8,"ram":3396.0},{"t":1085.3,"gpu":58.074,"cpu":57.456,"soc":57.206,"clk":306.0,"w":9.471,"w_cg":2.6,"w_soc":3.741,"cu":15.5,"gu":38.4,"ram":3396.0},{"t":1090.3,"gpu":58.168,"cpu":57.543,"soc":57.231,"clk":306.0,"w":9.342,"w_cg":2.544,"w_soc":3.725,"cu":15.3,"gu":39.2,"ram":3396.0},{"t":1095.3,"gpu":58.0,"cpu":57.462,"soc":57.168,"clk":306.0,"w":9.254,"w_cg":2.48,"w_soc":3.725,"cu":15.36,"gu":39.4,"ram":3392.0},{"t":1100.4,"gpu":58.037,"cpu":57.5,"soc":57.193,"clk":306.0,"w":9.249,"w_cg":2.432,"w_soc":3.693,"cu":15.26,"gu":38.4,"ram":3392.0},{"t":1105.4,"gpu":58.062,"cpu":57.687,"soc":57.244,"clk":306.0,"w":9.071,"w_cg":2.384,"w_soc":3.685,"cu":15.3,"gu":39.2,"ram":3392.0},{"t":1110.4,"gpu":57.987,"cpu":57.619,"soc":57.3,"clk":306.0,"w":9.085,"w_cg":2.336,"w_soc":3.677,"cu":15.3,"gu":37.8,"ram":3392.0},{"t":1115.4,"gpu":58.3,"cpu":57.912,"soc":57.237,"clk":306.0,"w":9.028,"w_cg":2.344,"w_soc":3.661,"cu":15.3,"gu":38.2,"ram":3392.0},{"t":1120.5,"gpu":57.944,"cpu":57.887,"soc":57.268,"clk":306.0,"w":9.015,"w_cg":2.337,"w_soc":3.661,"cu":15.26,"gu":39.0,"ram":3392.0},{"t":1125.5,"gpu":58.087,"cpu":57.587,"soc":57.237,"clk":306.0,"w":8.977,"w_cg":2.337,"w_soc":3.669,"cu":15.08,"gu":39.4,"ram":3392.0},{"t":1130.5,"gpu":58.174,"cpu":57.675,"soc":57.243,"clk":306.0,"w":9.022,"w_cg":2.346,"w_soc":3.637,"cu":15.14,"gu":38.8,"ram":3392.0},{"t":1135.6,"gpu":58.143,"cpu":57.899,"soc":57.225,"clk":306.0,"w":9.101,"w_cg":2.312,"w_soc":3.685,"cu":15.38,"gu":47.0,"ram":3390.4},{"t":1140.6,"gpu":58.231,"cpu":57.956,"soc":57.268,"clk":306.0,"w":9.063,"w_cg":2.36,"w_soc":3.685,"cu":15.24,"gu":66.8,"ram":3390.0},{"t":1145.6,"gpu":58.0,"cpu":57.75,"soc":57.237,"clk":306.0,"w":8.945,"w_cg":2.274,"w_soc":3.645,"cu":15.0,"gu":36.4,"ram":3390.0},{"t":1150.6,"gpu":58.019,"cpu":57.725,"soc":57.206,"clk":306.0,"w":9.02,"w_cg":2.336,"w_soc":3.677,"cu":15.32,"gu":38.0,"ram":3390.0},{"t":1155.7,"gpu":58.243,"cpu":57.656,"soc":57.225,"clk":306.0,"w":9.066,"w_cg":2.328,"w_soc":3.669,"cu":15.36,"gu":37.2,"ram":3393.0},{"t":1160.7,"gpu":58.168,"cpu":57.756,"soc":57.225,"clk":306.0,"w":9.014,"w_cg":2.352,"w_soc":3.669,"cu":15.18,"gu":37.2,"ram":3395.0},{"t":1165.7,"gpu":58.087,"cpu":57.743,"soc":57.187,"clk":306.0,"w":9.044,"w_cg":2.336,"w_soc":3.677,"cu":15.28,"gu":38.4,"ram":3396.0},{"t":1170.7,"gpu":57.968,"cpu":57.575,"soc":57.187,"clk":306.0,"w":9.087,"w_cg":2.345,"w_soc":3.661,"cu":15.1,"gu":37.4,"ram":3396.0},{"t":1175.8,"gpu":58.031,"cpu":57.95,"soc":57.212,"clk":306.0,"w":9.033,"w_cg":2.336,"w_soc":3.669,"cu":15.32,"gu":37.6,"ram":3393.6},{"t":1180.8,"gpu":58.337,"cpu":57.869,"soc":57.231,"clk":306.0,"w":9.076,"w_cg":2.321,"w_soc":3.661,"cu":15.32,"gu":38.2,"ram":3392.4},{"t":1185.8,"gpu":58.125,"cpu":57.768,"soc":57.243,"clk":306.0,"w":9.004,"w_cg":2.312,"w_soc":3.677,"cu":15.22,"gu":39.8,"ram":3393.0},{"t":1190.9,"gpu":57.975,"cpu":57.575,"soc":57.219,"clk":306.0,"w":9.02,"w_cg":2.313,"w_soc":3.645,"cu":15.42,"gu":39.0,"ram":3393.0},{"t":1195.9,"gpu":58.087,"cpu":57.575,"soc":57.256,"clk":306.0,"w":9.004,"w_cg":2.265,"w_soc":3.653,"cu":15.16,"gu":31.8,"ram":3391.8},{"t":1200.9,"gpu":58.056,"cpu":57.825,"soc":57.262,"clk":306.0,"w":9.012,"w_cg":2.306,"w_soc":3.653,"cu":15.34,"gu":42.6,"ram":3391.0},{"t":1205.9,"gpu":58.765,"cpu":57.547,"soc":57.234,"clk":612.0,"w":9.458,"w_cg":2.56,"w_soc":3.744,"cu":15.325,"gu":96.75,"ram":3391.0},{"t":1210.0,"gpu":58.681,"cpu":57.612,"soc":57.206,"clk":714.0,"w":9.599,"w_cg":2.64,"w_soc":3.81,"cu":15.22,"gu":99.0,"ram":3391.0},{"t":1215.0,"gpu":58.925,"cpu":57.706,"soc":57.199,"clk":836.4,"w":10.25,"w_cg":3.043,"w_soc":3.968,"cu":15.32,"gu":94.6,"ram":3391.4},{"t":1220.0,"gpu":59.143,"cpu":57.756,"soc":57.256,"clk":938.4,"w":11.176,"w_cg":3.581,"w_soc":4.129,"cu":15.3,"gu":84.6,"ram":3393.0},{"t":1225.1,"gpu":58.912,"cpu":57.668,"soc":57.181,"clk":652.8,"w":11.176,"w_cg":3.589,"w_soc":4.146,"cu":15.24,"gu":37.2,"ram":3393.0},{"t":1230.1,"gpu":58.875,"cpu":57.781,"soc":57.256,"clk":591.6,"w":11.288,"w_cg":3.66,"w_soc":4.153,"cu":15.34,"gu":35.0,"ram":3393.0},{"t":1235.1,"gpu":59.393,"cpu":57.693,"soc":57.275,"clk":938.4,"w":11.248,"w_cg":3.652,"w_soc":4.153,"cu":15.2,"gu":74.6,"ram":3393.0},{"t":1240.2,"gpu":59.237,"cpu":57.725,"soc":57.287,"clk":897.6,"w":10.768,"w_cg":3.304,"w_soc":4.085,"cu":15.2,"gu":96.8,"ram":3393.0},{"t":1245.2,"gpu":59.0,"cpu":57.693,"soc":57.237,"clk":836.4,"w":10.382,"w_cg":3.098,"w_soc":4.008,"cu":15.2,"gu":92.6,"ram":3393.0},{"t":1250.2,"gpu":59.181,"cpu":57.743,"soc":57.256,"clk":1020.0,"w":11.264,"w_cg":3.636,"w_soc":4.153,"cu":15.36,"gu":78.4,"ram":3393.0},{"t":1255.2,"gpu":58.906,"cpu":57.762,"soc":57.262,"clk":693.6,"w":11.308,"w_cg":3.716,"w_soc":4.153,"cu":15.32,"gu":45.0,"ram":3394.0},{"t":1260.3,"gpu":58.906,"cpu":57.731,"soc":57.268,"clk":591.6,"w":11.264,"w_cg":3.644,"w_soc":4.161,"cu":15.3,"gu":44.4,"ram":3394.0},{"t":1265.3,"gpu":58.618,"cpu":58.125,"soc":57.275,"clk":510.0,"w":11.144,"w_cg":3.612,"w_soc":4.13,"cu":15.3,"gu":32.2,"ram":3394.0},{"t":1270.3,"gpu":58.543,"cpu":57.993,"soc":57.268,"clk":489.6,"w":10.84,"w_cg":3.437,"w_soc":4.079,"cu":15.2,"gu":23.6,"ram":3394.0},{"t":1275.4,"gpu":58.431,"cpu":57.75,"soc":57.243,"clk":510.0,"w":10.984,"w_cg":3.469,"w_soc":4.108,"cu":15.06,"gu":37.0,"ram":3394.0},{"t":1280.4,"gpu":58.512,"cpu":57.731,"soc":57.237,"clk":510.0,"w":11.032,"w_cg":3.524,"w_soc":4.098,"cu":15.26,"gu":24.2,"ram":3395.0},{"t":1285.4,"gpu":58.518,"cpu":57.931,"soc":57.293,"clk":510.0,"w":10.904,"w_cg":3.464,"w_soc":4.06,"cu":15.28,"gu":23.2,"ram":3393.0},{"t":1290.4,"gpu":58.343,"cpu":57.85,"soc":57.231,"clk":448.8,"w":10.712,"w_cg":3.342,"w_soc":4.039,"cu":15.2,"gu":24.8,"ram":3393.0},{"t":1295.5,"gpu":58.406,"cpu":58.187,"soc":57.293,"clk":428.4,"w":10.632,"w_cg":3.29,"w_soc":4.0,"cu":15.5,"gu":25.8,"ram":3393.0},{"t":1300.5,"gpu":58.262,"cpu":57.85,"soc":57.25,"clk":408.0,"w":10.531,"w_cg":3.25,"w_soc":4.024,"cu":15.24,"gu":26.4,"ram":3393.0},{"t":1305.5,"gpu":58.493,"cpu":57.543,"soc":57.281,"clk":408.0,"w":10.592,"w_cg":3.29,"w_soc":3.976,"cu":15.4,"gu":28.4,"ram":3393.0},{"t":1310.6,"gpu":58.175,"cpu":57.65,"soc":57.262,"clk":408.0,"w":10.397,"w_cg":3.138,"w_soc":3.936,"cu":15.28,"gu":29.6,"ram":3393.0},{"t":1315.6,"gpu":58.231,"cpu":57.612,"soc":57.256,"clk":408.0,"w":10.12,"w_cg":3.012,"w_soc":3.888,"cu":15.28,"gu":29.4,"ram":3393.0},{"t":1320.6,"gpu":58.225,"cpu":57.662,"soc":57.25,"clk":408.0,"w":9.951,"w_cg":2.876,"w_soc":3.849,"cu":15.4,"gu":29.4,"ram":3393.0},{"t":1325.6,"gpu":58.231,"cpu":57.643,"soc":57.268,"clk":408.0,"w":9.815,"w_cg":2.792,"w_soc":3.825,"cu":15.24,"gu":29.0,"ram":3393.0},{"t":1330.7,"gpu":58.274,"cpu":57.618,"soc":57.337,"clk":408.0,"w":9.743,"w_cg":2.752,"w_soc":3.794,"cu":15.36,"gu":29.4,"ram":3393.0},{"t":1335.7,"gpu":58.312,"cpu":57.568,"soc":57.325,"clk":346.8,"w":9.623,"w_cg":2.704,"w_soc":3.764,"cu":15.32,"gu":31.2,"ram":3393.0},{"t":1340.7,"gpu":58.093,"cpu":57.575,"soc":57.356,"clk":306.0,"w":9.463,"w_cg":2.608,"w_soc":3.741,"cu":15.2,"gu":37.0,"ram":3393.0},{"t":1345.8,"gpu":58.15,"cpu":57.756,"soc":57.312,"clk":306.0,"w":9.455,"w_cg":2.584,"w_soc":3.766,"cu":15.14,"gu":38.0,"ram":3393.0},{"t":1350.8,"gpu":58.293,"cpu":57.868,"soc":57.325,"clk":306.0,"w":9.519,"w_cg":2.608,"w_soc":3.766,"cu":15.06,"gu":35.8,"ram":3393.0},{"t":1355.8,"gpu":58.262,"cpu":57.981,"soc":57.337,"clk":326.4,"w":9.575,"w_cg":2.704,"w_soc":3.782,"cu":15.2,"gu":30.8,"ram":3393.0},{"t":1360.9,"gpu":58.331,"cpu":57.856,"soc":57.3,"clk":346.8,"w":9.591,"w_cg":2.672,"w_soc":3.748,"cu":15.38,"gu":32.0,"ram":3393.0},{"t":1365.9,"gpu":58.075,"cpu":57.818,"soc":57.369,"clk":306.0,"w":9.519,"w_cg":2.624,"w_soc":3.774,"cu":15.22,"gu":37.6,"ram":3393.0},{"t":1370.9,"gpu":58.193,"cpu":57.85,"soc":57.306,"clk":306.0,"w":9.519,"w_cg":2.616,"w_soc":3.774,"cu":15.36,"gu":36.0,"ram":3393.0},{"t":1376.0,"gpu":58.101,"cpu":57.875,"soc":57.289,"clk":306.0,"w":9.425,"w_cg":2.58,"w_soc":3.745,"cu":15.4,"gu":39.0,"ram":3393.0},{"t":1380.0,"gpu":58.206,"cpu":57.85,"soc":57.312,"clk":306.0,"w":9.407,"w_cg":2.528,"w_soc":3.741,"cu":15.24,"gu":39.6,"ram":3392.4},{"t":1385.0,"gpu":58.225,"cpu":57.912,"soc":57.268,"clk":306.0,"w":9.318,"w_cg":2.512,"w_soc":3.725,"cu":15.32,"gu":39.0,"ram":3392.0},{"t":1390.0,"gpu":58.169,"cpu":57.85,"soc":57.287,"clk":306.0,"w":9.255,"w_cg":2.448,"w_soc":3.701,"cu":15.4,"gu":39.2,"ram":3392.2},{"t":1395.1,"gpu":58.181,"cpu":57.843,"soc":57.35,"clk":306.0,"w":9.129,"w_cg":2.465,"w_soc":3.677,"cu":15.32,"gu":38.4,"ram":3393.0},{"t":1400.1,"gpu":58.106,"cpu":57.893,"soc":57.287,"clk":306.0,"w":9.148,"w_cg":2.393,"w_soc":3.653,"cu":15.4,"gu":39.8,"ram":3393.0},{"t":1405.1,"gpu":58.087,"cpu":57.943,"soc":57.306,"clk":306.0,"w":9.087,"w_cg":2.361,"w_soc":3.661,"cu":15.34,"gu":38.4,"ram":3393.0},{"t":1410.2,"gpu":58.293,"cpu":57.837,"soc":57.331,"clk":306.0,"w":9.041,"w_cg":2.329,"w_soc":3.653,"cu":15.32,"gu":39.4,"ram":3393.0},{"t":1415.2,"gpu":58.193,"cpu":57.906,"soc":57.281,"clk":306.0,"w":9.033,"w_cg":2.305,"w_soc":3.653,"cu":15.36,"gu":39.8,"ram":3393.0},{"t":1420.2,"gpu":58.143,"cpu":57.612,"soc":57.287,"clk":306.0,"w":9.001,"w_cg":2.313,"w_soc":3.653,"cu":15.2,"gu":37.0,"ram":3393.0},{"t":1425.3,"gpu":58.312,"cpu":57.644,"soc":57.287,"clk":306.0,"w":9.196,"w_cg":2.416,"w_soc":3.709,"cu":15.2,"gu":88.2,"ram":3393.0},{"t":1430.3,"gpu":58.668,"cpu":57.631,"soc":57.319,"clk":632.4,"w":9.503,"w_cg":2.6,"w_soc":3.789,"cu":15.24,"gu":99.0,"ram":3393.0},{"t":1435.3,"gpu":58.962,"cpu":57.7,"soc":57.237,"clk":714.0,"w":9.996,"w_cg":2.837,"w_soc":3.912,"cu":15.16,"gu":98.2,"ram":3393.0},{"t":1440.3,"gpu":59.412,"cpu":57.931,"soc":57.306,"clk":1020.0,"w":10.616,"w_cg":3.265,"w_soc":4.056,"cu":15.32,"gu":94.0,"ram":3386.2},{"t":1445.4,"gpu":59.112,"cpu":57.806,"soc":57.318,"clk":856.8,"w":11.336,"w_cg":3.755,"w_soc":4.153,"cu":15.26,"gu":71.2,"ram":3360.4},{"t":1450.4,"gpu":58.681,"cpu":57.956,"soc":57.287,"clk":550.8,"w":11.256,"w_cg":3.636,"w_soc":4.145,"cu":15.52,"gu":37.6,"ram":3363.8},{"t":1455.4,"gpu":58.506,"cpu":57.925,"soc":57.343,"clk":510.0,"w":10.944,"w_cg":3.477,"w_soc":4.066,"cu":15.52,"gu":24.0,"ram":3358.0},{"t":1460.5,"gpu":58.487,"cpu":57.887,"soc":57.331,"clk":469.2,"w":10.728,"w_cg":3.354,"w_soc":4.024,"cu":15.44,"gu":23.6,"ram":3358.0},{"t":1465.5,"gpu":58.487,"cpu":57.875,"soc":57.35,"clk":408.0,"w":10.528,"w_cg":3.29,"w_soc":3.992,"cu":15.28,"gu":28.8,"ram":3355.0},{"t":1470.5,"gpu":58.437,"cpu":57.906,"soc":57.406,"clk":408.0,"w":10.374,"w_cg":3.147,"w_soc":3.928,"cu":15.24,"gu":28.6,"ram":3355.0},{"t":1475.5,"gpu":58.412,"cpu":57.956,"soc":57.394,"clk":408.0,"w":10.296,"w_cg":3.075,"w_soc":3.92,"cu":15.2,"gu":29.4,"ram":3355.8},{"t":1480.6,"gpu":58.475,"cpu":57.799,"soc":57.35,"clk":408.0,"w":10.152,"w_cg":3.004,"w_soc":3.904,"cu":15.38,"gu":28.8,"ram":3357.2},{"t":1485.6,"gpu":58.281,"cpu":57.868,"soc":57.331,"clk":408.0,"w":9.991,"w_cg":2.884,"w_soc":3.872,"cu":15.2,"gu":28.4,"ram":3361.2},{"t":1490.6,"gpu":58.425,"cpu":58.062,"soc":57.306,"clk":408.0,"w":10.128,"w_cg":2.971,"w_soc":3.888,"cu":15.22,"gu":28.4,"ram":3362.0},{"t":1495.7,"gpu":58.274,"cpu":57.812,"soc":57.318,"clk":408.0,"w":10.214,"w_cg":3.036,"w_soc":3.912,"cu":15.1,"gu":29.4,"ram":3362.0},{"t":1500.7,"gpu":58.406,"cpu":57.793,"soc":57.343,"clk":408.0,"w":10.205,"w_cg":3.059,"w_soc":3.92,"cu":15.2,"gu":29.8,"ram":3362.0},{"t":1505.7,"gpu":58.287,"cpu":57.712,"soc":57.306,"clk":408.0,"w":10.096,"w_cg":3.011,"w_soc":3.904,"cu":15.3,"gu":28.8,"ram":3362.0},{"t":1510.7,"gpu":58.306,"cpu":58.156,"soc":57.344,"clk":408.0,"w":10.032,"w_cg":2.924,"w_soc":3.864,"cu":15.24,"gu":29.4,"ram":3362.0},{"t":1515.8,"gpu":58.331,"cpu":57.625,"soc":57.318,"clk":408.0,"w":9.943,"w_cg":2.91,"w_soc":3.848,"cu":15.26,"gu":29.2,"ram":3362.2},{"t":1520.8,"gpu":58.187,"cpu":57.625,"soc":57.281,"clk":408.0,"w":9.847,"w_cg":2.82,"w_soc":3.841,"cu":15.3,"gu":29.4,"ram":3363.0},{"t":1525.8,"gpu":58.212,"cpu":57.643,"soc":57.3,"clk":408.0,"w":9.751,"w_cg":2.768,"w_soc":3.802,"cu":15.36,"gu":29.2,"ram":3362.8},{"t":1530.9,"gpu":58.231,"cpu":57.631,"soc":57.3,"clk":306.0,"w":9.559,"w_cg":2.68,"w_soc":3.766,"cu":15.32,"gu":33.4,"ram":3363.8},{"t":1535.9,"gpu":58.169,"cpu":57.568,"soc":57.237,"clk":306.0,"w":9.423,"w_cg":2.576,"w_soc":3.725,"cu":15.18,"gu":39.6,"ram":3357.6},{"t":1540.9,"gpu":58.324,"cpu":57.987,"soc":57.25,"clk":306.0,"w":9.321,"w_cg":2.464,"w_soc":3.717,"cu":15.16,"gu":39.4,"ram":3358.0},{"t":1546.0,"gpu":58.124,"cpu":57.758,"soc":57.273,"clk":306.0,"w":9.364,"w_cg":2.55,"w_soc":3.735,"cu":15.225,"gu":37.75,"ram":3358.0},{"t":1550.0,"gpu":58.156,"cpu":57.756,"soc":57.275,"clk":306.0,"w":9.487,"w_cg":2.592,"w_soc":3.732,"cu":15.26,"gu":37.4,"ram":3360.6},{"t":1555.0,"gpu":58.05,"cpu":57.806,"soc":57.25,"clk":306.0,"w":9.414,"w_cg":2.592,"w_soc":3.724,"cu":16.08,"gu":38.8,"ram":3366.8},{"t":1560.0,"gpu":58.343,"cpu":57.812,"soc":57.237,"clk":306.0,"w":9.222,"w_cg":2.496,"w_soc":3.709,"cu":15.26,"gu":38.2,"ram":3372.8},{"t":1565.1,"gpu":58.087,"cpu":57.906,"soc":57.281,"clk":306.0,"w":9.201,"w_cg":2.432,"w_soc":3.685,"cu":15.22,"gu":39.2,"ram":3373.0},{"t":1570.1,"gpu":58.137,"cpu":57.925,"soc":57.262,"clk":306.0,"w":9.172,"w_cg":2.408,"w_soc":3.669,"cu":15.18,"gu":38.4,"ram":3373.0},{"t":1575.1,"gpu":58.012,"cpu":57.712,"soc":57.306,"clk":306.0,"w":9.148,"w_cg":2.384,"w_soc":3.701,"cu":15.24,"gu":38.6,"ram":3373.0},{"t":1580.1,"gpu":58.212,"cpu":58.012,"soc":57.294,"clk":306.0,"w":9.105,"w_cg":2.392,"w_soc":3.701,"cu":15.18,"gu":38.6,"ram":3373.0},{"t":1585.2,"gpu":58.418,"cpu":57.919,"soc":57.312,"clk":306.0,"w":9.164,"w_cg":2.385,"w_soc":3.685,"cu":15.26,"gu":39.2,"ram":3374.0},{"t":1590.2,"gpu":58.156,"cpu":57.931,"soc":57.287,"clk":306.0,"w":9.132,"w_cg":2.368,"w_soc":3.677,"cu":15.14,"gu":38.6,"ram":3374.0},{"t":1595.2,"gpu":58.212,"cpu":57.712,"soc":57.287,"clk":306.0,"w":9.148,"w_cg":2.408,"w_soc":3.693,"cu":15.22,"gu":39.4,"ram":3364.4},{"t":1600.3,"gpu":58.074,"cpu":57.943,"soc":57.312,"clk":306.0,"w":9.143,"w_cg":2.368,"w_soc":3.653,"cu":15.28,"gu":37.8,"ram":3358.0},{"t":1605.3,"gpu":58.281,"cpu":57.825,"soc":57.318,"clk":306.0,"w":9.087,"w_cg":2.337,"w_soc":3.637,"cu":15.12,"gu":39.4,"ram":3357.6},{"t":1610.3,"gpu":58.293,"cpu":57.712,"soc":57.281,"clk":306.0,"w":9.014,"w_cg":2.345,"w_soc":3.653,"cu":15.16,"gu":38.8,"ram":3358.0},{"t":1615.3,"gpu":58.131,"cpu":57.75,"soc":57.319,"clk":306.0,"w":9.017,"w_cg":2.304,"w_soc":3.645,"cu":15.3,"gu":35.0,"ram":3360.2},{"t":1620.4,"gpu":58.131,"cpu":57.625,"soc":57.325,"clk":387.6,"w":9.119,"w_cg":2.377,"w_soc":3.677,"cu":15.16,"gu":53.8,"ram":3362.0},{"t":1625.4,"gpu":58.4,"cpu":57.706,"soc":57.306,"clk":306.0,"w":9.049,"w_cg":2.352,"w_soc":3.661,"cu":15.3,"gu":37.0,"ram":3362.0},{"t":1630.4,"gpu":58.387,"cpu":57.712,"soc":57.368,"clk":306.0,"w":9.025,"w_cg":2.312,"w_soc":3.661,"cu":15.02,"gu":39.2,"ram":3362.0},{"t":1635.4,"gpu":58.243,"cpu":57.918,"soc":57.325,"clk":306.0,"w":9.02,"w_cg":2.336,"w_soc":3.661,"cu":15.34,"gu":33.8,"ram":3362.6},{"t":1640.5,"gpu":58.719,"cpu":57.637,"soc":57.268,"clk":714.0,"w":9.759,"w_cg":2.766,"w_soc":3.849,"cu":15.14,"gu":99.0,"ram":3363.0},{"t":1645.5,"gpu":59.293,"cpu":57.787,"soc":57.287,"clk":958.8,"w":10.764,"w_cg":3.351,"w_soc":4.068,"cu":15.26,"gu":94.4,"ram":3363.0},{"t":1650.5,"gpu":59.118,"cpu":57.681,"soc":57.281,"clk":775.2,"w":11.32,"w_cg":3.708,"w_soc":4.153,"cu":15.26,"gu":56.2,"ram":3364.0},{"t":1655.6,"gpu":58.906,"cpu":57.706,"soc":57.25,"clk":714.0,"w":11.1,"w_cg":3.477,"w_soc":4.145,"cu":15.08,"gu":59.8,"ram":3364.0},{"t":1660.6,"gpu":59.518,"cpu":57.712,"soc":57.275,"clk":897.6,"w":10.92,"w_cg":3.429,"w_soc":4.098,"cu":15.2,"gu":99.0,"ram":3364.0},{"t":1665.6,"gpu":59.281,"cpu":57.793,"soc":57.281,"clk":856.8,"w":11.273,"w_cg":3.692,"w_soc":4.169,"cu":15.18,"gu":72.2,"ram":3363.4},{"t":1670.7,"gpu":58.793,"cpu":57.781,"soc":57.343,"clk":652.8,"w":11.24,"w_cg":3.604,"w_soc":4.161,"cu":15.18,"gu":30.4,"ram":3358.8},{"t":1675.7,"gpu":58.881,"cpu":57.862,"soc":57.287,"clk":571.2,"w":11.273,"w_cg":3.692,"w_soc":4.161,"cu":15.24,"gu":42.0,"ram":3358.8},{"t":1680.7,"gpu":58.893,"cpu":57.912,"soc":57.306,"clk":530.4,"w":11.176,"w_cg":3.541,"w_soc":4.137,"cu":15.06,"gu":48.0,"ram":3358.8},{"t":1685.7,"gpu":58.787,"cpu":57.837,"soc":57.3,"clk":571.2,"w":11.204,"w_cg":3.605,"w_soc":4.153,"cu":15.2,"gu":42.8,"ram":3359.8},{"t":1690.8,"gpu":58.5,"cpu":57.862,"soc":57.293,"clk":510.0,"w":11.18,"w_cg":3.628,"w_soc":4.121,"cu":15.3,"gu":30.0,"ram":3360.0},{"t":1695.8,"gpu":58.456,"cpu":57.993,"soc":57.318,"clk":510.0,"w":10.944,"w_cg":3.46,"w_soc":4.065,"cu":15.36,"gu":24.0,"ram":3360.0},{"t":1700.8,"gpu":58.7,"cpu":57.906,"soc":57.406,"clk":448.8,"w":10.72,"w_cg":3.408,"w_soc":4.012,"cu":15.28,"gu":23.2,"ram":3360.4},{"t":1705.9,"gpu":58.5,"cpu":57.9,"soc":57.381,"clk":408.0,"w":10.6,"w_cg":3.266,"w_soc":3.997,"cu":15.24,"gu":29.4,"ram":3361.0},{"t":1710.9,"gpu":58.318,"cpu":57.968,"soc":57.362,"clk":408.0,"w":10.496,"w_cg":3.202,"w_soc":3.951,"cu":15.18,"gu":29.0,"ram":3361.0},{"t":1715.9,"gpu":58.4,"cpu":58.012,"soc":57.4,"clk":408.0,"w":10.395,"w_cg":3.13,"w_soc":3.943,"cu":15.26,"gu":28.8,"ram":3361.0},{"t":1720.9,"gpu":58.468,"cpu":58.125,"soc":57.406,"clk":408.0,"w":10.254,"w_cg":3.095,"w_soc":3.92,"cu":15.225,"gu":29.5,"ram":3361.0},{"t":1725.0,"gpu":58.45,"cpu":58.131,"soc":57.387,"clk":408.0,"w":10.141,"w_cg":2.995,"w_soc":3.888,"cu":15.16,"gu":28.4,"ram":3361.0},{"t":1730.0,"gpu":58.624,"cpu":58.037,"soc":57.431,"clk":408.0,"w":10.118,"w_cg":3.003,"w_soc":3.896,"cu":15.28,"gu":28.6,"ram":3362.0},{"t":1735.0,"gpu":58.375,"cpu":58.093,"soc":57.456,"clk":408.0,"w":10.061,"w_cg":2.939,"w_soc":3.888,"cu":15.22,"gu":28.4,"ram":3362.0},{"t":1740.0,"gpu":58.35,"cpu":57.95,"soc":57.412,"clk":408.0,"w":10.13,"w_cg":3.003,"w_soc":3.888,"cu":15.1,"gu":28.4,"ram":3358.6},{"t":1745.1,"gpu":58.475,"cpu":58.018,"soc":57.331,"clk":408.0,"w":10.307,"w_cg":3.083,"w_soc":3.928,"cu":15.14,"gu":29.4,"ram":3358.6},{"t":1750.1,"gpu":58.656,"cpu":58.025,"soc":57.343,"clk":408.0,"w":10.28,"w_cg":3.107,"w_soc":3.936,"cu":15.2,"gu":29.0,"ram":3357.8},{"t":1755.1,"gpu":58.512,"cpu":58.012,"soc":57.406,"clk":408.0,"w":10.339,"w_cg":3.098,"w_soc":3.936,"cu":15.2,"gu":29.0,"ram":3358.4},{"t":1760.2,"gpu":58.331,"cpu":57.981,"soc":57.418,"clk":408.0,"w":10.424,"w_cg":3.162,"w_soc":3.96,"cu":15.14,"gu":28.4,"ram":3359.0},{"t":1765.2,"gpu":58.45,"cpu":58.069,"soc":57.474,"clk":408.0,"w":10.384,"w_cg":3.138,"w_soc":3.936,"cu":15.14,"gu":27.8,"ram":3359.0},{"t":1770.2,"gpu":58.487,"cpu":57.975,"soc":57.475,"clk":408.0,"w":10.403,"w_cg":3.154,"w_soc":3.968,"cu":15.1,"gu":28.6,"ram":3359.0},{"t":1775.2,"gpu":58.743,"cpu":57.918,"soc":57.468,"clk":408.0,"w":10.344,"w_cg":3.146,"w_soc":3.944,"cu":15.14,"gu":28.4,"ram":3359.0},{"t":1780.3,"gpu":58.468,"cpu":57.862,"soc":57.512,"clk":408.0,"w":10.376,"w_cg":3.131,"w_soc":3.936,"cu":15.26,"gu":29.2,"ram":3359.0},{"t":1785.3,"gpu":58.4,"cpu":57.924,"soc":57.518,"clk":408.0,"w":10.232,"w_cg":3.075,"w_soc":3.912,"cu":15.32,"gu":29.4,"ram":3359.0},{"t":1790.3,"gpu":58.449,"cpu":57.912,"soc":57.518,"clk":408.0,"w":10.107,"w_cg":2.987,"w_soc":3.912,"cu":15.16,"gu":29.0,"ram":3359.0},{"t":1795.4,"gpu":58.506,"cpu":57.9,"soc":57.537,"clk":408.0,"w":10.101,"w_cg":2.987,"w_soc":3.896,"cu":15.2,"gu":28.2,"ram":3359.0},{"t":1800.4,"gpu":58.468,"cpu":57.9,"soc":57.512,"clk":408.0,"w":10.001,"w_cg":2.947,"w_soc":3.872,"cu":15.26,"gu":29.8,"ram":3359.0},{"t":1805.4,"gpu":58.425,"cpu":58.131,"soc":57.55,"clk":408.0,"w":9.828,"w_cg":2.868,"w_soc":3.832,"cu":15.22,"gu":29.2,"ram":3359.0},{"t":1810.4,"gpu":58.531,"cpu":58.325,"soc":57.556,"clk":387.6,"w":9.815,"w_cg":2.756,"w_soc":3.824,"cu":15.18,"gu":28.8,"ram":3358.2},{"t":1815.5,"gpu":58.4,"cpu":58.081,"soc":57.55,"clk":408.0,"w":9.967,"w_cg":2.899,"w_soc":3.848,"cu":15.1,"gu":29.2,"ram":3359.0},{"t":1820.5,"gpu":58.656,"cpu":58.15,"soc":57.518,"clk":408.0,"w":10.042,"w_cg":2.971,"w_soc":3.88,"cu":15.18,"gu":29.2,"ram":3358.0},{"t":1825.5,"gpu":58.6,"cpu":58.168,"soc":57.543,"clk":408.0,"w":9.932,"w_cg":2.892,"w_soc":3.84,"cu":15.26,"gu":29.2,"ram":3357.8},{"t":1830.6,"gpu":58.456,"cpu":58.131,"soc":57.593,"clk":408.0,"w":9.847,"w_cg":2.844,"w_soc":3.84,"cu":15.2,"gu":28.0,"ram":3358.8},{"t":1835.6,"gpu":58.387,"cpu":58.012,"soc":57.518,"clk":408.0,"w":9.927,"w_cg":2.868,"w_soc":3.84,"cu":15.2,"gu":29.2,"ram":3359.0},{"t":1840.6,"gpu":58.55,"cpu":57.931,"soc":57.593,"clk":408.0,"w":9.855,"w_cg":2.804,"w_soc":3.824,"cu":15.4,"gu":29.2,"ram":3359.0},{"t":1845.7,"gpu":58.575,"cpu":58.056,"soc":57.581,"clk":387.6,"w":9.695,"w_cg":2.72,"w_soc":3.785,"cu":15.34,"gu":28.4,"ram":3359.0},{"t":1850.7,"gpu":58.6,"cpu":58.056,"soc":57.531,"clk":306.0,"w":9.495,"w_cg":2.624,"w_soc":3.782,"cu":15.22,"gu":37.0,"ram":3359.0},{"t":1855.7,"gpu":58.3,"cpu":57.875,"soc":57.531,"clk":306.0,"w":9.535,"w_cg":2.664,"w_soc":3.762,"cu":15.32,"gu":36.4,"ram":3359.0},{"t":1860.7,"gpu":58.293,"cpu":57.7,"soc":57.493,"clk":306.0,"w":8.779,"w_cg":2.121,"w_soc":3.632,"cu":15.88,"gu":23.2,"ram":3350.2},{"t":1865.8,"gpu":57.587,"cpu":56.662,"soc":57.075,"clk":306.0,"w":5.779,"w_cg":0.607,"w_soc":2.908,"cu":2.46,"gu":0.0,"ram":1803.0},{"t":1870.8,"gpu":57.143,"cpu":56.262,"soc":56.668,"clk":306.0,"w":5.511,"w_cg":0.519,"w_soc":2.819,"cu":0.14,"gu":0.0,"ram":1803.0},{"t":1875.8,"gpu":56.774,"cpu":55.825,"soc":56.325,"clk":306.0,"w":5.511,"w_cg":0.519,"w_soc":2.803,"cu":0.14,"gu":0.0,"ram":1803.0},{"t":1880.9,"gpu":56.5,"cpu":55.525,"soc":56.018,"clk":306.0,"w":5.515,"w_cg":0.519,"w_soc":2.795,"cu":0.16,"gu":0.0,"ram":1803.0},{"t":1885.9,"gpu":56.226,"cpu":55.242,"soc":55.749,"clk":306.0,"w":5.516,"w_cg":0.519,"w_soc":2.795,"cu":0.175,"gu":0.0,"ram":1803.0},{"t":1890.0,"gpu":55.962,"cpu":54.95,"soc":55.456,"clk":306.0,"w":5.518,"w_cg":0.519,"w_soc":2.795,"cu":0.28,"gu":0.0,"ram":1803.0},{"t":1895.0,"gpu":55.712,"cpu":54.712,"soc":55.137,"clk":306.0,"w":5.508,"w_cg":0.519,"w_soc":2.795,"cu":0.2,"gu":0.0,"ram":1803.0},{"t":1900.0,"gpu":55.268,"cpu":54.368,"soc":54.906,"clk":306.0,"w":5.499,"w_cg":0.519,"w_soc":2.795,"cu":0.22,"gu":0.0,"ram":1803.0},{"t":1905.1,"gpu":54.931,"cpu":54.131,"soc":54.562,"clk":306.0,"w":5.486,"w_cg":0.519,"w_soc":2.795,"cu":0.26,"gu":0.0,"ram":1803.0},{"t":1910.1,"gpu":54.781,"cpu":53.906,"soc":54.343,"clk":306.0,"w":5.476,"w_cg":0.519,"w_soc":2.795,"cu":0.18,"gu":0.0,"ram":1803.0},{"t":1915.2,"gpu":54.543,"cpu":53.587,"soc":54.106,"clk":306.0,"w":5.476,"w_cg":0.519,"w_soc":2.795,"cu":0.18,"gu":0.0,"ram":1803.0},{"t":1920.2,"gpu":54.306,"cpu":53.506,"soc":53.931,"clk":306.0,"w":5.476,"w_cg":0.519,"w_soc":2.795,"cu":0.26,"gu":0.0,"ram":1803.0},{"t":1925.2,"gpu":54.318,"cpu":53.337,"soc":53.825,"clk":306.0,"w":5.476,"w_cg":0.519,"w_soc":2.795,"cu":0.14,"gu":0.0,"ram":1803.0},{"t":1930.3,"gpu":54.1,"cpu":53.075,"soc":53.612,"clk":306.0,"w":5.48,"w_cg":0.519,"w_soc":2.795,"cu":0.32,"gu":0.0,"ram":1803.0},{"t":1935.3,"gpu":53.9,"cpu":52.887,"soc":53.412,"clk":306.0,"w":5.478,"w_cg":0.519,"w_soc":2.763,"cu":0.22,"gu":0.0,"ram":1803.2},{"t":1940.3,"gpu":53.887,"cpu":52.781,"soc":53.225,"clk":306.0,"w":5.47,"w_cg":0.519,"w_soc":2.755,"cu":0.08,"gu":0.0,"ram":1804.0},{"t":1945.4,"gpu":53.706,"cpu":52.556,"soc":53.075,"clk":306.0,"w":5.464,"w_cg":0.519,"w_soc":2.763,"cu":0.1,"gu":0.0,"ram":1804.0},{"t":1950.4,"gpu":53.456,"cpu":52.537,"soc":52.937,"clk":306.0,"w":5.454,"w_cg":0.519,"w_soc":2.755,"cu":0.18,"gu":0.0,"ram":1804.0},{"t":1955.5,"gpu":53.331,"cpu":52.381,"soc":52.812,"clk":306.0,"w":5.462,"w_cg":0.519,"w_soc":2.755,"cu":0.14,"gu":0.0,"ram":1804.0},{"t":1960.5,"gpu":53.325,"cpu":52.262,"soc":52.712,"clk":306.0,"w":5.456,"w_cg":0.519,"w_soc":2.756,"cu":0.12,"gu":0.0,"ram":1804.0},{"t":1965.6,"gpu":53.118,"cpu":52.081,"soc":52.6,"clk":306.0,"w":5.448,"w_cg":0.519,"w_soc":2.756,"cu":0.18,"gu":0.0,"ram":1804.8},{"t":1970.6,"gpu":53.025,"cpu":51.931,"soc":52.474,"clk":306.0,"w":5.44,"w_cg":0.519,"w_soc":2.758,"cu":0.18,"gu":0.0,"ram":1805.0},{"t":1975.6,"gpu":52.775,"cpu":51.843,"soc":52.356,"clk":306.0,"w":5.456,"w_cg":0.511,"w_soc":2.755,"cu":0.22,"gu":0.0,"ram":1805.0},{"t":1980.7,"gpu":52.556,"cpu":51.724,"soc":52.181,"clk":306.0,"w":5.448,"w_cg":0.511,"w_soc":2.756,"cu":0.18,"gu":0.0,"ram":1805.0},{"t":1985.7,"gpu":52.556,"cpu":51.587,"soc":52.075,"clk":306.0,"w":5.472,"w_cg":0.519,"w_soc":2.788,"cu":0.2,"gu":0.0,"ram":1805.0},{"t":1990.7,"gpu":52.406,"cpu":51.475,"soc":51.975,"clk":306.0,"w":5.472,"w_cg":0.519,"w_soc":2.797,"cu":0.18,"gu":0.0,"ram":1805.0},{"t":1995.8,"gpu":52.412,"cpu":51.412,"soc":51.893,"clk":306.0,"w":5.456,"w_cg":0.519,"w_soc":2.796,"cu":0.24,"gu":0.0,"ram":1805.0},{"t":2000.8,"gpu":52.287,"cpu":51.268,"soc":51.806,"clk":306.0,"w":5.448,"w_cg":0.511,"w_soc":2.796,"cu":0.16,"gu":0.0,"ram":1805.0},{"t":2005.8,"gpu":52.175,"cpu":51.162,"soc":51.706,"clk":306.0,"w":5.464,"w_cg":0.519,"w_soc":2.796,"cu":0.14,"gu":0.0,"ram":1805.0},{"t":2010.9,"gpu":52.094,"cpu":51.025,"soc":51.631,"clk":306.0,"w":5.472,"w_cg":0.511,"w_soc":2.798,"cu":0.2,"gu":0.0,"ram":1805.0},{"t":2015.9,"gpu":51.906,"cpu":50.921,"soc":51.445,"clk":306.0,"w":5.45,"w_cg":0.519,"w_soc":2.797,"cu":0.2,"gu":0.0,"ram":1805.0},{"t":2020.0,"gpu":51.806,"cpu":50.925,"soc":51.462,"clk":306.0,"w":5.448,"w_cg":0.519,"w_soc":2.8,"cu":0.22,"gu":0.0,"ram":1805.0},{"t":2025.0,"gpu":51.718,"cpu":50.919,"soc":51.306,"clk":306.0,"w":5.448,"w_cg":0.519,"w_soc":2.799,"cu":0.2,"gu":0.0,"ram":1805.0},{"t":2030.0,"gpu":51.75,"cpu":50.831,"soc":51.3,"clk":306.0,"w":5.448,"w_cg":0.511,"w_soc":2.799,"cu":0.26,"gu":0.0,"ram":1805.0},{"t":2035.1,"gpu":51.65,"cpu":50.756,"soc":51.262,"clk":306.0,"w":5.456,"w_cg":0.519,"w_soc":2.796,"cu":0.2,"gu":0.0,"ram":1805.0},{"t":2040.1,"gpu":51.637,"cpu":50.787,"soc":51.225,"clk":306.0,"w":5.448,"w_cg":0.519,"w_soc":2.796,"cu":0.28,"gu":0.0,"ram":1805.0},{"t":2045.1,"gpu":51.662,"cpu":50.769,"soc":51.156,"clk":306.0,"w":5.448,"w_cg":0.511,"w_soc":2.796,"cu":0.18,"gu":0.0,"ram":1805.0},{"t":2050.2,"gpu":51.712,"cpu":50.731,"soc":51.118,"clk":306.0,"w":5.44,"w_cg":0.519,"w_soc":2.782,"cu":0.18,"gu":0.0,"ram":1805.0},{"t":2055.2,"gpu":51.643,"cpu":50.656,"soc":51.181,"clk":306.0,"w":5.44,"w_cg":0.487,"w_soc":2.767,"cu":0.38,"gu":0.0,"ram":1805.0},{"t":2060.3,"gpu":51.556,"cpu":50.581,"soc":51.062,"clk":306.0,"w":5.44,"w_cg":0.511,"w_soc":2.759,"cu":0.08,"gu":0.0,"ram":1805.0},{"t":2065.3,"gpu":51.668,"cpu":50.662,"soc":51.018,"clk":306.0,"w":5.448,"w_cg":0.487,"w_soc":2.767,"cu":0.2,"gu":0.0,"ram":1805.0},{"t":2070.3,"gpu":51.512,"cpu":50.612,"soc":50.968,"clk":306.0,"w":5.44,"w_cg":0.511,"w_soc":2.759,"cu":0.1,"gu":0.0,"ram":1805.0},{"t":2075.4,"gpu":51.462,"cpu":50.537,"soc":50.937,"clk":306.0,"w":5.44,"w_cg":0.495,"w_soc":2.757,"cu":0.18,"gu":0.0,"ram":1805.0},{"t":2080.4,"gpu":51.581,"cpu":50.424,"soc":50.924,"clk":306.0,"w":5.448,"w_cg":0.495,"w_soc":2.766,"cu":0.18,"gu":0.0,"ram":1805.0},{"t":2085.5,"gpu":51.475,"cpu":50.487,"soc":50.9,"clk":306.0,"w":5.44,"w_cg":0.519,"w_soc":2.757,"cu":0.18,"gu":0.0,"ram":1805.0},{"t":2090.5,"gpu":51.375,"cpu":50.493,"soc":50.856,"clk":306.0,"w":5.44,"w_cg":0.519,"w_soc":2.756,"cu":0.22,"gu":0.0,"ram":1805.6},{"t":2095.5,"gpu":51.268,"cpu":50.312,"soc":50.831,"clk":306.0,"w":5.44,"w_cg":0.511,"w_soc":2.764,"cu":0.12,"gu":0.0,"ram":1805.0}],"bench":{"n":1791,"mean":998.8,"median":996.7,"std":10.61,"min":978.1,"max":1057.9,"p90":1012.4,"p95":1019.4,"p99":1038.3,"first200":997.79,"last200":999.28,"cap_mean":2.76,"e2e_mean":1001.73,"hz":0.998,"pts":[{"i":0,"n":6,"v":996.3},{"i":4,"n":10,"v":990.4},{"i":8,"n":14,"v":994.6},{"i":12,"n":18,"v":987.0},{"i":16,"n":22,"v":997.6},{"i":20,"n":26,"v":997.9},{"i":24,"n":30,"v":991.2},{"i":28,"n":34,"v":992.3},{"i":32,"n":38,"v":981.4},{"i":36,"n":42,"v":995.8},{"i":40,"n":46,"v":985.5},{"i":44,"n":50,"v":1000.3},{"i":48,"n":54,"v":991.9},{"i":52,"n":58,"v":1000.9},{"i":56,"n":62,"v":1032.0},{"i":60,"n":66,"v":994.6},{"i":64,"n":70,"v":989.0},{"i":68,"n":74,"v":1001.7},{"i":72,"n":78,"v":991.6},{"i":76,"n":82,"v":991.8},{"i":80,"n":86,"v":988.2},{"i":84,"n":90,"v":991.2},{"i":88,"n":94,"v":981.7},{"i":92,"n":98,"v":993.3},{"i":96,"n":102,"v":999.3},{"i":100,"n":106,"v":992.1},{"i":104,"n":110,"v":995.1},{"i":108,"n":114,"v":995.9},{"i":112,"n":118,"v":994.2},{"i":116,"n":122,"v":1012.2},{"i":120,"n":126,"v":1000.7},{"i":124,"n":130,"v":990.2},{"i":128,"n":134,"v":1043.6},{"i":132,"n":138,"v":1017.1},{"i":136,"n":142,"v":996.2},{"i":140,"n":146,"v":993.6},{"i":144,"n":150,"v":1009.0},{"i":148,"n":154,"v":1005.1},{"i":152,"n":158,"v":1005.3},{"i":156,"n":162,"v":1017.5},{"i":160,"n":166,"v":998.6},{"i":164,"n":170,"v":987.9},{"i":168,"n":174,"v":1000.5},{"i":172,"n":178,"v":1002.6},{"i":176,"n":182,"v":1007.8},{"i":180,"n":186,"v":1010.6},{"i":184,"n":190,"v":997.9},{"i":188,"n":194,"v":1012.4},{"i":192,"n":198,"v":996.7},{"i":196,"n":202,"v":1013.3},{"i":200,"n":206,"v":1033.3},{"i":204,"n":210,"v":997.3},{"i":208,"n":214,"v":1041.9},{"i":212,"n":218,"v":997.9},{"i":216,"n":222,"v":989.2},{"i":220,"n":226,"v":998.6},{"i":224,"n":230,"v":984.3},{"i":228,"n":234,"v":990.7},{"i":232,"n":238,"v":998.0},{"i":236,"n":242,"v":991.2},{"i":240,"n":246,"v":995.2},{"i":244,"n":250,"v":981.5},{"i":248,"n":254,"v":993.3},{"i":252,"n":258,"v":997.0},{"i":256,"n":262,"v":988.9},{"i":260,"n":266,"v":1001.9},{"i":264,"n":270,"v":990.8},{"i":268,"n":274,"v":989.3},{"i":272,"n":278,"v":988.0},{"i":276,"n":282,"v":994.2},{"i":280,"n":286,"v":995.0},{"i":284,"n":290,"v":1016.7},{"i":288,"n":294,"v":995.5},{"i":292,"n":298,"v":998.4},{"i":296,"n":302,"v":1009.5},{"i":300,"n":306,"v":996.6},{"i":304,"n":310,"v":989.1},{"i":308,"n":314,"v":993.7},{"i":312,"n":318,"v":992.8},{"i":316,"n":322,"v":992.6},{"i":320,"n":326,"v":1006.1},{"i":324,"n":330,"v":999.0},{"i":328,"n":334,"v":1007.5},{"i":332,"n":338,"v":995.9},{"i":336,"n":342,"v":995.0},{"i":340,"n":346,"v":992.3},{"i":344,"n":350,"v":1003.8},{"i":348,"n":354,"v":1045.9},{"i":352,"n":358,"v":990.0},{"i":356,"n":362,"v":990.1},{"i":360,"n":366,"v":995.6},{"i":364,"n":370,"v":1016.4},{"i":368,"n":374,"v":1034.2},{"i":372,"n":378,"v":1024.4},{"i":376,"n":382,"v":990.6},{"i":380,"n":386,"v":991.5},{"i":384,"n":390,"v":991.0},{"i":388,"n":394,"v":990.0},{"i":392,"n":398,"v":987.6},{"i":396,"n":402,"v":991.7},{"i":400,"n":406,"v":993.6},{"i":404,"n":410,"v":998.5},{"i":408,"n":414,"v":1012.8},{"i":412,"n":418,"v":1034.0},{"i":416,"n":422,"v":1001.2},{"i":420,"n":426,"v":995.5},{"i":424,"n":430,"v":992.3},{"i":428,"n":434,"v":993.3},{"i":432,"n":438,"v":1003.2},{"i":436,"n":442,"v":1011.4},{"i":440,"n":446,"v":1018.6},{"i":444,"n":450,"v":997.1},{"i":448,"n":454,"v":992.3},{"i":452,"n":458,"v":989.8},{"i":456,"n":462,"v":1002.1},{"i":460,"n":466,"v":990.7},{"i":464,"n":470,"v":997.7},{"i":468,"n":474,"v":987.3},{"i":472,"n":478,"v":997.4},{"i":476,"n":482,"v":1004.4},{"i":480,"n":486,"v":997.3},{"i":484,"n":490,"v":996.2},{"i":488,"n":494,"v":993.7},{"i":492,"n":498,"v":993.5},{"i":496,"n":502,"v":996.9},{"i":500,"n":506,"v":1008.5},{"i":504,"n":510,"v":1001.7},{"i":508,"n":514,"v":998.4},{"i":512,"n":518,"v":993.3},{"i":516,"n":522,"v":989.4},{"i":520,"n":526,"v":989.2},{"i":524,"n":530,"v":1000.5},{"i":528,"n":534,"v":1002.3},{"i":532,"n":538,"v":1001.0},{"i":536,"n":542,"v":996.4},{"i":540,"n":546,"v":989.4},{"i":544,"n":550,"v":993.5},{"i":548,"n":554,"v":1001.3},{"i":552,"n":558,"v":999.6},{"i":556,"n":562,"v":1003.6},{"i":560,"n":566,"v":1020.7},{"i":564,"n":570,"v":1018.9},{"i":568,"n":574,"v":1018.3},{"i":572,"n":578,"v":1020.0},{"i":576,"n":582,"v":1013.6},{"i":580,"n":586,"v":991.6},{"i":584,"n":590,"v":990.6},{"i":588,"n":594,"v":983.3},{"i":592,"n":598,"v":998.8},{"i":596,"n":602,"v":997.4},{"i":600,"n":606,"v":986.9},{"i":604,"n":610,"v":1011.2},{"i":608,"n":614,"v":1002.2},{"i":612,"n":618,"v":987.0},{"i":616,"n":622,"v":1042.1},{"i":620,"n":626,"v":1000.1},{"i":624,"n":630,"v":999.5},{"i":628,"n":634,"v":1001.0},{"i":632,"n":638,"v":1001.3},{"i":636,"n":642,"v":995.6},{"i":640,"n":646,"v":1002.1},{"i":644,"n":650,"v":994.3},{"i":648,"n":654,"v":979.2},{"i":652,"n":658,"v":992.5},{"i":656,"n":662,"v":1000.0},{"i":660,"n":666,"v":1026.7},{"i":664,"n":670,"v":987.7},{"i":668,"n":674,"v":994.2},{"i":672,"n":678,"v":989.3},{"i":676,"n":682,"v":998.7},{"i":680,"n":686,"v":990.3},{"i":684,"n":690,"v":1000.6},{"i":688,"n":694,"v":994.9},{"i":692,"n":698,"v":1007.5},{"i":696,"n":702,"v":1036.1},{"i":700,"n":706,"v":995.0},{"i":704,"n":710,"v":1002.5},{"i":708,"n":714,"v":989.7},{"i":712,"n":718,"v":999.2},{"i":716,"n":722,"v":1003.8},{"i":720,"n":726,"v":1000.0},{"i":724,"n":730,"v":998.8},{"i":728,"n":734,"v":997.1},{"i":732,"n":738,"v":980.8},{"i":736,"n":742,"v":1002.1},{"i":740,"n":746,"v":994.1},{"i":744,"n":750,"v":1002.0},{"i":748,"n":754,"v":1002.1},{"i":752,"n":758,"v":1013.0},{"i":756,"n":762,"v":998.1},{"i":760,"n":766,"v":995.9},{"i":764,"n":770,"v":999.2},{"i":768,"n":774,"v":1000.3},{"i":772,"n":778,"v":987.6},{"i":776,"n":782,"v":998.1},{"i":780,"n":786,"v":997.0},{"i":784,"n":790,"v":995.9},{"i":788,"n":794,"v":993.9},{"i":792,"n":798,"v":1014.7},{"i":796,"n":802,"v":983.4},{"i":800,"n":806,"v":988.1},{"i":804,"n":810,"v":992.6},{"i":808,"n":814,"v":996.2},{"i":812,"n":818,"v":993.4},{"i":816,"n":822,"v":1000.3},{"i":820,"n":826,"v":999.0},{"i":824,"n":830,"v":995.2},{"i":828,"n":834,"v":1003.7},{"i":832,"n":838,"v":999.4},{"i":836,"n":842,"v":1000.6},{"i":840,"n":846,"v":988.3},{"i":844,"n":850,"v":994.9},{"i":848,"n":854,"v":1006.9},{"i":852,"n":858,"v":992.7},{"i":856,"n":862,"v":993.3},{"i":860,"n":866,"v":994.1},{"i":864,"n":870,"v":1003.0},{"i":868,"n":874,"v":988.4},{"i":872,"n":878,"v":998.2},{"i":876,"n":882,"v":995.9},{"i":880,"n":886,"v":995.2},{"i":884,"n":890,"v":996.3},{"i":888,"n":894,"v":998.2},{"i":892,"n":898,"v":995.1},{"i":896,"n":902,"v":991.0},{"i":900,"n":906,"v":996.3},{"i":904,"n":910,"v":991.7},{"i":908,"n":914,"v":989.5},{"i":912,"n":918,"v":1023.1},{"i":916,"n":922,"v":1015.7},{"i":920,"n":926,"v":995.0},{"i":924,"n":930,"v":1001.3},{"i":928,"n":934,"v":1002.8},{"i":932,"n":938,"v":996.6},{"i":936,"n":942,"v":1001.0},{"i":940,"n":946,"v":1017.4},{"i":944,"n":950,"v":1006.8},{"i":948,"n":954,"v":1003.2},{"i":952,"n":958,"v":1006.8},{"i":956,"n":962,"v":996.8},{"i":960,"n":966,"v":1000.5},{"i":964,"n":970,"v":997.3},{"i":968,"n":974,"v":999.0},{"i":972,"n":978,"v":989.5},{"i":976,"n":982,"v":990.4},{"i":980,"n":986,"v":996.7},{"i":984,"n":990,"v":1005.0},{"i":988,"n":994,"v":1000.4},{"i":992,"n":998,"v":990.5},{"i":996,"n":1002,"v":988.0},{"i":1000,"n":1006,"v":992.9},{"i":1004,"n":1010,"v":1000.6},{"i":1008,"n":1014,"v":999.8},{"i":1012,"n":1018,"v":996.2},{"i":1016,"n":1022,"v":1001.3},{"i":1020,"n":1026,"v":998.2},{"i":1024,"n":1030,"v":982.8},{"i":1028,"n":1034,"v":996.4},{"i":1032,"n":1038,"v":985.8},{"i":1036,"n":1042,"v":1002.3},{"i":1040,"n":1046,"v":992.2},{"i":1044,"n":1050,"v":1004.2},{"i":1048,"n":1054,"v":990.0},{"i":1052,"n":1058,"v":994.0},{"i":1056,"n":1062,"v":994.1},{"i":1060,"n":1066,"v":992.6},{"i":1064,"n":1070,"v":984.0},{"i":1068,"n":1074,"v":1000.2},{"i":1072,"n":1078,"v":1006.9},{"i":1076,"n":1082,"v":1001.3},{"i":1080,"n":1086,"v":1019.2},{"i":1084,"n":1090,"v":1013.5},{"i":1088,"n":1094,"v":993.1},{"i":1092,"n":1098,"v":997.9},{"i":1096,"n":1102,"v":999.6},{"i":1100,"n":1106,"v":995.5},{"i":1104,"n":1110,"v":997.8},{"i":1108,"n":1114,"v":1000.3},{"i":1112,"n":1118,"v":1009.0},{"i":1116,"n":1122,"v":1002.2},{"i":1120,"n":1126,"v":997.7},{"i":1124,"n":1130,"v":998.9},{"i":1128,"n":1134,"v":1017.9},{"i":1132,"n":1138,"v":990.2},{"i":1136,"n":1142,"v":989.7},{"i":1140,"n":1146,"v":990.7},{"i":1144,"n":1150,"v":998.0},{"i":1148,"n":1154,"v":999.5},{"i":1152,"n":1158,"v":993.6},{"i":1156,"n":1162,"v":992.9},{"i":1160,"n":1166,"v":992.8},{"i":1164,"n":1170,"v":1010.3},{"i":1168,"n":1174,"v":1013.0},{"i":1172,"n":1178,"v":1000.6},{"i":1176,"n":1182,"v":992.5},{"i":1180,"n":1186,"v":995.7},{"i":1184,"n":1190,"v":997.9},{"i":1188,"n":1194,"v":995.6},{"i":1192,"n":1198,"v":992.9},{"i":1196,"n":1202,"v":991.2},{"i":1200,"n":1206,"v":995.6},{"i":1204,"n":1210,"v":1028.1},{"i":1208,"n":1214,"v":990.9},{"i":1212,"n":1218,"v":1002.2},{"i":1216,"n":1222,"v":994.5},{"i":1220,"n":1226,"v":996.4},{"i":1224,"n":1230,"v":992.4},{"i":1228,"n":1234,"v":995.7},{"i":1232,"n":1238,"v":992.8},{"i":1236,"n":1242,"v":994.6},{"i":1240,"n":1246,"v":993.4},{"i":1244,"n":1250,"v":995.7},{"i":1248,"n":1254,"v":987.1},{"i":1252,"n":1258,"v":983.8},{"i":1256,"n":1262,"v":994.9},{"i":1260,"n":1266,"v":998.1},{"i":1264,"n":1270,"v":991.0},{"i":1268,"n":1274,"v":994.0},{"i":1272,"n":1278,"v":1028.8},{"i":1276,"n":1282,"v":1016.2},{"i":1280,"n":1286,"v":1031.4},{"i":1284,"n":1290,"v":995.3},{"i":1288,"n":1294,"v":1009.4},{"i":1292,"n":1298,"v":999.9},{"i":1296,"n":1302,"v":998.8},{"i":1300,"n":1306,"v":996.7},{"i":1304,"n":1310,"v":997.5},{"i":1308,"n":1314,"v":1003.0},{"i":1312,"n":1318,"v":984.6},{"i":1316,"n":1322,"v":986.5},{"i":1320,"n":1326,"v":992.8},{"i":1324,"n":1330,"v":1000.2},{"i":1328,"n":1334,"v":992.3},{"i":1332,"n":1338,"v":994.8},{"i":1336,"n":1342,"v":997.1},{"i":1340,"n":1346,"v":990.8},{"i":1344,"n":1350,"v":992.4},{"i":1348,"n":1354,"v":1026.4},{"i":1352,"n":1358,"v":986.9},{"i":1356,"n":1362,"v":1001.4},{"i":1360,"n":1366,"v":992.4},{"i":1364,"n":1370,"v":992.7},{"i":1368,"n":1374,"v":990.4},{"i":1372,"n":1378,"v":995.5},{"i":1376,"n":1382,"v":995.1},{"i":1380,"n":1386,"v":999.7},{"i":1384,"n":1390,"v":989.2},{"i":1388,"n":1394,"v":993.5},{"i":1392,"n":1398,"v":993.3},{"i":1396,"n":1402,"v":987.8},{"i":1400,"n":1406,"v":993.9},{"i":1404,"n":1410,"v":1006.4},{"i":1408,"n":1414,"v":993.4},{"i":1412,"n":1418,"v":994.0},{"i":1416,"n":1422,"v":1000.1},{"i":1420,"n":1426,"v":1019.3},{"i":1424,"n":1430,"v":1043.1},{"i":1428,"n":1434,"v":1003.8},{"i":1432,"n":1438,"v":996.3},{"i":1436,"n":1442,"v":999.3},{"i":1440,"n":1446,"v":1002.5},{"i":1444,"n":1450,"v":991.1},{"i":1448,"n":1454,"v":992.5},{"i":1452,"n":1458,"v":994.1},{"i":1456,"n":1462,"v":998.4},{"i":1460,"n":1466,"v":993.8},{"i":1464,"n":1470,"v":996.8},{"i":1468,"n":1474,"v":996.9},{"i":1472,"n":1478,"v":1008.1},{"i":1476,"n":1482,"v":1000.0},{"i":1480,"n":1486,"v":1003.3},{"i":1484,"n":1490,"v":992.1},{"i":1488,"n":1494,"v":992.2},{"i":1492,"n":1498,"v":991.6},{"i":1496,"n":1502,"v":992.1},{"i":1500,"n":1506,"v":992.4},{"i":1504,"n":1510,"v":1005.6},{"i":1508,"n":1514,"v":996.8},{"i":1512,"n":1518,"v":995.5},{"i":1516,"n":1522,"v":1006.1},{"i":1520,"n":1526,"v":1005.6},{"i":1524,"n":1530,"v":997.9},{"i":1528,"n":1534,"v":988.6},{"i":1532,"n":1538,"v":992.7},{"i":1536,"n":1542,"v":998.5},{"i":1540,"n":1546,"v":994.4},{"i":1544,"n":1550,"v":995.2},{"i":1548,"n":1554,"v":987.3},{"i":1552,"n":1558,"v":1026.3},{"i":1556,"n":1562,"v":999.1},{"i":1560,"n":1566,"v":1000.9},{"i":1564,"n":1570,"v":994.4},{"i":1568,"n":1574,"v":985.8},{"i":1572,"n":1578,"v":983.3},{"i":1576,"n":1582,"v":996.9},{"i":1580,"n":1586,"v":998.4},{"i":1584,"n":1590,"v":992.1},{"i":1588,"n":1594,"v":1015.8},{"i":1592,"n":1598,"v":1010.5},{"i":1596,"n":1602,"v":993.7},{"i":1600,"n":1606,"v":1025.5},{"i":1604,"n":1610,"v":989.9},{"i":1608,"n":1614,"v":989.1},{"i":1612,"n":1618,"v":1011.8},{"i":1616,"n":1622,"v":1025.6},{"i":1620,"n":1626,"v":991.1},{"i":1624,"n":1630,"v":999.0},{"i":1628,"n":1634,"v":990.9},{"i":1632,"n":1638,"v":992.4},{"i":1636,"n":1642,"v":998.0},{"i":1640,"n":1646,"v":1008.1},{"i":1644,"n":1650,"v":990.5},{"i":1648,"n":1654,"v":995.3},{"i":1652,"n":1658,"v":991.7},{"i":1656,"n":1662,"v":1004.0},{"i":1660,"n":1666,"v":992.9},{"i":1664,"n":1670,"v":996.3},{"i":1668,"n":1674,"v":997.3},{"i":1672,"n":1678,"v":1018.6},{"i":1676,"n":1682,"v":995.1},{"i":1680,"n":1686,"v":1007.9},{"i":1684,"n":1690,"v":997.6},{"i":1688,"n":1694,"v":1000.5},{"i":1692,"n":1698,"v":994.1},{"i":1696,"n":1702,"v":1003.0},{"i":1700,"n":1706,"v":1001.2},{"i":1704,"n":1710,"v":992.2},{"i":1708,"n":1714,"v":1000.8},{"i":1712,"n":1718,"v":1000.2},{"i":1716,"n":1722,"v":992.1},{"i":1720,"n":1726,"v":992.8},{"i":1724,"n":1730,"v":993.8},{"i":1728,"n":1734,"v":987.3},{"i":1732,"n":1738,"v":989.8},{"i":1736,"n":1742,"v":1011.3},{"i":1740,"n":1746,"v":999.7},{"i":1744,"n":1750,"v":998.9},{"i":1748,"n":1754,"v":1013.5},{"i":1752,"n":1758,"v":990.1},{"i":1756,"n":1762,"v":1001.8},{"i":1760,"n":1766,"v":1010.6},{"i":1764,"n":1770,"v":999.7},{"i":1768,"n":1774,"v":988.1},{"i":1772,"n":1778,"v":986.6},{"i":1776,"n":1782,"v":993.5},{"i":1780,"n":1786,"v":996.4},{"i":1784,"n":1790,"v":995.0},{"i":1788,"n":1794,"v":993.7}],"roll":[993.87,994.29,994.64,994.2,994.44,996.94,996.64,996.39,995.87,995.06,995.52,996.78,996.05,994.31,995.4,995.87,995.82,995.32,993.9,993.01,993.18,993.05,993.33,993.33,994.53,994.78,997.8,998.84,998.4,999.2,1000.0,1001.49,1001.81,1001.67,1000.45,1001.81,1001.58,1001.76,1001.31,1001.79,1001.23,1000.62,1000.56,999.86,999.48,1000.03,1000.98,1002.67,1003.35,1005.87,1006.04,1005.78,1005.83,1002.38,1001.44,1001.33,997.6,997.11,995.68,996.65,998.11,998.22,998.34,997.93,998.0,998.09,998.14,997.19,997.16,997.98,997.5,997.92,997.66,998.78,999.21,998.49,998.51,998.78,998.42,999.13,998.34,998.62,998.37,999.14,1000.89,1002.18,1001.01,1002.24,1003.6,1006.16,1006.79,1004.74,1002.35,1002.89,1004.62,1002.66,1000.93,996.55,998.72,999.91,1002.66,1002.19,1002.66,1002.74,1002.59,1003.06,1002.85,1002.76,999.8,1000.83,999.28,999.78,999.44,998.05,996.57,995.82,998.03,998.34,997.82,997.71,997.27,997.45,998.73,997.39,996.92,996.18,995.36,995.47,996.08,994.6,993.8,994.0,994.16,994.62,994.92,994.64,996.12,998.16,999.89,1001.65,1002.75,1002.8,1003.43,1003.32,1001.24,999.76,997.61,995.3,995.19,997.07,996.37,998.2,998.97,1000.06,1001.42,1001.47,1001.14,1001.84,1001.0,1001.16,999.83,997.97,999.05,997.93,998.63,997.7,996.72,996.67,996.88,996.19,997.58,998.89,997.48,997.98,998.08,998.35,997.82,997.8,996.25,996.58,996.24,996.48,995.69,997.73,998.57,998.89,999.88,999.6,999.93,1001.99,1003.53,1002.32,1001.96,1002.48,1002.43,1004.14,1002.22,1002.32,1000.0,998.2,997.68,998.63,997.15,996.57,997.63,998.32,998.28,997.84,997.56,998.15,998.16,997.72,997.65,997.99,998.42,998.8,997.6,997.14,997.4,996.75,996.8,996.43,996.75,998.5,999.61,1001.98,1003.06,1002.71,1005.42,1006.16,1006.13,1006.72,1005.27,1004.65,1005.07,1006.43,1003.85,1003.51,1003.75,1003.51,1003.22,1001.56,1001.37,1000.22,1000.33,998.38,996.5,995.4,995.31,995.47,994.15,993.11,993.26,993.63,993.71,992.36,993.23,993.54,995.1,995.77,996.03,998.09,998.68,998.71,998.85,1000.15,1002.34,1003.45,1003.03,1002.71,1003.84,1004.36,1004.82,1003.99,1001.9,1001.84,1001.18,1000.55,1000.7,1001.14,999.53,998.34,997.98,997.38,996.58,996.41,996.27,997.22,999.0,999.63,1002.53,1002.22,1002.44,1002.27,1002.04,999.63,998.03,996.29,997.04,998.21,998.47,998.92,999.02,998.56,1000.69,998.82,997.78,997.14,996.08,996.09,995.44,995.91,993.42,993.31,992.73,994.53,996.64,999.48,1000.43,1000.3,1001.21,1002.82,1002.49,1001.43,999.68,998.77,997.27,997.15,995.56,995.21,995.92,995.06,995.15,996.0,997.3,996.45,997.18,997.11,997.4,997.72,997.09,994.76,994.28,993.82,993.8,993.28,992.9,992.41,993.78,994.31,994.79,996.95,998.02,1000.72,1000.98,1001.02,1000.88,1001.8,1001.74,999.06,997.02,995.55,995.05,993.97,993.81,995.59,996.99,996.9,997.62,997.34,998.21,998.42,998.25,997.22,996.9,997.84,998.2,1000.52,1000.75,999.69,999.03,999.35,997.91,998.65,997.86,997.73,1000.01,1000.98,1000.46,999.17,998.79,997.02,996.16,995.91,997.7,997.77,997.69,999.29,999.49,999.98,1001.21,999.03,997.17,997.58,996.72,996.88,997.56,996.6,995.42,995.71,995.85,997.32,997.76,998.55,1000.34,1001.08,1002.37,1004.31,1004.14,1004.84,1004.58,1005.87,1002.74,1002.65,1002.4,1001.47,999.58,1000.28,1000.0,997.76,997.31,997.46,998.85,1001.51,1001.11,1000.7,1001.0,1001.98,1003.34,1002.05,998.97,996.24,997.79,997.65,996.25,995.05,995.15,996.41],"hist":[{"x":975,"n":4},{"x":980,"n":52},{"x":985,"n":193},{"x":990,"n":459},{"x":995,"n":501},{"x":1000,"n":271},{"x":1005,"n":95},{"x":1010,"n":73},{"x":1015,"n":54},{"x":1020,"n":13},{"x":1025,"n":30},{"x":1030,"n":22},{"x":1035,"n":7},{"x":1040,"n":11},{"x":1045,"n":5},{"x":1055,"n":1}],"drift_pct":0.15},"battery":{"pts":[{"t":41.5,"soc":54},{"t":275.5,"soc":53},{"t":812.5,"soc":52},{"t":1556.5,"soc":50},{"t":2305.5,"soc":49}],"drain_pct_h":7.95,"span_s":2264},"clk_hist":[[306,944],[408,660],[510,149],[612,125],[714,88],[816,7],[1020,114]]};</script>
+<script>
+(function(){
+"use strict";
+const NS="http://www.w3.org/2000/svg";
+const S=DATA.stats, B=DATA.bench, BAT=DATA.battery, SER=DATA.series;
+const ONSET=85, AMB=S.ambient;
+
+const mk=(n,a)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);return e;};
+const tok=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt=(v,d)=>v==null?"—":v.toFixed(d==null?1:d);
+const esc=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+const mins=s=>(s/60).toFixed(1);
+
+/* ---------- shared frame ---------- */
+function frame(host,o){
+  const W=Math.max(280,host.clientWidth||host.parentNode.clientWidth||640), H=o.h;
+  const p=o.pad, iw=W-p.l-p.r, ih=H-p.t-p.b;
+  const svg=mk("svg",{width:W,height:H,viewBox:`0 0 ${W} ${H}`,role:"img","aria-label":o.aria||""});
+  const X=v=>p.l+(v-o.x[0])/(o.x[1]-o.x[0])*iw;
+  const Y=v=>p.t+ih-(v-o.y[0])/(o.y[1]-o.y[0])*ih;
+  const g=tok("--grid"), ax=tok("--axis"), mu=tok("--muted");
+
+  (o.bands||[]).forEach(b=>{
+    svg.appendChild(mk("rect",{x:X(b.x0),y:p.t,width:Math.max(0,X(b.x1)-X(b.x0)),height:ih,
+      fill:b.fill||tok("--ink"),opacity:b.op==null?.045:b.op}));
+    if(b.label) {
+      const tx=mk("text",{x:X(b.x0)+7,y:p.t+13,"font-size":10,fill:mu,
+        "font-family":tok("--mono"),"letter-spacing":".08em"});
+      tx.textContent=b.label; svg.appendChild(tx);
+    }
+  });
+
+  (o.yticks||[]).forEach(t=>{
+    svg.appendChild(mk("line",{x1:p.l,x2:W-p.r,y1:Y(t),y2:Y(t),stroke:g,"stroke-width":1}));
+    const tx=mk("text",{x:p.l-8,y:Y(t)+3.5,"font-size":10.5,fill:mu,"text-anchor":"end",
+      "font-family":tok("--mono")});
+    tx.textContent=o.yfmt?o.yfmt(t):t; svg.appendChild(tx);
+  });
+  (o.xticks||[]).forEach(t=>{
+    const tx=mk("text",{x:X(t),y:H-p.b+16,"font-size":10.5,fill:mu,"text-anchor":"middle",
+      "font-family":tok("--mono")});
+    tx.textContent=o.xfmt?o.xfmt(t):t; svg.appendChild(tx);
+  });
+  svg.appendChild(mk("line",{x1:p.l,x2:W-p.r,y1:Y(o.y[0]),y2:Y(o.y[0]),stroke:ax,"stroke-width":1}));
+  if(o.ylabel){
+    const t=mk("text",{x:p.l-8,y:p.t-9,"font-size":10,fill:mu,"text-anchor":"end",
+      "font-family":tok("--mono"),"letter-spacing":".07em"});
+    t.textContent=o.ylabel; svg.appendChild(t);
+  }
+  host.innerHTML=""; host.appendChild(svg);
+  return {svg,X,Y,W,H,p,iw,ih};
+}
+const path=(pts,X,Y)=>pts.map((d,i)=>(i?"L":"M")+X(d[0]).toFixed(1)+" "+Y(d[1]).toFixed(1)).join(" ");
+
+/* ---------- hover machinery ---------- */
+function hover(f,tipEl,xs,build){
+  const {svg,X,Y,p,iw,ih,W}=f;
+  const cross=mk("line",{y1:p.t,y2:p.t+ih,stroke:tok("--axis"),"stroke-width":1,opacity:0});
+  svg.appendChild(cross);
+  const dots=mk("g",{opacity:0}); svg.appendChild(dots);
+  const hit=mk("rect",{x:p.l,y:p.t,width:iw,height:ih,fill:"transparent",style:"cursor:crosshair"});
+  svg.appendChild(hit);
+  const off=()=>{cross.setAttribute("opacity",0);dots.setAttribute("opacity",0);tipEl.style.opacity=0;};
+  hit.addEventListener("pointerleave",off);
+  hit.addEventListener("pointermove",ev=>{
+    const r=svg.getBoundingClientRect();
+    const px=(ev.clientX-r.left)*(W/r.width);
+    let lo=0,hi=xs.length-1;
+    while(hi-lo>1){const m=(lo+hi)>>1; if(X(xs[m])<px)lo=m;else hi=m;}
+    const i=Math.abs(X(xs[lo])-px)<Math.abs(X(xs[hi])-px)?lo:hi;
+    const res=build(i); if(!res)return;
+    cross.setAttribute("x1",X(xs[i]));cross.setAttribute("x2",X(xs[i]));cross.setAttribute("opacity",1);
+    dots.innerHTML="";
+    res.marks.forEach(m=>{
+      dots.appendChild(mk("circle",{cx:X(xs[i]),cy:Y(m.v),r:5.5,fill:tok("--surface")}));
+      dots.appendChild(mk("circle",{cx:X(xs[i]),cy:Y(m.v),r:3.5,fill:m.c}));
+    });
+    dots.setAttribute("opacity",1);
+    tipEl.innerHTML=res.html; tipEl.style.opacity=1;
+    const sc=r.width/W, lx=X(xs[i])*sc, tw=tipEl.offsetWidth;
+    tipEl.style.left=Math.max(0,Math.min(r.width-tw,lx+14))+"px";
+    tipEl.style.top=Math.max(0,(p.t*sc)+6)+"px";
+  });
+}
+const row=(c,k,v)=>`<div class="r"><span>${c?`<span class="k" style="background:${c}"></span>`:""}${k}</span><b>${v}</b></div>`;
+
+/* ================= HEADROOM METER ================= */
+function meter(){
+  const host=document.getElementById("meter");
+  const W=Math.max(300,host.clientWidth||600), H=132, p={l:4,r:4,t:34,b:36};
+  const iw=W-p.l-p.r, D=[20,92];
+  const X=v=>p.l+(v-D[0])/(D[1]-D[0])*iw;
+  const svg=mk("svg",{width:W,height:H,viewBox:`0 0 ${W} ${H}`,role:"img",
+    "aria-label":`Thermal scale from ${AMB} degrees ambient to ${ONSET} degrees throttle onset. Measured peak ${S.gpu_max.toFixed(1)} degrees, leaving ${(ONSET-S.gpu_max).toFixed(1)} degrees of headroom.`});
+  const TY=54, TH=15, mu=tok("--muted"), ink=tok("--ink"), ink2=tok("--ink2");
+
+  svg.appendChild(mk("rect",{x:X(D[0]),y:TY,width:iw,height:TH,fill:tok("--sunk")}));
+  svg.appendChild(mk("rect",{x:X(ONSET),y:TY,width:X(D[1])-X(ONSET),height:TH,
+    fill:tok("--crit"),opacity:.2}));
+  svg.appendChild(mk("rect",{x:X(AMB),y:TY,width:X(S.gpu_max)-X(AMB)-1,height:TH,fill:tok("--gpu")}));
+  svg.appendChild(mk("rect",{x:X(51.3)-1,y:TY,width:2,height:TH,fill:tok("--surface")}));
+
+  const tick=(v,lab,val,c,dash,below)=>{
+    const y0=below?TY+TH:TY, y1=below?TY+TH+9:TY-9;
+    svg.appendChild(mk("line",{x1:X(v),x2:X(v),y1:y0,y2:y1,stroke:c,"stroke-width":dash?1.5:2,
+      "stroke-dasharray":dash?"3 3":""}));
+    const a=X(v)>W-96?"end":(X(v)<62?"start":"middle");
+    const t1=mk("text",{x:X(v),y:below?TY+TH+22:TY-22,"font-size":10.5,fill:mu,"text-anchor":a,
+      "font-family":tok("--mono"),"letter-spacing":".06em"}); t1.textContent=lab;
+    const t2=mk("text",{x:X(v),y:below?TY+TH+34:TY-11,"font-size":12.5,fill:ink,"text-anchor":a,
+      "font-family":tok("--mono"),"font-weight":620}); t2.textContent=val;
+    svg.appendChild(t1);svg.appendChild(t2);
+  };
+  tick(AMB,"AMBIENT",AMB.toFixed(1)+"°",tok("--axis"),0,1);
+  tick(51.3,"IDLE","51.3°",tok("--muted"),1,1);
+  tick(S.gpu_max,"MEASURED PEAK",S.gpu_max.toFixed(1)+"°",tok("--gpu"),0,0);
+  tick(75.9,"AT 40° AMBIENT","75.9°",tok("--serious"),1,1);
+  tick(ONSET,"THROTTLE ONSET","~"+ONSET+"°",tok("--crit"),1,0);
+
+  const mid=(X(S.gpu_max)+X(ONSET))/2;
+  svg.appendChild(mk("line",{x1:X(S.gpu_max)+3,x2:X(ONSET)-3,y1:TY+TH/2,y2:TY+TH/2,
+    stroke:ink2,"stroke-width":1,"stroke-dasharray":"2 3"}));
+  const hl=mk("text",{x:mid,y:TY-9,"font-size":11,fill:ink2,"text-anchor":"middle",
+    "font-family":tok("--mono"),"font-weight":600});
+  hl.textContent=(ONSET-S.gpu_max).toFixed(1)+"° headroom";
+  svg.appendChild(hl);
+  host.innerHTML=""; host.appendChild(svg);
+}
+
+/* ================= TILES ================= */
+function tiles(){
+  const runtime=(100/BAT.drain_pct_h);
+  const t=[
+    ["Throttle verdict","N",null,"Three independent checks agree — see below"],
+    ["Mean input power",S.w_mean_inf.toFixed(2),"W","Under load · "+S.w_peak.toFixed(2)+" W peak · "+S.w_idle.toFixed(2)+" W idle"],
+    ["Inference latency",B.mean.toFixed(1),"ms","Mean of "+B.n+" passes · σ "+B.std.toFixed(1)+" ms"],
+    ["Replan rate",B.hz.toFixed(2),"Hz","4.99 Hz control ceiling at 5 action steps"],
+    ["Latency drift","+"+B.drift_pct.toFixed(2),"%","Last 200 vs first 200 passes"],
+    ["GPU clock (mean)",S.clk_mean,"MHz","of a "+S.ceiling+" MHz ceiling · "+S.at_ceiling_pct+"% at ceiling"],
+    ["Battery drain",BAT.drain_pct_h.toFixed(2),"%/h","≈"+runtime.toFixed(1)+" h on a full pack at this load"],
+    ["Memory in use",(S.ram_mean/1024).toFixed(2),"GB","of 8 GB · 1.79 GB at active idle"]
+  ];
+  document.getElementById("tiles").innerHTML=t.map(([l,v,u,n],i)=>
+    `<div class="tile${i===0?" wide":""}"><span class="lab">${esc(l)}</span>
+     <div class="val"${i===0?' style="color:var(--good)"':""}>${esc(v)}${u?`<i>${esc(u)}</i>`:""}</div>
+     <p class="note">${esc(n)}</p></div>`).join("");
+}
+
+/* ================= TEMPERATURE ================= */
+function tempChart(){
+  const host=document.getElementById("c-temp"), tip=document.getElementById("t-temp");
+  const f=frame(host,{h:290,pad:{l:44,r:14,t:20,b:32},x:[0,S.duration_s],y:[46,62],
+    yticks:[46,50,54,58,62],xticks:[0,300,600,900,1200,1500,1800,2100],
+    xfmt:v=>Math.round(v/60), ylabel:"°C",
+    bands:[{x0:S.inf_start,x1:S.inf_end,label:"INFERENCE · 1800 s"}],
+    aria:`GPU, CPU and SoC die temperature over ${Math.round(S.duration_s/60)} minutes. GPU rises from ${S.gpu_min.toFixed(1)} to a peak of ${S.gpu_max.toFixed(1)} degrees, holds flat through the inference window, then falls during cooldown.`});
+  const ks=[["gpu",tok("--gpu"),"GPU"],["cpu",tok("--cpu"),"CPU"],["soc",tok("--soc"),"SoC0"]];
+  ks.forEach(([k,c])=>{
+    f.svg.appendChild(mk("path",{d:path(SER.map(d=>[d.t,d[k]]),f.X,f.Y),fill:"none",stroke:c,
+      "stroke-width":2,"stroke-linejoin":"round","stroke-linecap":"round"}));
+  });
+  const pk=SER.reduce((a,b)=>b.gpu>a.gpu?b:a);
+  f.svg.appendChild(mk("circle",{cx:f.X(pk.t),cy:f.Y(pk.gpu),r:5.5,fill:tok("--surface")}));
+  f.svg.appendChild(mk("circle",{cx:f.X(pk.t),cy:f.Y(pk.gpu),r:3.5,fill:tok("--gpu")}));
+  const lb=mk("text",{x:f.X(pk.t),y:f.Y(pk.gpu)-12,"font-size":11,fill:tok("--ink"),
+    "text-anchor":"middle","font-family":tok("--mono"),"font-weight":620});
+  lb.textContent="peak "+S.gpu_max.toFixed(1)+"°"; f.svg.appendChild(lb);
+  hover(f,tip,SER.map(d=>d.t),i=>{
+    const d=SER[i];
+    return {marks:ks.map(([k,c])=>({v:d[k],c})),
+      html:`<span class="th">t + ${mins(d.t)} min</span>`+
+        ks.map(([k,c,n])=>row(c,n,fmt(d[k])+" °C")).join("")};
+  });
+  table("d-temp",["t (min)","GPU °C","CPU °C","SoC °C"],
+    SER.filter((_,i)=>i%12===0).map(d=>[mins(d.t),fmt(d.gpu),fmt(d.cpu),fmt(d.soc)]));
+}
+
+/* ================= DELTA BARS ================= */
+function deltaChart(){
+  const host=document.getElementById("c-delta"), tip=document.getElementById("t-delta");
+  const rows=[["GPU die",S.gpu_mean_inf,49.8],["CPU die",
+    SER.filter(d=>d.t>=S.inf_start&&d.t<=S.inf_end).reduce((a,d)=>a+d.cpu,0)/
+    SER.filter(d=>d.t>=S.inf_start&&d.t<=S.inf_end).length,49.5],
+    ["Input power (W)",S.w_mean_inf,5.42],["Memory (GB)",S.ram_mean/1024,1.79]];
+  const host2=host;
+  const W=Math.max(260,host2.clientWidth||420), rowH=52, H=rows.length*rowH+30;
+  const p={l:118,r:58,t:14,b:16}, iw=W-p.l-p.r;
+  const svg=mk("svg",{width:W,height:H,viewBox:`0 0 ${W} ${H}`,role:"img",
+    "aria-label":"Inference means compared with the active-idle floor for GPU temperature, CPU temperature, input power and memory."});
+  rows.forEach((r,i)=>{
+    const [lab,hot,idle]=r, mx=Math.max(hot,idle)*1.16;
+    const y=p.t+i*rowH, bw=v=>v/mx*iw;
+    const t=mk("text",{x:p.l-12,y:y+20,"font-size":11.5,fill:tok("--ink2"),"text-anchor":"end"});
+    t.textContent=lab; svg.appendChild(t);
+    svg.appendChild(mk("rect",{x:p.l,y:y+2,width:bw(idle),height:12,fill:tok("--muted"),opacity:.5}));
+    svg.appendChild(mk("rect",{x:p.l,y:y+18,width:bw(hot),height:14,fill:tok("--gpu")}));
+    const vi=mk("text",{x:p.l+bw(idle)+7,y:y+12,"font-size":10.5,fill:tok("--muted"),
+      "font-family":tok("--mono")}); vi.textContent=fmt(idle,idle<10?2:1);
+    const vh=mk("text",{x:p.l+bw(hot)+7,y:y+30,"font-size":11.5,fill:tok("--ink"),
+      "font-family":tok("--mono"),"font-weight":620}); vh.textContent=fmt(hot,hot<10?2:1);
+    svg.appendChild(vi);svg.appendChild(vh);
+    const dl=mk("text",{x:p.l,y:y+45,"font-size":10.5,fill:tok("--ink2"),"font-family":tok("--mono")});
+    dl.textContent="+"+fmt(hot-idle,hot<10?2:1)+" under load";
+    svg.appendChild(dl);
+  });
+  host2.innerHTML=""; host2.appendChild(svg); tip.style.opacity=0;
+}
+
+/* ================= POWER ================= */
+function powChart(){
+  const host=document.getElementById("c-pow"), tip=document.getElementById("t-pow");
+  const f=frame(host,{h:290,pad:{l:44,r:14,t:20,b:32},x:[0,S.duration_s],y:[0,12],
+    yticks:[0,3,6,9,12],xticks:[0,300,600,900,1200,1500,1800,2100],
+    xfmt:v=>Math.round(v/60), ylabel:"W",
+    bands:[{x0:S.inf_start,x1:S.inf_end,label:"INFERENCE · 1800 s"}],
+    aria:`Board input power over the run. Rises from a 5.5 watt idle floor to a ${S.w_mean_inf} watt mean under inference, peaking at ${S.w_peak} watts, then returns to idle.`});
+  const ks=[["w",tok("--gpu"),"VDD_IN"],["w_cg",tok("--cpu"),"CPU+GPU+CV"],["w_soc",tok("--soc"),"SOC"]];
+  f.svg.appendChild(mk("path",{d:path(SER.map(d=>[d.t,d.w]),f.X,f.Y)+
+    ` L ${f.X(SER[SER.length-1].t).toFixed(1)} ${f.Y(0).toFixed(1)} L ${f.X(SER[0].t).toFixed(1)} ${f.Y(0).toFixed(1)} Z`,
+    fill:tok("--gpu"),opacity:.10,stroke:"none"}));
+  ks.forEach(([k,c])=>f.svg.appendChild(mk("path",{d:path(SER.map(d=>[d.t,d[k]]),f.X,f.Y),
+    fill:"none",stroke:c,"stroke-width":2,"stroke-linejoin":"round"})));
+  hover(f,tip,SER.map(d=>d.t),i=>{
+    const d=SER[i];
+    return {marks:ks.map(([k,c])=>({v:d[k],c})),
+      html:`<span class="th">t + ${mins(d.t)} min</span>`+
+        ks.map(([k,c,n])=>row(c,n,fmt(d[k],2)+" W")).join("")};
+  });
+  table("d-pow",["t (min)","VDD_IN W","CPU+GPU+CV W","SOC W"],
+    SER.filter((_,i)=>i%12===0).map(d=>[mins(d.t),fmt(d.w,2),fmt(d.w_cg,2),fmt(d.w_soc,2)]));
+}
+
+/* ================= BATTERY ================= */
+function batChart(){
+  const host=document.getElementById("c-bat"), tip=document.getElementById("t-bat");
+  const pts=BAT.pts;
+  const f=frame(host,{h:250,pad:{l:40,r:16,t:20,b:32},x:[0,2400],y:[48,55],
+    yticks:[48,50,52,54],xticks:[0,600,1200,1800,2400],xfmt:v=>Math.round(v/60),
+    ylabel:"% SoC",
+    bands:[{x0:S.inf_start,x1:S.inf_end,label:"INFERENCE"}],
+    aria:`Battery state of charge stepping from 54 to 49 percent over 2264 seconds, a span rate of ${BAT.drain_pct_h} percent per hour.`});
+  const step=[];
+  pts.forEach((d,i)=>{step.push([d.t,d.soc]); if(pts[i+1])step.push([pts[i+1].t,d.soc]);});
+  f.svg.appendChild(mk("path",{d:path(step,f.X,f.Y),fill:"none",stroke:tok("--gpu"),
+    "stroke-width":2,"stroke-linejoin":"round"}));
+  const a=pts[0],b=pts[pts.length-1];
+  f.svg.appendChild(mk("line",{x1:f.X(a.t),y1:f.Y(a.soc),x2:f.X(b.t),y2:f.Y(b.soc),
+    stroke:tok("--muted"),"stroke-width":1.5,"stroke-dasharray":"4 4"}));
+  pts.forEach(d=>{
+    f.svg.appendChild(mk("circle",{cx:f.X(d.t),cy:f.Y(d.soc),r:5.5,fill:tok("--surface")}));
+    f.svg.appendChild(mk("circle",{cx:f.X(d.t),cy:f.Y(d.soc),r:3.5,fill:tok("--gpu")}));
+  });
+  const lb=mk("text",{x:f.X((a.t+b.t)/2),y:f.Y(51.6)+4,"font-size":11.5,fill:tok("--ink"),
+    "text-anchor":"middle","font-family":tok("--mono"),"font-weight":620});
+  lb.textContent=BAT.drain_pct_h.toFixed(2)+" %/h over the span"; f.svg.appendChild(lb);
+  hover(f,tip,pts.map(d=>d.t),i=>({marks:[{v:pts[i].soc,c:tok("--gpu")}],
+    html:`<span class="th">t + ${mins(pts[i].t)} min</span>`+row(tok("--gpu"),"SoC",pts[i].soc+" %")}));
+}
+
+/* ================= GPU CLOCK ================= */
+function clkChart(){
+  const host=document.getElementById("c-clk"), tip=document.getElementById("t-clk");
+  const f=frame(host,{h:250,pad:{l:50,r:14,t:22,b:32},x:[0,S.duration_s],y:[0,1120],
+    yticks:[0,306,612,1020],xticks:[0,300,600,900,1200,1500,1800,2100],
+    xfmt:v=>Math.round(v/60), ylabel:"MHz",
+    bands:[{x0:S.inf_start,x1:S.inf_end,label:"INFERENCE · 1800 s"}],
+    aria:`GPU core clock over the run against a flat 1020 megahertz ceiling. Mean ${S.clk_mean} megahertz; the clock touches the ceiling in ${S.at_ceiling_pct} percent of samples and the ceiling itself never steps down.`});
+  f.svg.appendChild(mk("line",{x1:f.X(0),x2:f.X(S.duration_s),y1:f.Y(1020),y2:f.Y(1020),
+    stroke:tok("--muted"),"stroke-width":2,"stroke-dasharray":"5 4"}));
+  const cl=mk("text",{x:f.X(S.duration_s),y:f.Y(1020)-8,"font-size":10.5,fill:tok("--ink2"),
+    "text-anchor":"end","font-family":tok("--mono")});
+  cl.textContent="ceiling 1020 MHz — held all run"; f.svg.appendChild(cl);
+  f.svg.appendChild(mk("path",{d:path(SER.map(d=>[d.t,d.clk]),f.X,f.Y),fill:"none",
+    stroke:tok("--gpu"),"stroke-width":2,"stroke-linejoin":"round"}));
+  const ml=mk("line",{x1:f.X(0),x2:f.X(S.duration_s),y1:f.Y(S.clk_mean),y2:f.Y(S.clk_mean),
+    stroke:tok("--gpu"),"stroke-width":1,"stroke-dasharray":"2 3",opacity:.75});
+  f.svg.appendChild(ml);
+  const mlab=mk("text",{x:f.X(0)+6,y:f.Y(S.clk_mean)-6,"font-size":10.5,fill:tok("--ink2"),
+    "font-family":tok("--mono")}); mlab.textContent="mean "+S.clk_mean+" MHz";
+  f.svg.appendChild(mlab);
+  hover(f,tip,SER.map(d=>d.t),i=>{
+    const d=SER[i];
+    return {marks:[{v:d.clk,c:tok("--gpu")}],
+      html:`<span class="th">t + ${mins(d.t)} min</span>`+
+        row(tok("--gpu"),"Clock",Math.round(d.clk)+" MHz")+
+        row(null,"GPU busy",fmt(d.gu,0)+" %")};
+  });
+  table("d-clk",["t (min)","GPU MHz","GPU busy %","CPU busy %"],
+    SER.filter((_,i)=>i%12===0).map(d=>[mins(d.t),Math.round(d.clk),fmt(d.gu,0),fmt(d.cu,1)]));
+}
+
+/* ================= RESIDENCY ================= */
+function resChart(){
+  const host=document.getElementById("c-res"), tip=document.getElementById("t-res");
+  const H=DATA.clk_hist, tot=S.n_samples;
+  const W=Math.max(260,host.clientWidth||420), Ht=250, p={l:40,r:14,t:22,b:44};
+  const iw=W-p.l-p.r, ih=Ht-p.t-p.b, mx=50;
+  const svg=mk("svg",{width:W,height:Ht,viewBox:`0 0 ${W} ${Ht}`,role:"img",
+    "aria-label":"Share of samples at each GPU frequency step. 306 megahertz holds 45.2 percent, 408 holds 31.6 percent, and the 1020 megahertz ceiling holds 5.5 percent."});
+  const Y=v=>p.t+ih-v/mx*ih;
+  [0,10,20,30,40,50].forEach(t=>{
+    svg.appendChild(mk("line",{x1:p.l,x2:W-p.r,y1:Y(t),y2:Y(t),stroke:tok("--grid")}));
+    const tx=mk("text",{x:p.l-8,y:Y(t)+3.5,"font-size":10.5,fill:tok("--muted"),"text-anchor":"end",
+      "font-family":tok("--mono")}); tx.textContent=t+"%"; svg.appendChild(tx);
+  });
+  const band=iw/H.length, bw=Math.min(24,band-2*2);
+  H.forEach(([mhz,n],i)=>{
+    const pc=100*n/tot, x=p.l+band*i+(band-bw)/2, y=Y(pc), h=Math.max(2,Y(0)-y), r=Math.min(4,h);
+    svg.appendChild(mk("path",{d:`M${x} ${y+r} a${r} ${r} 0 0 1 ${r} ${-r} h${bw-2*r} a${r} ${r} 0 0 1 ${r} ${r} v${h-r} h${-bw} Z`,
+      fill:mhz===1020?tok("--gpu"):tok("--gpu"),opacity:mhz===1020?1:.62}));
+    const v=mk("text",{x:x+bw/2,y:y-7,"font-size":11,fill:tok("--ink"),"text-anchor":"middle",
+      "font-family":tok("--mono"),"font-weight":620}); v.textContent=pc.toFixed(1)+"%";
+    svg.appendChild(v);
+    const l=mk("text",{x:x+bw/2,y:Ht-p.b+16,"font-size":10.5,fill:tok("--muted"),"text-anchor":"middle",
+      "font-family":tok("--mono")}); l.textContent=mhz; svg.appendChild(l);
+    if(mhz===306||mhz===1020){
+      const t2=mk("text",{x:x+bw/2,y:Ht-p.b+29,"font-size":9.5,fill:tok("--ink2"),"text-anchor":"middle",
+        "font-family":tok("--mono"),"letter-spacing":".05em"});
+      t2.textContent=mhz===306?"FLOOR":"CEILING"; svg.appendChild(t2);
+    }
+    const hit=mk("rect",{x:p.l+band*i,y:p.t,width:band,height:ih,fill:"transparent"});
+    hit.addEventListener("pointerenter",()=>{
+      tip.innerHTML=`<span class="th">${mhz} MHz</span>`+row(tok("--gpu"),"Samples",n)+
+        row(null,"Share",pc.toFixed(1)+" %")+row(null,"Time",Math.round(n)+" s");
+      tip.style.opacity=1;
+      const r2=svg.getBoundingClientRect(), sc=r2.width/W;
+      tip.style.left=Math.max(0,Math.min(r2.width-tip.offsetWidth,(p.l+band*i+band/2)*sc-40))+"px";
+      tip.style.top="4px";
+    });
+    hit.addEventListener("pointerleave",()=>tip.style.opacity=0);
+    svg.appendChild(hit);
+  });
+  svg.appendChild(mk("line",{x1:p.l,x2:W-p.r,y1:Y(0),y2:Y(0),stroke:tok("--axis")}));
+  const xl=mk("text",{x:p.l-8,y:p.t-9,"font-size":10,fill:tok("--muted"),"text-anchor":"end",
+    "font-family":tok("--mono"),"letter-spacing":".07em"}); xl.textContent="SHARE";
+  svg.appendChild(xl);
+  host.innerHTML=""; host.appendChild(svg);
+  table("d-res",["Step MHz","Samples","Share %","Seconds"],
+    H.map(([m,n])=>[m,n,(100*n/tot).toFixed(1),n]));
+}
+
+/* ================= BOTTLENECK ================= */
+function botChart(){
+  const host=document.getElementById("c-bot"), tip=document.getElementById("t-bot");
+  const clkRatio=100*S.clk_mean/S.ceiling;
+  const eff=S.gpu_util_mean_inf*S.clk_mean/S.ceiling;
+  const rows=[
+    ["Busiest CPU core",91.8,"cpu","6-core mean of "+S.cpu_util_mean_inf+"% × 6"],
+    ["GPU busy fraction",S.gpu_util_mean_inf,"gpu","mean over the inference window"],
+    ["GPU clock vs ceiling",clkRatio,"gpu",S.clk_mean+" of "+S.ceiling+" MHz"],
+    ["GPU effective throughput",eff,"gpu","derived: busy × clock ratio"]
+  ];
+  const W=Math.max(260,host.clientWidth||420), rowH=44, p={l:0,r:52,t:8,b:8};
+  const H=rows.length*rowH+p.t+p.b, iw=W-p.l-p.r;
+  const svg=mk("svg",{width:W,height:H,viewBox:`0 0 ${W} ${H}`,role:"img",
+    "aria-label":`One CPU core runs at about 92 percent while the GPU is busy ${S.gpu_util_mean_inf} percent of the time at ${Math.round(clkRatio)} percent of its clock ceiling, an effective throughput near ${Math.round(eff)} percent.`});
+  rows.forEach(([lab,v,kind,note],i)=>{
+    const y=p.t+i*rowH, c=tok(kind==="cpu"?"--cpu":"--gpu");
+    const t=mk("text",{x:0,y:y+13,"font-size":11.5,fill:tok("--ink2")}); t.textContent=lab;
+    svg.appendChild(t);
+    const bw=Math.max(2,v/100*iw), by=y+19, bh=13, r=4;
+    svg.appendChild(mk("rect",{x:0,y:by,width:iw,height:bh,fill:tok("--sunk")}));
+    svg.appendChild(mk("path",{d:`M0 ${by} h${bw-r} a${r} ${r} 0 0 1 ${r} ${r} v${bh-2*r} a${r} ${r} 0 0 1 ${-r} ${r} h${-(bw-r)} Z`,
+      fill:c}));
+    const val=mk("text",{x:iw+9,y:by+11,"font-size":12.5,fill:tok("--ink"),"font-family":tok("--mono"),
+      "font-weight":620}); val.textContent=Math.round(v)+"%";
+    svg.appendChild(val);
+    const hit=mk("rect",{x:0,y:y,width:W,height:rowH,fill:"transparent"});
+    hit.addEventListener("pointerenter",()=>{
+      tip.innerHTML=`<span class="th">${esc(lab)}</span>`+row(c,"Value",v.toFixed(1)+" %")+
+        row(null,"Basis",note); tip.style.opacity=1;
+      const r2=svg.getBoundingClientRect(), sc=r2.width/W;
+      tip.style.left="0px"; tip.style.top=Math.max(0,(y+rowH)*sc)+"px";
+    });
+    hit.addEventListener("pointerleave",()=>tip.style.opacity=0);
+    svg.appendChild(hit);
+  });
+  host.innerHTML=""; host.appendChild(svg);
+}
+
+/* ================= LATENCY ================= */
+function latChart(){
+  const host=document.getElementById("c-lat"), tip=document.getElementById("t-lat");
+  const P=B.pts;
+  const f=frame(host,{h:290,pad:{l:52,r:14,t:20,b:32},x:[0,B.n],y:[970,1065],
+    yticks:[970,990,1010,1030,1050],xticks:[0,300,600,900,1200,1500,1800],ylabel:"ms",
+    aria:`Per-pass inference latency across ${B.n} passes. The rolling mean stays flat near ${B.mean} milliseconds; the first 200 passes mean ${B.first200} and the last 200 mean ${B.last200}, a drift of ${B.drift_pct} percent.`});
+  P.forEach(d=>f.svg.appendChild(mk("circle",{cx:f.X(d.i),cy:f.Y(d.v),r:1.7,
+    fill:tok("--gpu"),opacity:.34})));
+  const seg=(v,x0,x1,lab)=>{
+    f.svg.appendChild(mk("line",{x1:f.X(x0),x2:f.X(x1),y1:f.Y(v),y2:f.Y(v),stroke:tok("--ink2"),
+      "stroke-width":2,"stroke-dasharray":"5 4"}));
+    const t=mk("text",{x:f.X((x0+x1)/2),y:f.Y(v)-9,"font-size":10.5,fill:tok("--ink"),
+      "text-anchor":"middle","font-family":tok("--mono"),"font-weight":620});
+    t.textContent=lab; f.svg.appendChild(t);
+  };
+  seg(B.first200,0,200,B.first200.toFixed(1));
+  seg(B.last200,B.n-200,B.n,B.last200.toFixed(1));
+  f.svg.appendChild(mk("path",{d:path(B.roll.map((v,i)=>[P[i]?P[i].i:B.n,v]),f.X,f.Y),
+    fill:"none",stroke:tok("--gpu"),"stroke-width":2,"stroke-linejoin":"round"}));
+  const dl=mk("text",{x:f.X(B.n/2),y:f.Y(1052),"font-size":11,fill:tok("--ink2"),
+    "text-anchor":"middle","font-family":tok("--mono")});
+  dl.textContent="drift +"+B.drift_pct.toFixed(2)+"% over 30 min"; f.svg.appendChild(dl);
+  hover(f,tip,P.map(d=>d.i),i=>({marks:[{v:P[i].v,c:tok("--gpu")}],
+    html:`<span class="th">pass #${P[i].n}</span>`+row(tok("--gpu"),"Latency",P[i].v.toFixed(1)+" ms")+
+      row(null,"Rolling 30",B.roll[i].toFixed(1)+" ms")}));
+  const pr=[["n",B.n,""],["mean",B.mean,"ms"],["median",B.median,"ms"],["std",B.std,"ms"],
+    ["min",B.min,"ms"],["p90",B.p90,"ms"],["p95",B.p95,"ms"],["p99",B.p99,"ms"],["max",B.max,"ms"],
+    ["first 200 mean",B.first200,"ms"],["last 200 mean",B.last200,"ms"],
+    ["end-to-end mean",B.e2e_mean,"ms"],["capture mean",B.cap_mean,"ms"]];
+  table("d-lat",["Statistic","Value","Unit"],pr.map(r=>[r[0],r[1],r[2]]));
+}
+
+/* ================= HISTOGRAM ================= */
+function histChart(){
+  const host=document.getElementById("c-hist"), tip=document.getElementById("t-hist");
+  const Hs=B.hist, mx=Math.max(...Hs.map(d=>d.n));
+  const W=Math.max(260,host.clientWidth||420), Ht=250, p={l:40,r:14,t:26,b:40};
+  const iw=W-p.l-p.r, ih=Ht-p.t-p.b;
+  const x0=Hs[0].x, x1=Hs[Hs.length-1].x+5;
+  const X=v=>p.l+(v-x0)/(x1-x0)*iw, Y=v=>p.t+ih-v/mx*ih;
+  const svg=mk("svg",{width:W,height:Ht,viewBox:`0 0 ${W} ${Ht}`,role:"img",
+    "aria-label":`Distribution of ${B.n} inference latencies in 5 millisecond bins, peaking near the ${B.median} millisecond median with a short right tail out to ${B.max}.`});
+  [0,200,400,600].filter(t=>t<=mx).forEach(t=>{
+    svg.appendChild(mk("line",{x1:p.l,x2:W-p.r,y1:Y(t),y2:Y(t),stroke:tok("--grid")}));
+    const tx=mk("text",{x:p.l-8,y:Y(t)+3.5,"font-size":10.5,fill:tok("--muted"),"text-anchor":"end",
+      "font-family":tok("--mono")}); tx.textContent=t; svg.appendChild(tx);
+  });
+  const bw=Math.max(3,(X(x0+5)-X(x0))-2);
+  Hs.forEach(d=>{
+    const h=Math.max(1,Y(0)-Y(d.n)), r=Math.min(3,h,bw/2), x=X(d.x)+1, y=Y(d.n);
+    svg.appendChild(mk("path",{d:`M${x} ${y+r} a${r} ${r} 0 0 1 ${r} ${-r} h${bw-2*r} a${r} ${r} 0 0 1 ${r} ${r} v${h-r} h${-bw} Z`,
+      fill:tok("--gpu"),opacity:.72}));
+    const hit=mk("rect",{x:X(d.x),y:p.t,width:bw+2,height:ih,fill:"transparent"});
+    hit.addEventListener("pointerenter",()=>{
+      tip.innerHTML=`<span class="th">${d.x}–${d.x+5} ms</span>`+row(tok("--gpu"),"Passes",d.n)+
+        row(null,"Share",(100*d.n/B.n).toFixed(1)+" %"); tip.style.opacity=1;
+      const r2=svg.getBoundingClientRect(), sc=r2.width/W;
+      tip.style.left=Math.max(0,Math.min(r2.width-tip.offsetWidth,X(d.x)*sc-30))+"px";
+      tip.style.top="2px";
+    });
+    hit.addEventListener("pointerleave",()=>tip.style.opacity=0);
+    svg.appendChild(hit);
+  });
+  [[B.median,"p50"],[B.p90,"p90"],[B.p99,"p99"]].forEach(([v,l],i)=>{
+    svg.appendChild(mk("line",{x1:X(v),x2:X(v),y1:p.t-4,y2:Y(0),stroke:tok("--ink2"),
+      "stroke-width":1.5,"stroke-dasharray":"3 3"}));
+    const t=mk("text",{x:X(v),y:p.t-9+(i===1?-0:0),"font-size":10,fill:tok("--ink2"),
+      "text-anchor":i===0?"end":"middle","font-family":tok("--mono"),"letter-spacing":".05em"});
+    t.textContent=l; svg.appendChild(t);
+  });
+  [980,1000,1020,1040,1060].forEach(t=>{
+    const tx=mk("text",{x:X(t),y:Ht-p.b+16,"font-size":10.5,fill:tok("--muted"),"text-anchor":"middle",
+      "font-family":tok("--mono")}); tx.textContent=t; svg.appendChild(tx);
+  });
+  const xl=mk("text",{x:(p.l+W-p.r)/2,y:Ht-6,"font-size":10,fill:tok("--muted"),"text-anchor":"middle",
+    "font-family":tok("--mono"),"letter-spacing":".07em"});
+  xl.textContent="MODEL FORWARD LATENCY (ms)"; svg.appendChild(xl);
+  svg.appendChild(mk("line",{x1:p.l,x2:W-p.r,y1:Y(0),y2:Y(0),stroke:tok("--axis")}));
+  host.innerHTML=""; host.appendChild(svg);
+}
+
+/* ================= COMPARISON TABLE ================= */
+function cmpTable(){
+  const R=[
+    ["Phase","Active idle","Peak inference","Peak inference"],
+    ["Run","run_1","run_1","run_2"],
+    ["Motor state","R arm locked","R arm locked","All 17 verified free"],
+    ["Duration","3571 s","1800 s load","1800 s load"],
+    ["__rule__"],
+    ["Max GPU / tj temp","51.3 °C","60.2 °C","59.9 °C"],
+    ["Rise above ambient","+26.9 °C","+35.8 °C","+35.5 °C"],
+    ["Max CPU temp","50.5 °C","58.8 °C","58.7 °C"],
+    ["VDD_IN mean","5.42 W","9.43 W","9.40 W"],
+    ["VDD_IN peak","5.80 W","11.54 W","11.48 W"],
+    ["GPU clock mean","—","426 MHz","429 MHz"],
+    ["Time at 1020 MHz ceiling","—","4.6 %","5.5 %"],
+    ["Forward passes","—","1809","1791"],
+    ["Inference latency","—","986.6 ms","998.8 ms"],
+    ["Latency drift","—","+0.3 %","+0.15 %"],
+    ["Battery drain","~5.5 %/h","8.13 %/h","7.95 %/h"],
+    ["Memory mean","1834 MB","—","3180 MB"],
+    ["__rule__"],
+    ["Throttle","N","N","N"],
+    ["Raw time series","__lost__","__lost__","__ok__"]
+  ];
+  const t=document.getElementById("cmp");
+  let h=`<thead><tr><th></th><th>Phase 1 · active idle</th><th>Phase 2 · peak inference</th>
+    <th>Phase 2 · peak inference</th></tr></thead><tbody>`;
+  R.forEach(r=>{
+    if(r[0]==="__rule__"){h+=`<tr class="rule"><th></th><td></td><td></td><td></td></tr>`;return;}
+    const cells=r.slice(1).map((c,i)=>{
+      if(c==="__lost__")return `<td><span class="flag lost">deleted</span></td>`;
+      if(c==="__ok__")return `<td><span class="flag ok">intact</span></td>`;
+      return `<td class="${i===2?"hi":""}">${esc(c)}</td>`;
+    }).join("");
+    h+=`<tr><th>${esc(r[0])}</th>${cells}</tr>`;
+  });
+  t.innerHTML=h+"</tbody>";
+}
+
+/* ---------- generic table ---------- */
+function table(id,cols,rows){
+  const el=document.getElementById(id); if(!el)return;
+  el.innerHTML=`<table><thead><tr>${cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>`+
+    rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join("")}</tr>`).join("")+`</tbody></table>`;
+}
+
+/* ---------- draw all + re-draw on resize / theme ---------- */
+function drawAll(){
+  meter();tempChart();deltaChart();powChart();batChart();
+  clkChart();resChart();botChart();latChart();histChart();
+}
+tiles();cmpTable();drawAll();
+
+let raf;
+addEventListener("resize",()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(drawAll)});
+new MutationObserver(drawAll).observe(document.documentElement,{attributes:true,
+  attributeFilter:["data-theme"]});
+if(window.matchMedia)matchMedia("(prefers-color-scheme:dark)").addEventListener("change",drawAll);
+})();
+</script>

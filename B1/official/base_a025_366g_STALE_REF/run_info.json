@@ -1,0 +1,15 @@
+{
+  "started": "2026-08-05T20:49:14.846290+00:00",
+  "test": "B1 base translation with payload",
+  "mass_g": 366.0,
+  "object": "500 ml water bottle",
+  "battery_pct_start": 100.0,
+  "ambient_c": 24.4,
+  "commanded_accel_ms2": 0.25,
+  "peak_vel_ms": 0.3,
+  "dwell_s": 0.4,
+  "cycles": 6,
+  "arm_torque_limit": 450,
+  "xlerobot_pro_commit": "f4956bf",
+  "note": ""
+}

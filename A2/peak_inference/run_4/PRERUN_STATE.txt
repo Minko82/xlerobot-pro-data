@@ -1,0 +1,12 @@
+timestamp_utc: 2026-08-02T00:13:26Z
+gpu_temp_c: 50.5
+cpu_temp_c: 50.0
+nvpmodel: pmode:0002
+clock_policy: DVFS (jetson_clocks NOT applied; cleared by reboot)
+gpu_min_mhz: 306
+gpu_max_mhz: 1020
+ambient_c: 24.4
+battery_pct: 86
+torque_state: all 17 motors verified FREE (left arm, right arm, head, wheels)
+motors_powered: yes, all 17 responding on both buses
+config: num_steps 10, chunk 5 (script defaults - matches run_2 and run_3)
