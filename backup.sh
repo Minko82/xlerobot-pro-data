@@ -22,13 +22,22 @@ fi
 
 mkdir -p "$DEST/vla_logs" "$DEST/calibration"
 before=$(du -sm "$DEST" | cut -f1)
+FAILED=0
 
-for d in A2 B1 thermal calibration protocols; do
+# Discover the directories on the robot rather than listing them here. A
+# hardcoded list silently skips whatever it does not name -- A1 was missed
+# exactly that way, and the omission was invisible because the script still
+# reported success.
+DIRS=$(ssh -o BatchMode=yes "xle@$HOST" "cd $SRC 2>/dev/null && ls -d */ 2>/dev/null | tr -d /" \
+       | grep -vx scripts)
+echo "  syncing: $(echo $DIRS | tr '\n' ' ')"
+for d in $DIRS; do
     printf '  %-12s ' "$d"
-    if ssh -o BatchMode=yes "xle@$HOST" "test -d $SRC/$d" 2>/dev/null; then
-        rsync -a "xle@$HOST:$SRC/$d/" "$DEST/$d/" && echo "ok"
+    mkdir -p "$DEST/$d"
+    if rsync -a "xle@$HOST:$SRC/$d/" "$DEST/$d/"; then
+        echo "ok  ($(find "$DEST/$d" -type f | wc -l | tr -d ' ') files)"
     else
-        echo "absent on robot, skipped"
+        echo "FAILED"; FAILED=1
     fi
 done
 
@@ -36,4 +45,5 @@ printf '  %-12s ' "vla_logs"
 rsync -a "xle@$HOST:vla/*.log" "$DEST/vla_logs/" 2>/dev/null && echo "ok" || echo "none"
 
 after=$(du -sm "$DEST" | cut -f1)
+[ "$FAILED" = 1 ] && echo "WARNING: at least one directory failed to sync" >&2
 echo "backed up from $HOST -- $DEST now $(du -sh "$DEST" | cut -f1) (was ${before} MB, now ${after} MB)"
