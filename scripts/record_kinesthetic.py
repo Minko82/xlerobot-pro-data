@@ -60,8 +60,25 @@ from xle_arms import ARM_IDS, SO101FollowerArm
 NECK_DRIFT_WARN = 45
 
 
-def neck_position() -> dict | None:
-    """Current neck angles, or None if the head bus is unavailable."""
+def neck_position(arm_port: str = "") -> dict | None:
+    """Current neck angles, or None if the neck cannot be read safely.
+
+    Two reasons this returns None rather than a number.
+
+    The neck lives on the head bus at IDs 1-2, which are also the arm's
+    shoulder_pan and shoulder_lift. If the arm is running on the head port --
+    as it is whenever the arms adapter is unavailable -- those IDs answer as
+    the ARM, and the drift check silently reports shoulder movement between
+    takes as camera drift. A wrong warning is worse than no warning: it invites
+    you to throw away a good dataset.
+
+    It is also unsafe. This opens a SECOND handle on a port the robot already
+    holds, once per saved episode. Two handles interleaving on one half-duplex
+    bus corrupts traffic, which shows up later as `sync_read` or `Lock` failing
+    mid-session and killing the run.
+    """
+    if arm_port and Path(arm_port).resolve() == Path("/dev/xle_head").resolve():
+        return None
     try:
         b = FeetechMotorsBus(port="/dev/xle_head", motors={
             n: Motor(i, "sts3215", MotorNormMode.RANGE_M100_100)
@@ -202,7 +219,10 @@ def main() -> int:
         print(f"\n  Dataset: {dataset.root}")
     print(f"  Task   : {args.task}")
 
-    neck0 = neck_position()
+    neck0 = neck_position(args.port)
+    if neck0 is None:
+        print("  Camera : drift guard OFF -- the neck is not readable on a separate bus.\n"
+              "           Check by hand that the neck is rigid before you start.")
     if neck0:
         print(f"  Camera : neck at {neck0['head_motor_1']}, {neck0['head_motor_2']} "
               "-- do not re-aim it after this point")
@@ -310,7 +330,7 @@ def main() -> int:
             kept += 1
             print(f"\n  \u2713 SAVED episode {kept}/{args.episodes}  --  {n - 1} frames "
                   f"({(n - 1) / args.fps:.1f}s), took {time.perf_counter() - t_save:.1f}s to encode")
-            now_neck = neck_position()
+            now_neck = neck_position(args.port)
             if neck0 and now_neck:
                 drift = max(abs(now_neck[k2] - neck0[k2]) for k2 in neck0)
                 if drift > NECK_DRIFT_WARN:
