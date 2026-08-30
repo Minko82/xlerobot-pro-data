@@ -277,7 +277,9 @@ class Keys:
 
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--repo-id", required=True, help="e.g. local/bottle_pickplace")
+    p.add_argument("--repo-id", default=None,
+                   help="e.g. local/bottle_pickplace. Not needed with --calibrate or "
+                        "--capture-start-pose, which touch no dataset.")
     p.add_argument("--root", type=Path, default=None, help="Where to write. Default ~/.cache/huggingface/lerobot")
     p.add_argument("--port", default="/dev/xle_arms")
     p.add_argument("--arm", choices=list(ARM_IDS), default="left",
@@ -334,6 +336,9 @@ def main() -> int:
                    help="Keep the gripper powered and drive it from the keyboard (c/o) instead "
                         "of squeezing it by hand. Use if a limp gripper will not hold the object.")
     args = p.parse_args()
+    if args.repo_id is None and not (args.calibrate or args.capture_start_pose is not None):
+        p.error("--repo-id is required unless you are using --calibrate or "
+                "--capture-start-pose")
     if args.robot_id is None:
         args.robot_id = f"{args.arm}_follower"
 
