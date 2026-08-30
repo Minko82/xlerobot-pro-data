@@ -34,6 +34,7 @@ throw it away. With --powered-gripper, c and o close and open the jaws.
 from __future__ import annotations
 
 import argparse
+import json
 import shutil
 import sys
 import threading
@@ -175,6 +176,75 @@ def observe(robot, grip: float | None):
     return robot.get_observation()
 
 
+#: Seconds to ramp back to the reference start pose between takes. Slow enough
+#: that a limp arm being driven under torque is not alarming to stand next to.
+START_POSE_SECONDS = 4.0
+
+
+def capture_start_pose(robot, arm: str, path: Path) -> None:
+    """Save where the arm is right now as the reference start pose.
+
+    Raw counts, matching calibration/hold_pose.json. The homing offsets go in
+    beside them because raw counts are only meaningful in the calibration frame
+    that produced them -- recalibrate and the same numbers point somewhere else.
+    Storing them lets replay refuse rather than drive the arm to the wrong place.
+    """
+    pos = robot.bus.sync_read("Present_Position", BODY, normalize=False)
+    homing = {n: int(robot.bus.calibration[n].homing_offset) for n in BODY}
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(
+        {"arm": arm, "positions": {n: int(v) for n, v in pos.items()}, "homing_offset": homing},
+        indent=4) + "\n")
+    print(f"\n  Start pose saved to {path}")
+    for n in BODY:
+        print(f"    {n:<16} {int(pos[n]):5d}")
+    print("\n  Replay it on every take with:\n"
+          f"    --start-pose {path}\n")
+
+
+def load_start_pose(robot, arm: str, path: Path):
+    """Read a saved start pose, refusing one from a different calibration."""
+    d = json.loads(path.read_text())
+    if d.get("arm") != arm:
+        raise SystemExit(f"{path} was captured for the {d.get('arm')} arm, not {arm}")
+    saved = d.get("homing_offset", {})
+    now = {n: int(robot.bus.calibration[n].homing_offset) for n in BODY}
+    drift = {n: (saved[n], now[n]) for n in saved if saved.get(n) != now.get(n)}
+    if drift:
+        lines = "\n".join(f"      {n:<16} saved {a:6d}   now {b:6d}" for n, (a, b) in drift.items())
+        raise SystemExit(
+            f"\n  {path} was captured under a different calibration:\n{lines}\n\n"
+            "  Raw counts do not mean the same thing across a recalibration, so replaying\n"
+            "  this would drive the arm somewhere other than where you captured it.\n"
+            "  Re-capture with --capture-start-pose.\n")
+    return {n: int(v) for n, v in d["positions"].items()}
+
+
+def ramp_to_pose(robot, target: dict, seconds: float = START_POSE_SECONDS, steps: int = 40) -> None:
+    """Drive the arm to the reference pose, then hand it back limp.
+
+    Interpolated rather than one Goal_Position write, so the arm travels at a
+    controlled speed instead of snapping -- the same approach hold_pose_thermal
+    uses, and for the same reason.
+
+    Torque has to come back on to move a limp arm, so it is released again on
+    every path out. Leaving it enabled would silently make the next take a
+    fight against the servos rather than a demonstration.
+    """
+    robot.bus.enable_torque(BODY)
+    try:
+        start = robot.bus.sync_read("Present_Position", BODY, normalize=False)
+        for i in range(1, steps + 1):
+            frac = i / steps
+            robot.bus.sync_write(
+                "Goal_Position",
+                {n: int(round(start[n] + (target[n] - start[n]) * frac)) for n in BODY},
+                normalize=False)
+            time.sleep(seconds / steps)
+    finally:
+        robot.bus.disable_torque(BODY)
+
+
 class Keys:
     """Non-blocking line reader. stdin is shared with the prompts, so a thread."""
 
@@ -231,6 +301,22 @@ def main() -> int:
     p.add_argument("--resume", action="store_true",
                    help="Append to an existing dataset instead of failing. Use this after a "
                         "Ctrl-C to keep adding episodes to the same recording session.")
+    p.add_argument("--capture-start-pose", type=Path, nargs="?", metavar="FILE",
+                   const=Path("calibration/record_start_pose.json"), default=None,
+                   help="Pose the arm by hand where takes should begin, run this, and it "
+                        "saves that pose and exits. Defaults to "
+                        "calibration/record_start_pose.json. Does NOT touch "
+                        "calibration/hold_pose.json, which the thermal sweep replays and "
+                        "which must not be recaptured.")
+    p.add_argument("--start-pose", type=Path, default=None, metavar="FILE",
+                   help="Drive the arm to this saved pose before every take. Without it, "
+                        "each take starts wherever the arm was left, and that spread is "
+                        "learnable -- the policy then leans on proprioception instead of "
+                        "the camera, and reaches where its joints say rather than where "
+                        "the object is.")
+    p.add_argument("--start-pose-seconds", type=float, default=START_POSE_SECONDS,
+                   metavar="S", help=f"Ramp duration to the start pose (default "
+                                     f"{START_POSE_SECONDS:g}).")
     p.add_argument("--grip-open", type=float, default=GRIP_OPEN, metavar="0-100",
                    help=f"How far 'o' opens the jaws during a take (default {GRIP_OPEN:.0f}). "
                         "This IS recorded, so changing it mid-dataset makes earlier and later "
@@ -264,6 +350,13 @@ def main() -> int:
     print(f"  Arm    : {args.arm} (motor IDs {ARM_IDS[args.arm][0]}-{ARM_IDS[args.arm][-1]})"
           f"  id={args.robot_id}")
 
+    if args.capture_start_pose is not None:
+        print("\n  Pose the arm by hand where every take should begin.")
+        input("  Press ENTER to capture it...")
+        capture_start_pose(robot, args.arm, args.capture_start_pose)
+        robot.disconnect()
+        return 0
+
     if args.calibrate:
         print("\n  Calibrating. Follow the prompts, then rerun without --calibrate.\n")
         robot.calibrate()
@@ -277,6 +370,12 @@ def main() -> int:
               f"--arm {args.arm} --calibrate\n", file=sys.stderr)
         robot.disconnect()
         return 1
+
+    start_pose = None
+    if args.start_pose is not None:
+        start_pose = load_start_pose(robot, args.arm, args.start_pose)
+        print(f"  Start  : replaying {args.start_pose} before every take "
+              f"({args.start_pose_seconds:g} s ramp)")
 
     ds_features = combine_feature_dicts(
         hw_to_dataset_features(robot.action_features, "action", True),
@@ -328,7 +427,17 @@ def main() -> int:
 
         while kept < args.episodes:
             print(f"\n  ---- episode {kept + 1} / {args.episodes} ----")
-            print("  Put the bottle at the start mark, arm at rest.")
+            if start_pose is not None:
+                # Before the prompt, not after: the operator places the object with
+                # the arm already at the reference pose, and the ramp itself never
+                # lands in a demonstration.
+                print(f"    driving to the start pose ({args.start_pose_seconds:g} s) "
+                      "-- keep clear")
+                ramp_to_pose(robot, start_pose, args.start_pose_seconds)
+                print("    at start pose, arm limp again")
+            print("  Put the bottle at the start mark, arm at rest."
+                  if start_pose is None else
+                  "  Put the bottle where you want it -- VARY it between takes.")
             if args.powered_gripper:
                 print("  ENTER to start.  During: c=close  o=open  ENTER=keep  d=discard  q=quit")
             else:
