@@ -19,6 +19,12 @@ cannot go to an editor while they are in it.
 ### 1. Bus B ammeter reading · ~15 min
 **Fills:** Table IV, P2 "Measured" cell (currently `[PENDING: ammeter]`).
 
+> **Still required after the 28 August A1 run.** That run measured the compute
+> rail and reset behaviour (n = 20, zero resets, 72 mV worst margin) but not bus
+> current: `trial_*_buscurrent.csv` reads 0.0 mA in 304 of 340 samples, which is
+> the static-hold floor this section already warns about. See `RESULTS_TABLES.md`
+> § A1.
+
 Inline ammeter on the Bus B (arm) rail. Log while the arms execute a
 worst-case simultaneous multi-axis move at the deployed cap (τ = 450), not a
 static hold — the envelope bounds *simultaneous commanded motion*, and a static

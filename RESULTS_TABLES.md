@@ -14,19 +14,84 @@ Platform: Jetson Orin Nano Super 8 GB, JetPack 6.2.1, MAXN_SUPER, DVFS unless st
 
 ## A1 — Boot-up current sequencing & brownout margin
 
-**NOT RUN — equipment-blocked.**
+**PARTIALLY RUN, 2026-08-28.** n = 20 (two runs of 10), 2-bus config, ~700 Hz
+compute-rail sampling, zero resets. Data in `A1/two_bus` and `A1/two_bus_v2`.
+
+Two of the three columns are now filled. **Bus current remains equipment-blocked**
+— see *What is still missing* below, which matters more than the numbers that are
+here.
 
 | Active motors | Config | Bus current (A) | Compute-rail V_min (V) | Reset? |
 |---|---|---|---|---|
+| 1 / 4 / 8 / 12 | 2-Bus | — | 5.072 (no resolvable dip) | N (20/20) |
+| 17 (all, simultaneous commanded pose) | 2-Bus | — | **5.000** | N (20/20) |
 | 1 / 4 / 8 / 12 / 17 | Baseline | — | — | — |
-| 1 / 4 / 8 / 12 / 17 | 2-Bus | — | — | — |
 
-Available: bench DC supply with current logging.
-Missing: **oscilloscope (≥1 kHz) for compute-rail V_min** — the headline number.
-Also required for the baseline arm: rewiring the original daisy-chained harness.
+Idle rail 5.072 V. Worst dip 5.000 V, a **72 mV (1.4 %) margin**, at 17 motors under
+a commanded simultaneous pose. Compute-rail current peaked at 1072 mA. The baseline
+(daisy-chained) row is still unrun and needs the original harness rewired.
 
-`Reset? (Y/N)` is recoverable without a scope (a brownout reset shows as a dropped
-SSH session plus reset `uptime`), so a partial A1 could fill 2 of 3 columns.
+### The two runs do not agree, and the difference is the result
+
+Pooling all 20 trials into one "worst dip" hides that the two runs behave
+differently under a nominally identical configuration:
+
+| | median V_min | dip below idle | median compute-rail I_peak | dips at 17 motors |
+|---|---|---|---|---|
+| `two_bus` | 5064 mV | **8 mV** | 824 mA | 1 of 10 |
+| `two_bus_v2` | 5000 mV | **72 mV** | 1056 mA | 10 of 10 |
+
+`two_bus_v2` draws ~28 % more peak compute-rail current and dips nine times
+deeper. In `two_bus` the deepest reading of the whole run (5024 mV, trial 2)
+occurred during `enable_head_motor_2` with **two** motors active — an enable
+transient, not a load effect — and 9 of its 10 per-trial minima fell outside the
+`simultaneous_pose` phase entirely. In `two_bus_v2` the minima are in
+`simultaneous_pose` or `settled` in all 10, at 17 motors, every time.
+
+So the loaded dip is real and highly repeatable **in the second run**, and absent
+in the first. Report both, or explain what differed. Quoting 5.000 V against n=20
+without this table invites exactly the reviewer question the measurement was meant
+to close.
+
+### Resolution floor: 8 mV
+
+The INA3221 quantises the rail in 8 mV steps — every value recorded across all 20
+trials is a multiple of 8. `two_bus`'s 8 mV "dip" is therefore **one LSB**, which
+is not a measurement of anything. Only `two_bus_v2`'s 72 mV (9 LSB) is resolvable.
+Do not report sub-16 mV differences from this instrument.
+
+### What is still missing
+
+**Servo-bus current was not measured.** `trial_*_buscurrent.csv` is present but
+reads **0.0 mA in 304 of 340 samples**, the remainder being single 6.5–19.5 mA
+LSBs. That is the per-servo `Present_Current` sum, taken once per enable step with
+the motors energised but stationary, and it is exactly the failure `TESTS_NEEDED.md`
+§1 already documents: *"Do not substitute the per-servo telemetry sum. It is in
+uncalibrated register units and reads a static-hold floor."* The inline ammeter on
+the Bus B rail (Tier 0 #1) is still required, and Table IV's P2 "Measured" cell is
+still `[PENDING: ammeter]`.
+
+The 816–1072 mA figures in `trials.csv` are **VDD_IN, the Jetson's own draw**, not
+servo bus current. They are not interchangeable and must not be reported as the
+bus figure.
+
+### What this does and does not license saying
+
+**Supported.** Under 20 trials of the deployed 2-bus configuration, energising all
+17 actuators and commanding a worst-case simultaneous pose produced no brownout
+reset, and the compute rail did not fall below 5.000 V — a 72 mV margin — as
+measured at ~700 Hz.
+
+**Not supported.** That the rail never fell further. The INA3221 samples at ~700 Hz
+against the protocol's 1 kHz and averages internally, so **V_min is an upper bound
+on the true dip** and the sub-millisecond transients most likely to reset a compute
+module are precisely what it cannot see. The reset column, not the voltage column,
+is the stronger evidence here — and it is evidence of absence only across the 20
+trials run.
+
+Eq. (2) can move from "validated operationally" to "validated against a measured
+72 mV margin, instrument-limited," which is a smaller step than it sounds but an
+honest one.
 
 ---
 
