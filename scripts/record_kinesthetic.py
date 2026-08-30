@@ -98,9 +98,81 @@ def neck_position(arm_port: str = "") -> dict | None:
 BODY = ["shoulder_pan", "shoulder_lift", "elbow_flex", "wrist_flex", "wrist_roll"]
 GRIPPER = "gripper"
 
-#: Only used with --powered-gripper.
+#: Only used with --powered-gripper. The gripper normalises 0-100 across the
+#: jaw travel found by calibration (2038-3252 counts on this arm), so 45 is not
+#: "open" -- it is 45% of the way, a little under half of what the jaws can do.
 GRIP_OPEN = 45.0
 GRIP_CLOSED = 2.0
+
+#: How wide to open when handing the object back between takes. Deliberately
+#: separate from GRIP_OPEN and deliberately much wider: this is commanded after
+#: the capture loop has ended, so it never lands in a demonstration and costs
+#: nothing to make generous. Widening GRIP_OPEN instead would change what the
+#: policy is taught, and would make takes recorded before and after the change
+#: disagree about what "open" means.
+#:
+#: Short of 100 so the servo settles just off its mechanical stop instead of
+#: pushing into it for the whole 30-60 s video encode.
+GRIP_RELEASE = 95.0
+
+#: Attempts before giving up on the bus. lerobot's own calls default to no retry,
+#: so ONE dropped packet raises straight out of whatever is running -- losing the
+#: take in progress, or minutes of calibration sweeping, and abandoning the rest.
+#:
+#: The backoff doubles from 10 ms, so six attempts span ~310 ms. That is sized
+#: from observation: three attempts at a flat 10 ms still lost calibration on
+#: this arm, which means the dropouts outlast 30 ms.
+#:
+#: The cost of a wide window is worth stating plainly. On a healthy bus it is
+#: never paid. On a failing one, a stall means frames are not captured while the
+#: arm keeps moving, and lerobot timestamps frames by index -- so the trajectory
+#: replays as if that stretch happened faster than it did. Losing a few frames
+#: beats losing the episode, but neither is as good as fixing the connection;
+#: see scripts/bus_watch.py.
+BUS_RETRIES = 6
+BUS_BACKOFF_S = 0.01
+
+
+def harden_bus(bus, retries: int = BUS_RETRIES):
+    """Make every read and write on this bus survive a dropped packet.
+
+    Retrying inside the recording loop is not enough, because the loop is not
+    the only thing that talks to the bus. ``robot.calibrate()`` spends minutes
+    in lerobot's ``record_ranges_of_motion()``, which runs its own ``sync_read``
+    at the default ``num_retry=0`` -- so one dropped packet ends calibration
+    after you have already done the physical work of sweeping every joint.
+    ``connect()`` -> ``configure()`` is equally exposed and fails as
+    ``Failed to write 'Lock' on id_=5``.
+
+    Wrapping the bound methods on the instance covers all of them at once,
+    including lerobot's internal ``self.sync_read(...)`` calls, because an
+    instance attribute shadows the class method.
+
+    This is mitigation, not a repair. A bus that drops packets while the arm is
+    being moved by hand has a marginal connection somewhere, and retries only
+    buy enough reliability to finish a session.
+    """
+    def wrap(fn):
+        def retrying(*a, **kw):
+            for attempt in range(retries):
+                try:
+                    return fn(*a, **kw)
+                except ConnectionError:
+                    if attempt == retries - 1:
+                        raise
+                    time.sleep(BUS_BACKOFF_S * (2 ** attempt))
+        return retrying
+
+    for name in ("sync_read", "sync_write", "read", "write"):
+        if hasattr(bus, name):
+            setattr(bus, name, wrap(getattr(bus, name)))
+
+
+def observe(robot, grip: float | None):
+    """One observation. Retries happen inside the bus -- see harden_bus."""
+    if grip is not None:
+        robot.bus.sync_write("Goal_Position", {GRIPPER: grip})
+    return robot.get_observation()
 
 
 class Keys:
@@ -159,6 +231,19 @@ def main() -> int:
     p.add_argument("--resume", action="store_true",
                    help="Append to an existing dataset instead of failing. Use this after a "
                         "Ctrl-C to keep adding episodes to the same recording session.")
+    p.add_argument("--grip-open", type=float, default=GRIP_OPEN, metavar="0-100",
+                   help=f"How far 'o' opens the jaws during a take (default {GRIP_OPEN:.0f}). "
+                        "This IS recorded, so changing it mid-dataset makes earlier and later "
+                        "episodes disagree about what open means.")
+    p.add_argument("--no-release", action="store_true",
+                   help="Do NOT open the jaws when a take ends. The arm is limp, so an "
+                        "automatic release drops whatever is held from wherever it was left "
+                        "-- fine for a pill bottle, not for glass. With this set, take the "
+                        "object out by hand, or press o before you end the take.")
+    p.add_argument("--grip-release", type=float, default=GRIP_RELEASE, metavar="0-100",
+                   help=f"How far the jaws open to hand the object back between takes "
+                        f"(default {GRIP_RELEASE:.0f}). Commanded after the take ends, so it is "
+                        "never recorded -- widen it freely.")
     p.add_argument("--powered-gripper", action="store_true",
                    help="Keep the gripper powered and drive it from the keyboard (c/o) instead "
                         "of squeezing it by hand. Use if a limp gripper will not hold the object.")
@@ -174,6 +259,7 @@ def main() -> int:
                                               height=args.height, color_mode=ColorMode.RGB)},
     )
     robot = SO101FollowerArm(cfg, arm=args.arm)
+    harden_bus(robot.bus)
     robot.connect(calibrate=False)
     print(f"  Arm    : {args.arm} (motor IDs {ARM_IDS[args.arm][0]}-{ARM_IDS[args.arm][-1]})"
           f"  id={args.robot_id}")
@@ -228,7 +314,7 @@ def main() -> int:
               "-- do not re-aim it after this point")
 
     keys = Keys()
-    grip = GRIP_OPEN
+    grip = args.grip_open
     period = 1.0 / args.fps
     kept = dataset.meta.total_episodes if args.resume else 0
 
@@ -254,9 +340,21 @@ def main() -> int:
                 break
 
             keys.drain()          # so the start keystroke cannot end the episode
+
+            # Every take must begin from the same commanded jaw width. The
+            # between-takes release leaves `grip` at GRIP_RELEASE, and without
+            # this reset the first episode would start at --grip-open while
+            # every later one started at --grip-release -- a gripper channel
+            # that disagrees with itself across the dataset, for no reason the
+            # policy can learn from.
+            if args.powered_gripper:
+                grip = args.grip_open
+                robot.bus.sync_write("Goal_Position", {GRIPPER: grip})
+
             print("\n  \u25cf RECORDING  --  press ENTER when the task is done\n")
             states, frames, t0 = [], [], time.perf_counter()
             verdict = None
+            bus_lost = False
             last_draw = 0.0
             while verdict is None:
                 loop_t = time.perf_counter()
@@ -265,16 +363,21 @@ def main() -> int:
                     grip = GRIP_CLOSED
                     print("    gripper closing")
                 elif args.powered_gripper and k in ("o", "open"):
-                    grip = GRIP_OPEN
+                    grip = args.grip_open
                     print("    gripper opening")
                 elif k in ("e", "end", ""):
                     verdict = "keep"
                 elif k in ("d", "discard", "r"):
                     verdict = "discard"
 
-                if args.powered_gripper:
-                    robot.bus.sync_write("Goal_Position", {GRIPPER: grip})
-                obs = robot.get_observation()
+                try:
+                    obs = observe(robot, grip if args.powered_gripper else None)
+                except ConnectionError as exc:
+                    print(f"\n    \u26a0 bus dropped out and did not come back after "
+                          f"{BUS_RETRIES} tries:\n      {exc}")
+                    bus_lost = True
+                    verdict = "keep" if len(frames) > args.fps else "discard"
+                    break
                 states.append({k2: v for k2, v in obs.items() if k2.endswith(".pos")})
                 # Copy the image arrays out of librealsense's buffers before keeping
                 # them. get_observation() hands back views into the camera's frame
@@ -308,13 +411,36 @@ def main() -> int:
 
             sys.stdout.write("\r" + " " * 78 + "\r")
             sys.stdout.flush()
+
+            # Hand the object back as soon as the take ends. The jaws hold
+            # whatever position was last commanded, so after a take that closed
+            # them they stay clamped on the bottle -- and the keyboard is not
+            # read again until the next episode prompt, so there is no way to
+            # open them without prising the bottle out. Doing it here rather
+            # than after save_episode() returns the bottle during the 30-60 s
+            # video encode instead of after it, which is when you want to be
+            # resetting the scene. The arm is limp, so anything still lifted
+            # will drop the moment the jaws open.
+            if args.powered_gripper and not args.no_release:
+                grip = args.grip_release
+                robot.bus.sync_write("Goal_Position", {GRIPPER: grip})
+                print(f"    gripper opened to {grip:.0f}/100 -- object released, "
+                      "ready for the next take")
+            elif args.powered_gripper:
+                print("    jaws held (--no-release) -- take the object out by hand")
+
             n = len(frames)
             if verdict == "discard":
-                print(f"    thrown away on request ({n} frames)")
+                print(f"    thrown away ({n} frames)" if bus_lost
+                      else f"    thrown away on request ({n} frames)")
+                if bus_lost:
+                    break
                 continue
             if n < args.fps:
                 print(f"    too short to keep -- only {n} frames ({n / args.fps:.1f}s). "
                       "Give it at least a second.")
+                if bus_lost:
+                    break
                 continue
 
             # action[t] = state[t+1]; the final frame has no successor, so drop it.
@@ -339,10 +465,24 @@ def main() -> int:
                           "see different views, which will hurt the policy. Re-aim to "
                           f"{neck0['head_motor_1']}, {neck0['head_motor_2']} or restart the dataset.")
 
+            if bus_lost:
+                # The take was long enough to keep and it is now safely on disk.
+                # Stop here rather than opening the next episode on a bus that
+                # has already failed once -- the saved episodes are what matter,
+                # and --resume picks up from them.
+                print(f"\n  Stopping after {kept} saved episode(s): the bus dropped out.\n"
+                      f"  Re-seat the adapter, then continue with --resume.")
+                break
+
     except KeyboardInterrupt:
         print("\n  interrupted")
     finally:
         keys.stop.set()
+        try:
+            if args.powered_gripper and not args.no_release:
+                robot.bus.sync_write("Goal_Position", {GRIPPER: args.grip_release})
+        except Exception:
+            pass
         try:
             robot.bus.enable_torque()
         except Exception:
