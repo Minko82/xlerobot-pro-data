@@ -1,0 +1,6 @@
+active_motors,config,v_min_mv,i_peak_ma,trials
+1,two-bus,5072,0.0,10
+4,two-bus,5072,6.5,10
+8,two-bus,5064,6.5,10
+12,two-bus,5072,6.5,10
+17,two-bus,5000,13.0,10
