@@ -178,21 +178,23 @@ def find_repo() -> Path | None:
     return None
 
 
-def check_runner(r: Report) -> None:
+def check_runner(r: Report) -> bool:
     """Is there anything that can actually execute an ACT checkpoint on the robot?"""
     repo = find_repo()
     if repo is None:
         r.warn("ACT runner", "cannot find the xlerobot-pro checkout; skipped")
-        return
+        return True
     pol = repo / "examples" / "policies"
     have = sorted(f.name for f in pol.glob("*_policy_control.py"))
     if any("act" in n for n in have):
-        r.ok("ACT runner", "present")
+        r.ok("ACT runner", f"present -- {pol / 'act_policy_control.py'}")
+        return True
     else:
         r.bad("ACT runner",
               f"none. {pol} has {', '.join(have) or 'nothing'} -- a trained ACT "
               "checkpoint has nothing to run it. policy_trials.py --cmd needs a "
               "script that loads the policy and drives the arm.")
+        return False
 
 
 def check_checkpoints(r: Report) -> None:
@@ -215,7 +217,7 @@ def check_checkpoints(r: Report) -> None:
                               "on random weights and measures nothing.")
 
 
-def commands(args, calibrated: bool) -> None:
+def commands(args, calibrated: bool, have_runner: bool = True) -> None:
     bar = "-" * 72
     ckpt = f"outputs/act_{args.repo_id.split('/')[-1]}/checkpoints/last/pretrained_model"
     print(f"\n{bar}\nRun these, in order\n{bar}")
@@ -226,15 +228,21 @@ def commands(args, calibrated: bool) -> None:
    overwrite each other):
 
    python scripts/record_kinesthetic.py --repo-id {args.repo_id} \\
-       --arm {args.arm} --calibrate
+       --arm {args.arm} --port {args.port} --calibrate
 """)
 
+    runner_note = "" if have_runner else """
+
+   NOTE: act_policy_control.py DOES NOT EXIST. examples/policies/ has runners for
+   the diffusion policy and SmolVLA only, so a trained ACT checkpoint has nothing
+   to execute it and --cmd is a required argument. Write that runner while the
+   recording session is still ahead of you, not after."""
     print(f"""{'2' if not calibrated else '1'}. Record. Bench work -- kinesthetic teaching owns the arms bus exactly as
    the thermal holds do, so it cannot overlap with Phase 2.
 
    python scripts/record_kinesthetic.py \\
-       --repo-id {args.repo_id} --arm {args.arm} --episodes {args.episodes} \\
-       --task "{args.task}"
+       --repo-id {args.repo_id} --arm {args.arm} --port {args.port} \\
+       --episodes {args.episodes} --task "{args.task}"
 
    Keep the neck still for the whole session. The policy learns pixels -> joint
    commands, so a re-aimed camera mid-dataset means the same scene produces
@@ -260,11 +268,7 @@ def commands(args, calibrated: bool) -> None:
        --checkpoint {ckpt} \\
        --cmd "python ../xlerobot-pro/examples/policies/act_policy_control.py \\
               run --checkpoint {ckpt} --duration 30"
-
-   NOTE: act_policy_control.py DOES NOT EXIST YET. examples/policies/ has runners
-   for the diffusion policy and SmolVLA only, so a trained ACT checkpoint has
-   nothing to execute it and --cmd is a required argument. Write that runner
-   while the recording session is still ahead of you, not after.
+{runner_note}
 """)
 
     print(f"""{bar}
@@ -317,11 +321,11 @@ def main() -> int:
     calibrated = check_calibration(r, args.robot_id)
     check_camera(r, args.camera_serial)
     check_dataset(r, args.repo_id, args.root, args.episodes)
-    check_runner(r)
+    have_runner = check_runner(r)
     check_checkpoints(r)
 
     print(f"\n{r.blocked} blocking, {r.warned} to be aware of.")
-    commands(args, calibrated)
+    commands(args, calibrated, have_runner)
     if r.blocked:
         print("Fix the BLOCK lines before starting -- each one fails at the bench, "
               "mid-episode, with the arm limp.\n")
