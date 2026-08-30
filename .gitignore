@@ -12,3 +12,8 @@ venv/
 # Scratch
 *.tmp
 tmp*/
+
+# Training output. Checkpoints are hundreds of MB each and this repository is
+# public; they belong in the archive alongside the datasets, not in the source
+# tree. backup.sh routes them there.
+outputs/
