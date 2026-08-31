@@ -27,6 +27,13 @@ ratio collapsed to 1.08 and the cast went warm.
 
 Run this with the arm AT THE REFERENCE START POSE. The camera is wrist-mounted,
 so every region below is meaningless from anywhere else.
+
+And run it with `camera_preview.py` STOPPED. This opens the camera directly, which
+is the point: a frame pulled from the preview's MJPEG stream has the alignment
+overlay drawn into it, and the green target line sits at x=602 -- directly on top
+of the tape. Measuring colour there reads the annotation as much as the scene. It
+produced a tape colour cast swinging between +9 and +46 across four checks minutes
+apart while the lamp had not moved at all.
 """
 
 from __future__ import annotations
