@@ -1,0 +1,17 @@
+{
+    "arm": "left",
+    "positions": {
+        "shoulder_pan": 2308,
+        "shoulder_lift": 670,
+        "elbow_flex": 3216,
+        "wrist_flex": 2860,
+        "wrist_roll": 2844
+    },
+    "homing_offset": {
+        "shoulder_pan": -1013,
+        "shoulder_lift": 336,
+        "elbow_flex": 1320,
+        "wrist_flex": 1260,
+        "wrist_roll": 486
+    }
+}
