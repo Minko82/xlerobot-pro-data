@@ -21,9 +21,9 @@ Last updated 2026-08-04, mid-sweep at 800 g.
 ## 2. Phase 3 procedure — follow exactly
 
 ```bash
-ssh -t xle@10.0.0.197 'cd ~/xlerobot-pro && ~/.venvs/xlerobot-pro/bin/python \
-  diagnostics/hold_pose_thermal.py --minutes 30 \
-  --out results/A2/actuator_load/load_900g'
+ssh -t xle@xle-desktop.local 'cd ~/xlerobot-pro-data && ~/.venvs/xlerobot-pro/bin/python \
+  scripts/hold_pose_thermal.py --minutes 30 \
+  --out A2/actuator_load/load_900g'
 ```
 
 1. ENTER when clear → arms ramp to the saved pose over 6 s
@@ -148,7 +148,7 @@ Keep `--minutes 30` for all of them; the ceiling ends the run, not the clock.
 
 ## 4. Script behaviour and hard-won gotchas
 
-### `diagnostics/hold_pose_thermal.py`
+### `scripts/hold_pose_thermal.py`
 
 - **`target` and `baseline` are different columns and mean different things.**
   `target` = commanded position (the reference pose). `baseline` = where the arm
@@ -230,12 +230,21 @@ results/A2/
 errors from power loss:
 
 ```bash
-rsync -av xle@10.0.0.197:xlerobot-pro/results/A2 ~/Desktop/Workspace/xlerobot-pro-data/
+./backup.sh                 # defaults to xle-desktop.local; pass an IP if mDNS fails
 ```
+
+`backup.sh` discovers the directories on the robot rather than naming them, so
+A2 is covered automatically and lands in `A2/` in this repository.
 
 ---
 
 ## 6. Uncommitted repo changes
+
+> **Stale as of 2026-08-30.** `restructure/project-organization` has since been
+> pushed, and `hold_pose_thermal.py` / `slew_payload_test.py` now live in
+> **this** repository under `scripts/`, not in `xlerobot-pro/diagnostics/`. The
+> table below is kept as a record of what was outstanding on 4 August; do not
+> read it as current paths.
 
 All on `restructure/project-organization`, none pushed.
 
