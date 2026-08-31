@@ -16,6 +16,13 @@ names where the arm is put, not where it falls.
 
 So run this before every trial, and the policy starts where it was taught to.
 
+**The gripper is part of the start pose even though the file does not contain
+it.** `record_start_pose.json` holds five body joints; the jaws are wherever the
+last run left them. After a successful grasp that is closed, around 13 units,
+and the next trial then approaches the bottle with the jaws already shut and
+knocks it over instead of enclosing it -- observed directly, a trial beginning at
+22.7 against a training frame 0 of 94.4. So this opens them too, by default.
+
 No camera is opened: this only moves motors, and RealSense init costs seconds
 for nothing.
 """
@@ -24,6 +31,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+import time
 from pathlib import Path
 
 from lerobot.robots.so101_follower.config_so101_follower import SO101FollowerConfig
@@ -38,6 +46,10 @@ from record_kinesthetic import (  # noqa: E402
 )
 from xle_arms import ARM_IDS, SO101FollowerArm  # noqa: E402
 
+#: Mean gripper position at frame 0 across the twenty glassbottle_pick_v3
+#: episodes. Normalised (the gripper is RANGE_0_100, not RANGE_M100_100).
+GRIPPER_START = 94.4
+
 
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
@@ -49,6 +61,14 @@ def main() -> int:
                    default=Path("calibration/record_start_pose.json"),
                    help="Pose to replay. Refuses one captured under a different "
                         "calibration -- raw counts do not survive a recalibration.")
+    p.add_argument("--gripper", type=float, default=GRIPPER_START,
+                   help=f"Normalised position to open the jaws to. Default "
+                        f"{GRIPPER_START:g}, the mean of frame 0 across the twenty "
+                        f"glassbottle_pick_v3 episodes. Use --no-gripper to leave "
+                        f"them alone.")
+    p.add_argument("--no-gripper", action="store_true",
+                   help="Leave the jaws where they are. They will still be holding "
+                        "whatever the last run grasped.")
     p.add_argument("--seconds", type=float, default=START_POSE_SECONDS,
                    help=f"Ramp duration. Default {START_POSE_SECONDS:g}. Give it "
                         "longer when the arm starts far from the pose.")
@@ -72,6 +92,24 @@ def main() -> int:
             print("    %-16s %7d -> %7d  (%+d)" % (n, before[n], target[n], target[n] - before[n]))
 
         ramp_to_pose(robot, target, args.seconds)
+
+        if not args.no_gripper:
+            g0 = robot.bus.read("Present_Position", "gripper")
+            # Ramped rather than written once: the jaws may be clamped on the
+            # object from the previous run, and snapping them open throws it.
+            robot.bus.enable_torque(["gripper"])
+            try:
+                for i in range(1, 21):
+                    robot.bus.write("Goal_Position", "gripper",
+                                    g0 + (args.gripper - g0) * i / 20)
+                    time.sleep(0.05)
+            finally:
+                robot.bus.disable_torque(["gripper"])
+            g1 = robot.bus.read("Present_Position", "gripper")
+            print("    %-16s %7.1f -> %7.1f  (target %.1f)" % ("gripper", g0, g1, args.gripper))
+            if abs(g1 - args.gripper) > 5:
+                print("  WARNING: jaws did not reach the target. Something may be "
+                      "between them.")
 
         after = {n: robot.bus.read("Present_Position", n, normalize=False) for n in BODY}
         err = max(abs(after[n] - target[n]) for n in BODY)
