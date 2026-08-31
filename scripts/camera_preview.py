@@ -19,6 +19,14 @@ so leaving this running makes record_kinesthetic.py fail to grab the device.
 An optional grid overlay helps keep the workspace framed consistently across a
 session -- a shifted view mid-dataset is the one inconsistency that quietly ruins
 a recording, and with the neck bus disconnected the usual drift guard is off.
+
+``--align`` is for putting the rig back where a dataset was recorded. The tape
+bounding the workspace sat at x = 602.3 px in all twenty start frames of
+glassbottle_pick_v3, sd 0.2 px, which makes it a far better reference than the
+grid. The overlay draws that target and tracks the tape live, reporting the drift
+in pixels and in the units that matter -- degrees, and normalised shoulder_pan.
+Move the table until it reads zero. Run it with the arm AT THE START POSE: the
+camera is wrist-mounted, so the target column only means anything from there.
 """
 
 from __future__ import annotations
@@ -48,6 +56,13 @@ PAGE = b"""<!doctype html><html><head><title>what the recorder sees</title>
 <p>RealSense SDK, RGB &mdash; identical to the frames record_kinesthetic.py writes.</p>
 <img src="/stream.mjpg">
 </body></html>"""
+
+#: Tape position across the 20 start frames of glassbottle_pick_v3 (sd 0.2 px).
+TAPE_X = 602.3
+
+#: Geometry, to report drift in units that can be acted on.
+DEG_PER_PX = 69.0 / 640                    # D435 colour horizontal FOV over frame width
+DEG_PER_PAN_UNIT = ((3660 - 948) / 200.0) * (360.0 / 4096)   # from the live calibration
 
 _latest: dict[str, bytes] = {}
 _lock = threading.Lock()
@@ -84,17 +99,53 @@ class Handler(BaseHTTPRequestHandler):
             pass
 
 
-def overlay(frame, grid: bool):
+def find_tape(frame) -> float | None:
+    """Brightness-weighted centroid of the rightmost bright vertical band.
+
+    Returns None when the band touches the frame edge: a clipped band's centroid
+    is pulled inward, so it would read as *less* drift than there really is.
+    Saying nothing beats reporting a number that flatters the alignment.
+    """
+    v = frame[0:300, :].mean(axis=(0, 2)).astype(float)
+    base = np.percentile(v, 50)
+    thr = base + 0.55 * (v.max() - base)
+    xs = np.arange(len(v))[v > thr]
+    if len(xs) == 0:
+        return None
+    run = np.split(xs, np.where(np.diff(xs) > 3)[0] + 1)[-1]
+    if len(run) < 3 or run[-1] >= frame.shape[1] - 2:
+        return None
+    w = v[run] - thr
+    return float((run * w).sum() / w.sum())
+
+
+def overlay(frame, grid: bool, align: bool):
     """Thirds grid and centre cross, so framing can be repeated between sessions."""
-    if not grid:
-        return frame
     f = frame.copy()
     h, w = f.shape[:2]
-    for x in (w // 3, 2 * w // 3):
-        cv2.line(f, (x, 0), (x, h), (60, 60, 60), 1)
-    for y in (h // 3, 2 * h // 3):
-        cv2.line(f, (0, y), (w, y), (60, 60, 60), 1)
-    cv2.drawMarker(f, (w // 2, h // 2), (0, 200, 255), cv2.MARKER_CROSS, 18, 1)
+    if grid:
+        for x in (w // 3, 2 * w // 3):
+            cv2.line(f, (x, 0), (x, h), (60, 60, 60), 1)
+        for y in (h // 3, 2 * h // 3):
+            cv2.line(f, (0, y), (w, y), (60, 60, 60), 1)
+        cv2.drawMarker(f, (w // 2, h // 2), (0, 200, 255), cv2.MARKER_CROSS, 18, 1)
+    if align:
+        cv2.line(f, (int(TAPE_X), 0), (int(TAPE_X), h), (0, 255, 0), 2)
+        cv2.putText(f, "x=602 target", (int(TAPE_X) - 150, h - 12),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+        x = find_tape(frame)
+        if x is None:
+            cv2.putText(f, "TAPE OFF FRAME - bring it back into view", (12, 30),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+        else:
+            d = x - TAPE_X
+            cv2.line(f, (int(x), 0), (int(x), h), (0, 0, 255), 1)
+            good = abs(d) <= 3.0
+            cv2.putText(f, "tape %+.1f px  %+.2f deg  %+.2f pan %s"
+                        % (d, d * DEG_PER_PX, d * DEG_PER_PX / DEG_PER_PAN_UNIT,
+                           "ALIGNED" if good else ""),
+                        (12, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6,
+                        (0, 220, 0) if good else (0, 0, 255), 2)
     return f
 
 
@@ -106,6 +157,9 @@ def main() -> int:
     p.add_argument("--fps", type=int, default=30)
     p.add_argument("--port", type=int, default=8080)
     p.add_argument("--no-grid", action="store_true", help="Hide the framing grid.")
+    p.add_argument("--align", action="store_true",
+                   help="Track the workspace tape against the position it held while "
+                        "glassbottle_pick_v3 was recorded. Arm must be at the start pose.")
     args = p.parse_args()
 
     cam = RealSenseCamera(RealSenseCameraConfig(
@@ -130,7 +184,7 @@ def main() -> int:
         while True:
             frame = cam.async_read()            # RGB, exactly as the dataset stores it
             bgr = cv2.cvtColor(np.asarray(frame), cv2.COLOR_RGB2BGR)   # cv2 encodes BGR
-            ok, jpg = cv2.imencode(".jpg", overlay(bgr, not args.no_grid),
+            ok, jpg = cv2.imencode(".jpg", overlay(bgr, not args.no_grid, args.align),
                                    [int(cv2.IMWRITE_JPEG_QUALITY), 80])
             if ok:
                 with _lock:
