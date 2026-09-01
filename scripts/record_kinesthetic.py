@@ -300,6 +300,12 @@ def main() -> int:
     p.add_argument("--episodes", type=int, default=50)
     p.add_argument("--task", default="pick up the bottle and place it on the other side")
     p.add_argument("--max-seconds", type=float, default=45.0, help="Hard cap per episode.")
+    p.add_argument("--keep-at-cap", action="store_true",
+                   help="Keep a take that runs to --max-seconds instead of discarding "
+                        "it. Off by default: normal episodes are 12-18 s, so reaching a "
+                        "45 s cap means the take failed, and keeping one costs far more "
+                        "than losing it. Set this only if long takes are legitimate for "
+                        "your task.")
     p.add_argument("--resume", action="store_true",
                    help="Append to an existing dataset instead of failing. Use this after a "
                         "Ctrl-C to keep adding episodes to the same recording session.")
@@ -519,8 +525,20 @@ def main() -> int:
                     last_draw = now
 
                 if now - t0 > args.max_seconds:
-                    print("\n    time cap reached")
-                    verdict = "keep"
+                    # Discarded, not kept. A take that runs to the cap is a take
+                    # that went wrong: normal episodes here are 12-18 s against a
+                    # 45 s cap, so reaching it means the demonstration never
+                    # completed. glassbottle_pick_v5 episode 5 hit the cap with the
+                    # gripper untouched the whole time, and was silently kept --
+                    # 1346 frames, 14.5% of the dataset, teaching the arm to wave
+                    # around and never close. Keeping garbage costs more than
+                    # losing one take costs.
+                    if args.keep_at_cap:
+                        print("\n    time cap reached -- KEEPING (--keep-at-cap)")
+                        verdict = "keep"
+                    else:
+                        print("\n    time cap reached -- discarding this take")
+                        verdict = "discard"
                 time.sleep(max(0.0, period - (time.perf_counter() - loop_t)))
 
             sys.stdout.write("\r" + " " * 78 + "\r")
