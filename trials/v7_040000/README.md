@@ -33,3 +33,10 @@ scene itself has to be dark: shelf ≤ ~95, R-B negative, tape brighter than she
 No trial from this morning tests the retrain. Ensembling (trials 2–3) and the
 adaptive horizon (trial 4) were rejected on the same shallow-reach evidence and
 should be re-judged only under night light; the 100-step horizon stays the default.
+
+## Trial 6, ~1:45 pm — blanket shade over the rig (shelf 68, tape 58, R-B -16)
+
+| 6 | n-action-steps 100, no offset, shaded | short: closed at lift 14 / elbow 80 at 5.7 s | bottle centre (230,180); same shallow close as trial 5 in daylight at a similar spot. **Light was not the cause of the short reach.** |
+
+The first-chunk comparison above measured reach *speed* over 3.3 s, not final depth
+(trial 1 reached lift 62 after an equally slow first chunk). Withdrawn as evidence.
