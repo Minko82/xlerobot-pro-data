@@ -19,11 +19,17 @@ One thing this cannot tell you: whether the table moved or the robot did. A
 rotated base moves the camera and the gripper together and largely cancels; a
 moved table does not. Both look identical here. You will know which you moved.
 
-Light is checked second because it turned out to be the smaller effect. The
-demonstrations were lit so that the tape column reads ~160 against a ~99 shelf, a
-ratio of 1.62 and colour-neutral. Frame mean does not capture this -- turning the
-room lights off while daylight came in left the mean almost unchanged while the
-ratio collapsed to 1.08 and the cast went warm.
+Light is checked second because it turned out to be the smaller effect. Frame
+mean does not capture it -- turning the room lights off while daylight came in
+left the mean almost unchanged while the contrast ratio collapsed and the cast
+went warm.
+
+**These references are v6's, and v6 is not v3.** v3 was side-lit and neutral
+(tape column 160 against a 99 shelf, ratio 1.62, R-B +3.5). v6 was recorded late
+at night under flat, cool light: column 88 against 85, ratio 1.04, R-B -32.
+Targeting v3's numbers with a v6 policy puts the rig 19 px out and the light
+wrong in both directions at once. Whichever dataset the deployed checkpoint came
+from is the one to match.
 
 Run this with the arm AT THE REFERENCE START POSE. The camera is wrist-mounted,
 so every region below is meaningless from anywhere else.
@@ -43,12 +49,21 @@ import sys
 
 import numpy as np
 
-#: Measured across the 20 start frames of glassbottle_pick_v3.
-TAPE_X = 602.3
-TAPE_SD = 0.2
-REF_LAMP = 160.2
-REF_SHELF = 99.2
-REF_RATIO = 1.62
+#: Measured across the start frames of glassbottle_pick_v6 -- specifically
+#: episodes 11-49, because the rig MOVED DURING RECORDING. Episodes 0-10 sit at
+#: tape x ~598; from episode 11 on it is ~583, drifting a further 4 px by the end.
+#: Deployment should match the 39 that dominate the dataset, not the 10 outliers.
+#: v3's values are kept below only so the difference is visible: matching them
+#: would put a v6 policy 19 px out.
+TAPE_X = 583.6
+TAPE_SD = 1.5
+REF_LAMP = 87.8
+REF_SHELF = 84.5
+REF_RATIO = 1.04
+REF_RB = -31.7
+
+#: glassbottle_pick_v3, for reference only. Do not target these with a v6 policy.
+V3_REF = {"tape_x": 602.3, "lamp": 160.2, "shelf": 99.2, "ratio": 1.62, "rb": 3.5}
 
 TAPE_BAND = (slice(0, 300), slice(596, 640))   # the tape column, at the reference pose
 SHELF = (slice(60, 260), slice(200, 520))      # plain shelf: no tape, no arm
@@ -140,12 +155,19 @@ def main() -> int:
         print("    %-20s %7.1f      reference %6.1f            %s"
               % (name, val, ref, "OK" if good else "OFF"))
     r, g, b = (float(frame[TAPE_BAND][..., i].mean()) for i in range(3))
-    if r - b > 12:
-        print("    colour cast          R-B %+.0f      warm — daylight or incandescent" % (r - b))
-        ok = False
+    rb = r - b
+    # v6 was recorded under flat, distinctly COOL light (R-B about -32), not the
+    # side-lit neutral scene v3 had. So this is a two-sided check against v6's own
+    # cast, not a warm-light alarm: drifting warm means daylight is reaching the
+    # scene, drifting cool means something else changed.
+    good = abs(rb - REF_RB) <= 12
+    ok &= good
+    print("    %-20s %+7.0f      reference %+6.0f            %s"
+          % ("colour cast R-B", rb, REF_RB, "OK" if good else "OFF"))
 
     print("\n  %s\n" % ("scene matches the recording" if ok else
-                        "scene does NOT match — fix geometry first, it is the larger error"))
+                        "scene does NOT match — check which lines read OFF above; "
+                        "geometry is the larger error when it is one of them"))
     return 0 if ok else 1
 
 
