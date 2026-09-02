@@ -141,6 +141,34 @@ Then the live start frames from the v7 trials with their recorded states.
 Hardware gate: `GRID_PROTOCOL.md` — 9 cells × 3 trials per configuration,
 night lighting, v7 baseline vs v8 frozen, bias / trend / SD in cm.
 
+## v8 results so far (checkpoint 010000, loss 0.25, daylight, 3:20-3:40 pm)
+
+Offline (`midreach_v8_010000.md`): on the frozen training frames the plan is
+right in the mean at every reach fraction (signed lift error -1 to -3, pan
+-0.7, abs pan 2.3) but noisier than v7 on its own frames (abs lift 6-7 at 10k
+steps) and it closes late (planned close 47 steps out from close-5). From the
+**live daylight start frames of the failed v7 trials paired with those trials'
+mid-reach states**, it plans the deep reach (lift 41-67, where those bottles
+needed ~50-65) and does not close early -- the mechanism in §3 is gone.
+Colour-matching the frozen frame changes the plan by under 1 unit.
+
+Hardware, bottle centre-left, `--freeze-frame --overlay hand_mask_grey88.png
+--n-action-steps 100` (`v8_diag/`):
+
+| trial | bottle cap (px) | close pose pan/lift/elbow/wflex | data-implied pan | result |
+|---|---|---|---|---|
+| t1 | (215,179), body inside the mask box | -15.9 / 63.9 / 55.5 / -98.9 | +2 | depth and style right (ep13's wrist-down grasp for that row), 18 pan units left, missed |
+| t2 | (210,130), bottle moved by hand between trials | +2.1 / 68.4 / 35.6 / -95.7 | +0..+2 | **grasped, lifted, held to the end of the run** (frames 270-360) |
+
+Both trials dwelled ~50 steps at the grasp pose before closing, as the
+demonstrations do, and closed decisively. The t1 pan miss is the mask: with the
+bottle's body under the grey box only the cap at row ~180 is visible, and the
+training bottles with a cap on that row and no visible body are the far-left
+ones (pan -15 to -22). **Frame 0 of the unmasked recordings has no hand in it**
+(16/16 episodes checked, `diag_2026-09-02/`), so a frozen dataset needs no mask
+at all: `glassbottle_pick_v9_frozen` is built from v6's frame 0s and deploys
+without `--overlay`. It trains after v8's 20k gate.
+
 ## Still open after this
 
 - The dataset's two grasp styles and the batch-2 camera shift are in v8 too.
