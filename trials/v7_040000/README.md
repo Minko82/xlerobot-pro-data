@@ -10,3 +10,4 @@ produced a plan aimed at the shelf centre. All trials: grey mask overlay
 |---|---|---|---|
 | 1 | n-action-steps 100 | miss, jaw tips caught the bottle | reach 62.6/36.1 at 7.7 s, closed just below the bottle; same failure as v6 trial 7 |
 | 2 | temporal ensemble 0.01 | undershoot | gripper command smeared into a ramp from 3 s; policy read a closing gripper as a finished grasp, retracted, locked at start pose with jaws shut. Loop 22.6 Hz. Fixed in runner: gripper now from the newest chunk |
+| 3 | temporal ensemble 0.01, gripper from newest chunk | undershoot, never closed | reach peaked at lift 13 / elbow 85 at 7.5 s, then hovered at half depth drifting right to pan +19; the averaged plan is shallower than any single plan. Ensembling abandoned |
