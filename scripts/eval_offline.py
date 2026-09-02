@@ -106,7 +106,7 @@ def eval_dataset(P, ds, n_chunk=150, seed=0):
 def paste(rgb, src, region):
     y0, y1, x0, x1 = region; out = rgb.copy(); out[y0:y1, x0:x1] = src[y0:y1, x0:x1]; return out
 
-def eval_live(P, manifest, root: Path, mask, inv, region):
+def eval_live(P, manifest, root: Path, mask, inv, region, swaps=()):
     res = []
     for e in manifest:
         rgb = cv2.cvtColor(cv2.imread(str(root / e["frame"])), cv2.COLOR_BGR2RGB)
@@ -118,6 +118,19 @@ def eval_live(P, manifest, root: Path, mask, inv, region):
         if inv is not None:
             ch2 = P.chunk(paste(rgb, inv, region), st); k2 = close_step(ch2); pose2 = ch2[k2] if k2 is not None else ch2[-1]
             r["inv_close"] = k2; r["inv_max_joint_diff"] = float(np.abs(pose2[:4] - pose[:4]).max())
+        if mask is not None:
+            # the region as the camera saw it (no hand, no grey): what the deployed policy
+            # would face if the mask were forgotten
+            ch3 = P.chunk(rgb, st); k3 = close_step(ch3); pose3 = ch3[k3] if k3 is not None else ch3[-1]
+            r["raw_close"] = k3; r["raw_max_joint_diff"] = float(np.abs(pose3[:4] - pose[:4]).max())
+        if swaps:
+            # image-swap ablation: same joint state, a training start frame with the bottle
+            # somewhere else. If the plan follows the image, the policy reads the bottle.
+            r["swap"] = []
+            for name, simg in swaps:
+                chs = P.chunk(paste(simg, mask, region) if mask is not None else simg, st)
+                ks = close_step(chs); ps = chs[ks] if ks is not None else chs[-1]
+                r["swap"].append(dict(image=name, close=ks, pose=ps[:4].round(1).tolist()))
         res.append(r)
     return res
 
@@ -128,6 +141,9 @@ def main():
     ap.add_argument("--root", type=Path, default=Path("."), help="Directory the manifest's frame paths are relative to.")
     ap.add_argument("--mask", type=Path, default=None); ap.add_argument("--invariance", type=Path, default=None)
     ap.add_argument("--region", default="200,480,0,260"); ap.add_argument("--n-chunk", type=int, default=150)
+    ap.add_argument("--swap-frames", nargs="*", default=[], metavar="IMG",
+                    help="Training start frames to substitute for each live frame's image (same state). "
+                         "Name them so the bottle position is obvious, e.g. ep20_right.png.")
     ap.add_argument("--out", type=Path, default=None); ap.add_argument("--json", type=Path, default=None)
     a = ap.parse_args()
     region = tuple(int(v) for v in a.region.split(","))
@@ -148,13 +164,30 @@ def main():
         L += [f"Chunk L1 error over 100 steps, {d['chunk_n']} random frames:", "", "| " + " | ".join(NAMES) + " |", "|" + "---|" * 6,
               "| " + " | ".join(f"{d['chunk_l1'][n]:.2f}" for n in NAMES) + " |", ""]
     if a.manifest:
-        man = json.load(open(a.manifest)); live = eval_live(P, man, a.root, mask, inv, region); report["live"] = live
-        L += ["## Live frames (from trials)", "", "| frame | planned close step | onset | planned pose pan/lift/elbow/wflex | reference pose | region sensitivity | note |", "|---|---|---|---|---|---|---|"]
+        swaps = [(Path(p).stem, rd(p)) for p in a.swap_frames]
+        man = json.load(open(a.manifest)); live = eval_live(P, man, a.root, mask, inv, region, swaps); report["live"] = live
+        L += ["## Live frames (from trials)", "",
+              "Region sensitivity = largest change in the planned pan/lift/elbow/wflex when the masked region is",
+              "filled with the hand patch (`hand`) or left as the camera saw it (`raw`). Near zero means the",
+              "policy no longer reads that region.", "",
+              "| frame | planned close step | onset | planned pose pan/lift/elbow/wflex | reference pose | sens. hand | sens. raw | note |", "|---|---|---|---|---|---|---|---|"]
         for r in live:
             exp = r["expected"]; exp_s = "/".join(f"{v:+.0f}" for v in exp) if exp else "—"
-            sens = f"{r['inv_max_joint_diff']:.1f} (close {r['inv_close']})" if "inv_max_joint_diff" in r else "—"
-            L.append(f"| {r['name']} | {r['close']} | {r['onset']} | {'/'.join(f'{v:+.1f}' for v in r['pose'])} | {exp_s} | {sens} | {r['note']} |")
+            sh = f"{r['inv_max_joint_diff']:.1f}" if "inv_max_joint_diff" in r else "—"
+            sr = f"{r['raw_max_joint_diff']:.1f}" if "raw_max_joint_diff" in r else "—"
+            L.append(f"| {r['name']} | {r['close']} | {r['onset']} | {'/'.join(f'{v:+.1f}' for v in r['pose'])} | {exp_s} | {sh} | {sr} | {r['note']} |")
         L.append("")
+        if any("swap" in r for r in live):
+            L += ["### Image-swap ablation: same joint state, training frame with the bottle elsewhere", "",
+                  "If the planned pan/lift/elbow move with the substituted image, the policy is reading the bottle;",
+                  "if they stay put, it is reading its own joints.", "",
+                  "| live state from | image | planned close | planned pose pan/lift/elbow/wflex |", "|---|---|---|---|"]
+            for r in live:
+                if "swap" not in r: continue
+                L.append(f"| {r['name']} | (own frame) | {r['close']} | {'/'.join(f'{v:+.1f}' for v in r['pose'])} |")
+                for sw in r["swap"]:
+                    L.append(f"| {r['name']} | {sw['image']} | {sw['close']} | {'/'.join(f'{v:+.1f}' for v in sw['pose'])} |")
+            L.append("")
     L.append(f"_{time.time()-t0:.0f} s on cuda_")
     text = "\n".join(L); print(text)
     if a.out: a.out.write_text(text)

@@ -1,0 +1,280 @@
+{
+ "checkpoint": "outputs/act_glassbottle_pick_v7/checkpoints/010000/pretrained_model",
+ "mask": "calibration/hand_mask_grey88.png",
+ "region": [
+  200,
+  480,
+  0,
+  260
+ ],
+ "dataset": {
+  "shoulder_pan": {
+   "slope": 1.0688977748804322,
+   "intercept": 0.19351729250724994,
+   "mean_err": -0.03535671532154083,
+   "mean_abs": 1.6702508926391602
+  },
+  "shoulder_lift": {
+   "slope": 1.140679470770877,
+   "intercept": -4.122469383149678,
+   "mean_err": 2.1458640098571777,
+   "mean_abs": 4.8534979820251465
+  },
+  "elbow_flex": {
+   "slope": 1.1018503581247705,
+   "intercept": -3.85770867429495,
+   "mean_err": -0.24761202931404114,
+   "mean_abs": 4.331313133239746
+  },
+  "wrist_flex": {
+   "slope": 1.1478044559288538,
+   "intercept": 4.990905467700637,
+   "mean_err": -3.547804355621338,
+   "mean_abs": 5.289056301116943
+  },
+  "close": {
+   "90": {
+    "n": 14,
+    "never": 35,
+    "mean_pred": 69.57142857142857
+   },
+   "60": {
+    "n": 47,
+    "never": 2,
+    "mean_pred": 60.787234042553195
+   },
+   "30": {
+    "n": 49,
+    "never": 0,
+    "mean_pred": 35.142857142857146
+   }
+  },
+  "onset": {
+   "pred_mean": 56.204081632653065,
+   "true_mean": 55.6530612244898,
+   "never": 0,
+   "n": 49
+  },
+  "chunk_l1": {
+   "shoulder_pan": 2.529578924179077,
+   "shoulder_lift": 9.641493797302246,
+   "elbow_flex": 7.063986301422119,
+   "wrist_flex": 10.393427848815918,
+   "wrist_roll": 0.09369711577892303,
+   "gripper": 4.583662509918213
+  },
+  "chunk_n": 51
+ },
+ "live": [
+  {
+   "name": "trial2 start",
+   "close": null,
+   "pose": [
+    -12.199999809265137,
+    -1.7000000476837158,
+    92.30000305175781,
+    -54.29999923706055
+   ],
+   "onset": 45,
+   "expected": [
+    -12.0,
+    45.7,
+    35.5,
+    -58.9
+   ],
+   "note": "bottle 60 deg off training orientation; expected pose from bottle->grasp regression",
+   "inv_close": null,
+   "inv_max_joint_diff": 64.17134094238281
+  },
+  {
+   "name": "trial5 start",
+   "close": null,
+   "pose": [
+    -6.800000190734863,
+    25.5,
+    48.599998474121094,
+    -52.599998474121094
+   ],
+   "onset": 50,
+   "expected": [
+    -7.4,
+    65.5,
+    -2.1,
+    -52.6
+   ],
+   "note": "bottle top-left; state approximated from the start pose",
+   "inv_close": null,
+   "inv_max_joint_diff": 41.56919860839844
+  },
+  {
+   "name": "trial6 start",
+   "close": null,
+   "pose": [
+    -6.5,
+    -28.299999237060547,
+    85.5,
+    -14.600000381469727
+   ],
+   "onset": 66,
+   "expected": [
+    -8.0,
+    55.9,
+    16.1,
+    -55.7
+   ],
+   "note": "v6 live closed at -2.7/+57.8/+41.9/-83.7 and missed short",
+   "inv_close": null,
+   "inv_max_joint_diff": 84.69483947753906
+  },
+  {
+   "name": "trial7 start",
+   "close": null,
+   "pose": [
+    -11.199999809265137,
+    -4.0,
+    88.0999984741211,
+    -51.400001525878906
+   ],
+   "onset": 55,
+   "expected": [
+    -10.1,
+    48.7,
+    29.7,
+    -58.0
+   ],
+   "note": "v6 live closed at -11.3/+19.5/+69.2/-38.9 (pan -3 offset) below the bottle",
+   "inv_close": null,
+   "inv_max_joint_diff": 50.37437438964844
+  },
+  {
+   "name": "trial7 step 90",
+   "close": 96,
+   "pose": [
+    -5.699999809265137,
+    28.799999237060547,
+    64.19999694824219,
+    -49.20000076293945
+   ],
+   "onset": 10,
+   "expected": [
+    -10.1,
+    48.7,
+    29.7,
+    -58.0
+   ],
+   "note": "mid-approach; v6 planned +26.5/+58.5 here",
+   "inv_close": null,
+   "inv_max_joint_diff": 36.54591369628906
+  },
+  {
+   "name": "trial7 step 120",
+   "close": 51,
+   "pose": [
+    -10.0,
+    20.399999618530273,
+    68.80000305175781,
+    -43.099998474121094
+   ],
+   "onset": 9,
+   "expected": [
+    -10.1,
+    48.7,
+    29.7,
+    -58.0
+   ],
+   "note": "v6 planned close at step 47, lift +25.2 -- the short close",
+   "inv_close": null,
+   "inv_max_joint_diff": 43.820343017578125
+  },
+  {
+   "name": "trial8 start",
+   "close": null,
+   "pose": [
+    4.0,
+    -12.699999809265137,
+    88.80000305175781,
+    -39.900001525878906
+   ],
+   "onset": 60,
+   "expected": null,
+   "note": "hand patch burned into the frame region; bottle at the near edge, no reliable regression",
+   "inv_close": null,
+   "inv_max_joint_diff": 70.51661682128906
+  },
+  {
+   "name": "trial8 step 150",
+   "close": 18,
+   "pose": [
+    -0.699999988079071,
+    55.400001525878906,
+    39.29999923706055,
+    -70.9000015258789
+   ],
+   "onset": null,
+   "expected": null,
+   "note": "hovering with the bottle between the jaws (frames), v6+patch closed hesitantly",
+   "inv_close": 61,
+   "inv_max_joint_diff": 17.76690673828125
+  },
+  {
+   "name": "trial9 start",
+   "close": null,
+   "pose": [
+    5.5,
+    -28.600000381469727,
+    91.4000015258789,
+    -22.700000762939453
+   ],
+   "onset": 65,
+   "expected": [
+    10.0,
+    52.7,
+    65.2,
+    -97.3
+   ],
+   "note": "reference = pose that REALLY grasped the bottle in trial 9 (v6 + hand patch)",
+   "inv_close": null,
+   "inv_max_joint_diff": 63.21929931640625
+  },
+  {
+   "name": "trial9 step 90",
+   "close": 33,
+   "pose": [
+    6.0,
+    45.900001525878906,
+    64.30000305175781,
+    -84.4000015258789
+   ],
+   "onset": 34,
+   "expected": [
+    10.0,
+    52.7,
+    65.2,
+    -97.3
+   ],
+   "note": "reference = real grasp pose",
+   "inv_close": 76,
+   "inv_max_joint_diff": 21.102481842041016
+  },
+  {
+   "name": "trial9 step 150",
+   "close": 34,
+   "pose": [
+    6.699999809265137,
+    52.400001525878906,
+    59.70000076293945,
+    -89.9000015258789
+   ],
+   "onset": null,
+   "expected": [
+    10.0,
+    52.7,
+    65.2,
+    -97.3
+   ],
+   "note": "hovering at the bottle; a decisive close here is the pass criterion",
+   "inv_close": 63,
+   "inv_max_joint_diff": 17.38365936279297
+  }
+ ]
+}
