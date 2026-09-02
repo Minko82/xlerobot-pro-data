@@ -1,0 +1,16 @@
+trial,outcome,stage,location,shoulder_lift_start_C,temps_start,temps_end,close_step,t_close_s,close_pan,close_lift,close_elbow,close_wflex,gripper_end,realised_hz,chunk_inf_ms,chunk_inf_max_ms,peak_joint_C,note
+t01,grasp,-,bottom-right,34,shoul=36 shoul=34 elbow=33 wrist=34 wrist=33 gripp=37,shoul=36 shoul=34 elbow=33 wrist=34 wrist=33 gripp=37,274,9.89,31.42,40.27,57.02,-67.22,11.4,28.58,105.5,570,39,
+t02,grasp,-,bottom-right,34,shoul=36 shoul=34 elbow=33 wrist=35 wrist=33 gripp=37,shoul=36 shoul=34 elbow=33 wrist=34 wrist=33 gripp=37,252,9.19,33.7,51.75,36.98,-66.11,11.2,28.55,107.0,572,38,
+t03,grasp,-,bottom-right,34,shoul=35 shoul=34 elbow=33 wrist=34 wrist=33 gripp=38,shoul=36 shoul=34 elbow=33 wrist=34 wrist=33 gripp=38,260,9.43,33.04,49.5,47.0,-70.95,11.2,28.59,105.8,563,51,
+t04,grasp,-,bottom-right,34,shoul=35 shoul=34 elbow=33 wrist=34 wrist=33 gripp=38,shoul=35 shoul=34 elbow=33 wrist=34 wrist=33 gripp=38,258,9.35,33.92,47.67,48.26,-69.6,11.1,28.60,106.9,554,58,
+t05,grasp,-,bottom-right,34,shoul=35 shoul=34 elbow=33 wrist=34 wrist=33 gripp=38,shoul=36 shoul=34 elbow=33 wrist=35 wrist=33 gripp=39,252,9.15,34.15,52.33,38.51,-70.02,11.2,28.63,96.9,579,63,
+t06,grasp,-,bottom-right,34,shoul=35 shoul=34 elbow=33 wrist=34 wrist=33 gripp=39,shoul=36 shoul=34 elbow=33 wrist=35 wrist=33 gripp=39,261,9.44,34.73,52.33,41.85,-72.74,11.5,28.62,102.5,543,39,jaws stayed closed on the bottle after torque bleed; operator removed it
+t07,grasp,-,bottom-right,34,shoul=35 shoul=34 elbow=33 wrist=34 wrist=33 gripp=39,shoul=36 shoul=34 elbow=33 wrist=35 wrist=33 gripp=39,260,9.43,35.47,48.25,44.92,-66.79,11.2,28.55,106.4,573,46,
+t08,grasp,-,bottom-right,34,shoul=36 shoul=34 elbow=33 wrist=35 wrist=33 gripp=39,shoul=36 shoul=35 elbow=33 wrist=35 wrist=33 gripp=39,261,9.44,34.15,46.51,45.55,-65.18,11.1,28.60,106.8,551,43,
+t09,grasp,-,bottom-right,34,shoul=35 shoul=34 elbow=33 wrist=35 wrist=33 gripp=41,shoul=35 shoul=35 elbow=33 wrist=35 wrist=33 gripp=40,263,9.5,33.85,46.42,48.62,-68.24,11.2,28.62,102.0,563,40,
+t10,grasp,-,bottom-right,35,shoul=36 shoul=35 elbow=33 wrist=35 wrist=33 gripp=40,shoul=36 shoul=35 elbow=33 wrist=35 wrist=33 gripp=40,252,9.14,34.96,53.41,34.09,-66.54,11.3,28.61,104.2,552,40,
+t11,grasp,-,bottom-right,35,shoul=36 shoul=35 elbow=33 wrist=35 wrist=33 gripp=40,shoul=36 shoul=35 elbow=33 wrist=35 wrist=33 gripp=40,253,9.16,33.85,53.99,32.64,-66.03,11.2,28.60,107.0,551,40,
+t12,grasp,-,bottom-right,35,shoul=36 shoul=35 elbow=33 wrist=35 wrist=33 gripp=40,shoul=36 shoul=35 elbow=33 wrist=35 wrist=33 gripp=41,252,9.19,34.66,52.41,33.27,-63.65,11.3,28.55,107.5,577,57,
+t13,grasp,-,bottom-right,35,shoul=36 shoul=35 elbow=33 wrist=35 wrist=33 gripp=41,shoul=36 shoul=35 elbow=33 wrist=35 wrist=33 gripp=41,263,9.49,32.89,43.93,52.6,-68.07,11.1,28.65,99.2,554,41,
+t14,grasp,-,bottom-right,35,shoul=36 shoul=35 elbow=33 wrist=35 wrist=33 gripp=41,shoul=36 shoul=35 elbow=33 wrist=35 wrist=33 gripp=41,261,9.43,35.55,47.17,46.09,-66.2,11.1,28.64,100.8,549,60,
+t15,grasp,-,bottom-right,35,shoul=36 shoul=35 elbow=33 wrist=35 wrist=33 gripp=41,shoul=36 shoul=35 elbow=33 wrist=35 wrist=33 gripp=41,252,9.15,34.0,50.83,38.06,-66.11,11.3,28.62,105.9,556,41,

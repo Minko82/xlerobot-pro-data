@@ -1,0 +1,2 @@
+trial,outcome,stage,location,shoulder_lift_start_C,temps_start,temps_end,close_step,t_close_s,close_pan,close_lift,close_elbow,close_wflex,gripper_end,realised_hz,chunk_inf_ms,chunk_inf_max_ms,peak_joint_C,note
+t01,fail,APPR,centre,34,shoul=35 shoul=34 elbow=33 wrist=34 wrist=33 gripp=37,shoul=36 shoul=34 elbow=33 wrist=34 wrist=33 gripp=37,250,9.07,24.56,53.49,28.76,-59.41,7.0,28.64,102.8,547,41,plan pan +24.6 for a bottle at x~333 (data ~+13); approach swept the bottle right; closed on nothing

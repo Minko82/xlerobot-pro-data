@@ -1,0 +1,8 @@
+  LIGHT
+    tape column             57.7      reference   87.8            OFF
+    shelf background        69.1      reference   84.5            OFF
+    contrast ratio           0.8      reference    1.0            OFF
+    colour cast R-B          +26      reference    -32            OFF
+
+  scene does NOT match — check which lines read OFF above; geometry is the larger error when it is one of them
+
