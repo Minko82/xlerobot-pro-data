@@ -1,0 +1,86 @@
+[
+ {
+  "name": "v8t1 frozen orig + state s0",
+  "frame": "trials/v8_diag/v8_010k_t1_frames/frozen.png",
+  "state": [
+   0.959,
+   -99.75,
+   99.458,
+   75.456,
+   38.803,
+   93.117
+  ],
+  "expected": null,
+  "note": ""
+ },
+ {
+  "name": "v8t1 frozen cc + state s0",
+  "frame": "trials/v8_diag/v8_010k_t1_frames/frozen_cc.png",
+  "state": [
+   0.959,
+   -99.75,
+   99.458,
+   75.456,
+   38.803,
+   93.117
+  ],
+  "expected": null,
+  "note": ""
+ },
+ {
+  "name": "v8t1 frozen orig + state s100",
+  "frame": "trials/v8_diag/v8_010k_t1_frames/frozen.png",
+  "state": [
+   -12.537,
+   1.498,
+   93.318,
+   -64.756,
+   38.755,
+   61.606
+  ],
+  "expected": null,
+  "note": ""
+ },
+ {
+  "name": "v8t1 frozen cc + state s100",
+  "frame": "trials/v8_diag/v8_010k_t1_frames/frozen_cc.png",
+  "state": [
+   -12.537,
+   1.498,
+   93.318,
+   -64.756,
+   38.755,
+   61.606
+  ],
+  "expected": null,
+  "note": ""
+ },
+ {
+  "name": "v8t1 frozen orig + state s200",
+  "frame": "trials/v8_diag/v8_010k_t1_frames/frozen.png",
+  "state": [
+   -16.15,
+   63.311,
+   57.833,
+   -98.896,
+   38.755,
+   62.821
+  ],
+  "expected": null,
+  "note": ""
+ },
+ {
+  "name": "v8t1 frozen cc + state s200",
+  "frame": "trials/v8_diag/v8_010k_t1_frames/frozen_cc.png",
+  "state": [
+   -16.15,
+   63.311,
+   57.833,
+   -98.896,
+   38.755,
+   62.821
+  ],
+  "expected": null,
+  "note": ""
+ }
+]
