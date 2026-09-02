@@ -1,0 +1,926 @@
+[
+ {
+  "name": "v7t1 s0",
+  "frame": "trials/v7_040000/trial1_frames/00000.jpg",
+  "state": [
+   -0.221,
+   -100.0,
+   99.368,
+   75.626,
+   38.95,
+   93.927
+  ],
+  "expected": null,
+  "note": "v7 trial 1 step 0"
+ },
+ {
+  "name": "v7t1 s30",
+  "frame": "trials/v7_040000/trial1_frames/00030.jpg",
+  "state": [
+   0.516,
+   -100.0,
+   99.458,
+   77.155,
+   39.145,
+   61.943
+  ],
+  "expected": null,
+  "note": "v7 trial 1 step 30"
+ },
+ {
+  "name": "v7t1 s60",
+  "frame": "trials/v7_040000/trial1_frames/00060.jpg",
+  "state": [
+   0.516,
+   -99.251,
+   99.097,
+   60.17,
+   38.803,
+   61.269
+  ],
+  "expected": null,
+  "note": "v7 trial 1 step 60"
+ },
+ {
+  "name": "v7t1 s90",
+  "frame": "trials/v7_040000/trial1_frames/00090.jpg",
+  "state": [
+   0.074,
+   -56.406,
+   96.749,
+   -17.622,
+   38.803,
+   58.165
+  ],
+  "expected": null,
+  "note": "v7 trial 1 step 90"
+ },
+ {
+  "name": "v7t1 s120",
+  "frame": "trials/v7_040000/trial1_frames/00120.jpg",
+  "state": [
+   0.442,
+   -11.398,
+   89.707,
+   -50.658,
+   38.755,
+   60.054
+  ],
+  "expected": null,
+  "note": "v7 trial 1 step 120"
+ },
+ {
+  "name": "v7t1 s150",
+  "frame": "trials/v7_040000/trial1_frames/00150.jpg",
+  "state": [
+   1.106,
+   32.696,
+   60.181,
+   -62.972,
+   38.755,
+   57.422
+  ],
+  "expected": null,
+  "note": "v7 trial 1 step 150"
+ },
+ {
+  "name": "v7t1 s180",
+  "frame": "trials/v7_040000/trial1_frames/00180.jpg",
+  "state": [
+   2.065,
+   47.587,
+   47.088,
+   -69.427,
+   38.755,
+   57.018
+  ],
+  "expected": null,
+  "note": "v7 trial 1 step 180"
+ },
+ {
+  "name": "v7t1 s210",
+  "frame": "trials/v7_040000/trial1_frames/00210.jpg",
+  "state": [
+   5.752,
+   62.562,
+   36.072,
+   -84.459,
+   38.755,
+   36.64
+  ],
+  "expected": null,
+  "note": "v7 trial 1 step 210"
+ },
+ {
+  "name": "v7t1 s240",
+  "frame": "trials/v7_040000/trial1_frames/00240.jpg",
+  "state": [
+   6.563,
+   52.995,
+   39.142,
+   -74.607,
+   38.803,
+   13.765
+  ],
+  "expected": null,
+  "note": "v7 trial 1 step 240"
+ },
+ {
+  "name": "v7t1 s270",
+  "frame": "trials/v7_040000/trial1_frames/00270.jpg",
+  "state": [
+   6.49,
+   -17.72,
+   74.447,
+   -45.393,
+   38.803,
+   10.391
+  ],
+  "expected": null,
+  "note": "v7 trial 1 step 270"
+ },
+ {
+  "name": "v7t1 s300",
+  "frame": "trials/v7_040000/trial1_frames/00300.jpg",
+  "state": [
+   4.499,
+   -93.677,
+   99.91,
+   6.412,
+   38.803,
+   9.312
+  ],
+  "expected": null,
+  "note": "v7 trial 1 step 300"
+ },
+ {
+  "name": "v7t2 s0",
+  "frame": "trials/v7_040000/trial2_frames/00000.jpg",
+  "state": [
+   0.959,
+   -99.584,
+   99.458,
+   75.626,
+   38.95,
+   94.197
+  ],
+  "expected": null,
+  "note": "v7 trial 2 step 0"
+ },
+ {
+  "name": "v7t2 s30",
+  "frame": "trials/v7_040000/trial2_frames/00030.jpg",
+  "state": [
+   -2.507,
+   -94.842,
+   99.729,
+   46.412,
+   38.803,
+   59.244
+  ],
+  "expected": null,
+  "note": "v7 trial 2 step 30"
+ },
+ {
+  "name": "v7t2 s60",
+  "frame": "trials/v7_040000/trial2_frames/00060.jpg",
+  "state": [
+   -6.563,
+   -53.827,
+   99.187,
+   -14.14,
+   38.755,
+   52.024
+  ],
+  "expected": null,
+  "note": "v7 trial 2 step 60"
+ },
+ {
+  "name": "v7t2 s90",
+  "frame": "trials/v7_040000/trial2_frames/00090.jpg",
+  "state": [
+   -6.342,
+   -20.3,
+   97.923,
+   -38.599,
+   38.755,
+   47.368
+  ],
+  "expected": null,
+  "note": "v7 trial 2 step 90"
+ },
+ {
+  "name": "v7t2 s120",
+  "frame": "trials/v7_040000/trial2_frames/00120.jpg",
+  "state": [
+   -4.425,
+   -5.657,
+   94.673,
+   -46.921,
+   38.755,
+   38.462
+  ],
+  "expected": null,
+  "note": "v7 trial 2 step 120"
+ },
+ {
+  "name": "v7t2 s150",
+  "frame": "trials/v7_040000/trial2_frames/00150.jpg",
+  "state": [
+   -3.171,
+   -14.975,
+   96.298,
+   -41.401,
+   38.755,
+   25.034
+  ],
+  "expected": null,
+  "note": "v7 trial 2 step 150"
+ },
+ {
+  "name": "v7t2 s180",
+  "frame": "trials/v7_040000/trial2_frames/00180.jpg",
+  "state": [
+   -0.664,
+   -67.887,
+   99.549,
+   -0.807,
+   38.755,
+   11.741
+  ],
+  "expected": null,
+  "note": "v7 trial 2 step 180"
+ },
+ {
+  "name": "v7t2 s210",
+  "frame": "trials/v7_040000/trial2_frames/00210.jpg",
+  "state": [
+   -0.664,
+   -99.418,
+   99.639,
+   38.259,
+   38.852,
+   8.839
+  ],
+  "expected": null,
+  "note": "v7 trial 2 step 210"
+ },
+ {
+  "name": "v7t2 s240",
+  "frame": "trials/v7_040000/trial2_frames/00240.jpg",
+  "state": [
+   -0.664,
+   -99.418,
+   99.639,
+   38.938,
+   38.852,
+   8.839
+  ],
+  "expected": null,
+  "note": "v7 trial 2 step 240"
+ },
+ {
+  "name": "v7t2 s270",
+  "frame": "trials/v7_040000/trial2_frames/00270.jpg",
+  "state": [
+   0.516,
+   -99.418,
+   99.639,
+   35.032,
+   38.852,
+   8.839
+  ],
+  "expected": null,
+  "note": "v7 trial 2 step 270"
+ },
+ {
+  "name": "v7t2 s300",
+  "frame": "trials/v7_040000/trial2_frames/00300.jpg",
+  "state": [
+   2.065,
+   -99.418,
+   99.639,
+   32.314,
+   38.852,
+   8.839
+  ],
+  "expected": null,
+  "note": "v7 trial 2 step 300"
+ },
+ {
+  "name": "v7t3 s0",
+  "frame": "trials/v7_040000/trial3_frames/00000.jpg",
+  "state": [
+   0.59,
+   -99.501,
+   99.549,
+   75.626,
+   38.852,
+   93.927
+  ],
+  "expected": null,
+  "note": "v7 trial 3 step 0"
+ },
+ {
+  "name": "v7t3 s30",
+  "frame": "trials/v7_040000/trial3_frames/00030.jpg",
+  "state": [
+   0.0,
+   -100.0,
+   99.549,
+   67.898,
+   38.901,
+   61.538
+  ],
+  "expected": null,
+  "note": "v7 trial 3 step 30"
+ },
+ {
+  "name": "v7t3 s60",
+  "frame": "trials/v7_040000/trial3_frames/00060.jpg",
+  "state": [
+   -4.72,
+   -69.8,
+   99.729,
+   4.119,
+   38.852,
+   60.864
+  ],
+  "expected": null,
+  "note": "v7 trial 3 step 60"
+ },
+ {
+  "name": "v7t3 s90",
+  "frame": "trials/v7_040000/trial3_frames/00090.jpg",
+  "state": [
+   -5.236,
+   -27.371,
+   96.388,
+   -30.87,
+   38.852,
+   60.189
+  ],
+  "expected": null,
+  "note": "v7 trial 3 step 90"
+ },
+ {
+  "name": "v7t3 s120",
+  "frame": "trials/v7_040000/trial3_frames/00120.jpg",
+  "state": [
+   -3.982,
+   3.078,
+   87.449,
+   -47.346,
+   38.852,
+   60.189
+  ],
+  "expected": null,
+  "note": "v7 trial 3 step 120"
+ },
+ {
+  "name": "v7t3 s150",
+  "frame": "trials/v7_040000/trial3_frames/00150.jpg",
+  "state": [
+   -3.245,
+   12.978,
+   85.011,
+   -53.715,
+   38.852,
+   60.459
+  ],
+  "expected": null,
+  "note": "v7 trial 3 step 150"
+ },
+ {
+  "name": "v7t3 s180",
+  "frame": "trials/v7_040000/trial3_frames/00180.jpg",
+  "state": [
+   -1.475,
+   8.735,
+   87.269,
+   -53.715,
+   38.852,
+   60.459
+  ],
+  "expected": null,
+  "note": "v7 trial 3 step 180"
+ },
+ {
+  "name": "v7t3 s210",
+  "frame": "trials/v7_040000/trial3_frames/00210.jpg",
+  "state": [
+   0.811,
+   -17.637,
+   92.144,
+   -38.004,
+   38.852,
+   60.391
+  ],
+  "expected": null,
+  "note": "v7 trial 3 step 210"
+ },
+ {
+  "name": "v7t3 s240",
+  "frame": "trials/v7_040000/trial3_frames/00240.jpg",
+  "state": [
+   1.696,
+   -21.631,
+   92.325,
+   -36.815,
+   38.852,
+   59.919
+  ],
+  "expected": null,
+  "note": "v7 trial 3 step 240"
+ },
+ {
+  "name": "v7t3 s270",
+  "frame": "trials/v7_040000/trial3_frames/00270.jpg",
+  "state": [
+   2.802,
+   -14.975,
+   88.804,
+   -36.815,
+   38.852,
+   59.649
+  ],
+  "expected": null,
+  "note": "v7 trial 3 step 270"
+ },
+ {
+  "name": "v7t3 s300",
+  "frame": "trials/v7_040000/trial3_frames/00300.jpg",
+  "state": [
+   3.614,
+   5.74,
+   81.58,
+   -46.752,
+   38.852,
+   60.054
+  ],
+  "expected": null,
+  "note": "v7 trial 3 step 300"
+ },
+ {
+  "name": "v7t4 s0",
+  "frame": "trials/v7_040000/trial4_frames/00000.jpg",
+  "state": [
+   0.664,
+   -99.584,
+   99.368,
+   75.456,
+   38.852,
+   93.792
+  ],
+  "expected": null,
+  "note": "v7 trial 4 step 0"
+ },
+ {
+  "name": "v7t4 s30",
+  "frame": "trials/v7_040000/trial4_frames/00030.jpg",
+  "state": [
+   1.106,
+   -100.0,
+   99.458,
+   77.325,
+   39.145,
+   61.808
+  ],
+  "expected": null,
+  "note": "v7 trial 4 step 30"
+ },
+ {
+  "name": "v7t4 s60",
+  "frame": "trials/v7_040000/trial4_frames/00060.jpg",
+  "state": [
+   -0.295,
+   -84.859,
+   99.278,
+   45.648,
+   38.901,
+   60.391
+  ],
+  "expected": null,
+  "note": "v7 trial 4 step 60"
+ },
+ {
+  "name": "v7t4 s90",
+  "frame": "trials/v7_040000/trial4_frames/00090.jpg",
+  "state": [
+   -2.065,
+   -65.724,
+   99.368,
+   30.616,
+   38.852,
+   56.613
+  ],
+  "expected": null,
+  "note": "v7 trial 4 step 90"
+ },
+ {
+  "name": "v7t4 s120",
+  "frame": "trials/v7_040000/trial4_frames/00120.jpg",
+  "state": [
+   -1.475,
+   -41.681,
+   99.097,
+   -16.263,
+   38.852,
+   50.135
+  ],
+  "expected": null,
+  "note": "v7 trial 4 step 120"
+ },
+ {
+  "name": "v7t4 s150",
+  "frame": "trials/v7_040000/trial4_frames/00150.jpg",
+  "state": [
+   1.991,
+   -16.223,
+   98.736,
+   -39.448,
+   38.852,
+   28.408
+  ],
+  "expected": null,
+  "note": "v7 trial 4 step 150"
+ },
+ {
+  "name": "v7t4 s180",
+  "frame": "trials/v7_040000/trial4_frames/00180.jpg",
+  "state": [
+   4.499,
+   -37.77,
+   98.555,
+   -28.577,
+   38.852,
+   9.784
+  ],
+  "expected": null,
+  "note": "v7 trial 4 step 180"
+ },
+ {
+  "name": "v7t4 s210",
+  "frame": "trials/v7_040000/trial4_frames/00210.jpg",
+  "state": [
+   4.425,
+   -81.947,
+   100.0,
+   -1.911,
+   38.852,
+   9.109
+  ],
+  "expected": null,
+  "note": "v7 trial 4 step 210"
+ },
+ {
+  "name": "v7t4 s240",
+  "frame": "trials/v7_040000/trial4_frames/00240.jpg",
+  "state": [
+   3.097,
+   -98.752,
+   99.639,
+   17.028,
+   38.852,
+   9.177
+  ],
+  "expected": null,
+  "note": "v7 trial 4 step 240"
+ },
+ {
+  "name": "v7t4 s270",
+  "frame": "trials/v7_040000/trial4_frames/00270.jpg",
+  "state": [
+   2.212,
+   -99.334,
+   99.458,
+   26.624,
+   38.852,
+   9.177
+  ],
+  "expected": null,
+  "note": "v7 trial 4 step 270"
+ },
+ {
+  "name": "v7t4 s300",
+  "frame": "trials/v7_040000/trial4_frames/00300.jpg",
+  "state": [
+   3.319,
+   -98.918,
+   99.368,
+   27.558,
+   38.852,
+   9.177
+  ],
+  "expected": null,
+  "note": "v7 trial 4 step 300"
+ },
+ {
+  "name": "v7t5 s0",
+  "frame": "trials/v7_040000/trial5_frames/00000.jpg",
+  "state": [
+   0.664,
+   -99.667,
+   99.458,
+   75.626,
+   38.852,
+   93.995
+  ],
+  "expected": null,
+  "note": "v7 trial 5 step 0"
+ },
+ {
+  "name": "v7t5 s30",
+  "frame": "trials/v7_040000/trial5_frames/00030.jpg",
+  "state": [
+   1.254,
+   -99.917,
+   97.923,
+   78.004,
+   39.194,
+   61.808
+  ],
+  "expected": null,
+  "note": "v7 trial 5 step 30"
+ },
+ {
+  "name": "v7t5 s60",
+  "frame": "trials/v7_040000/trial5_frames/00060.jpg",
+  "state": [
+   0.369,
+   -80.532,
+   94.944,
+   47.176,
+   38.901,
+   60.864
+  ],
+  "expected": null,
+  "note": "v7 trial 5 step 60"
+ },
+ {
+  "name": "v7t5 s90",
+  "frame": "trials/v7_040000/trial5_frames/00090.jpg",
+  "state": [
+   1.844,
+   -42.596,
+   96.027,
+   -13.291,
+   38.852,
+   57.422
+  ],
+  "expected": null,
+  "note": "v7 trial 5 step 90"
+ },
+ {
+  "name": "v7t5 s120",
+  "frame": "trials/v7_040000/trial5_frames/00120.jpg",
+  "state": [
+   4.056,
+   -9.151,
+   96.208,
+   -44.883,
+   38.852,
+   57.76
+  ],
+  "expected": null,
+  "note": "v7 trial 5 step 120"
+ },
+ {
+  "name": "v7t5 s150",
+  "frame": "trials/v7_040000/trial5_frames/00150.jpg",
+  "state": [
+   7.596,
+   4.825,
+   87.269,
+   -49.299,
+   38.852,
+   46.221
+  ],
+  "expected": null,
+  "note": "v7 trial 5 step 150"
+ },
+ {
+  "name": "v7t5 s180",
+  "frame": "trials/v7_040000/trial5_frames/00180.jpg",
+  "state": [
+   10.693,
+   -3.993,
+   87.088,
+   -44.374,
+   38.901,
+   42.578
+  ],
+  "expected": null,
+  "note": "v7 trial 5 step 180"
+ },
+ {
+  "name": "v7t5 s210",
+  "frame": "trials/v7_040000/trial5_frames/00210.jpg",
+  "state": [
+   12.537,
+   4.825,
+   85.372,
+   -40.892,
+   38.803,
+   12.821
+  ],
+  "expected": null,
+  "note": "v7 trial 5 step 210"
+ },
+ {
+  "name": "v7t5 s240",
+  "frame": "trials/v7_040000/trial5_frames/00240.jpg",
+  "state": [
+   12.611,
+   -19.634,
+   88.713,
+   -38.004,
+   38.803,
+   8.839
+  ],
+  "expected": null,
+  "note": "v7 trial 5 step 240"
+ },
+ {
+  "name": "v7t5 s270",
+  "frame": "trials/v7_040000/trial5_frames/00270.jpg",
+  "state": [
+   6.858,
+   -87.937,
+   96.298,
+   7.516,
+   38.852,
+   8.839
+  ],
+  "expected": null,
+  "note": "v7 trial 5 step 270"
+ },
+ {
+  "name": "v7t5 s300",
+  "frame": "trials/v7_040000/trial5_frames/00300.jpg",
+  "state": [
+   2.286,
+   -99.418,
+   96.749,
+   37.325,
+   39.048,
+   8.839
+  ],
+  "expected": null,
+  "note": "v7 trial 5 step 300"
+ },
+ {
+  "name": "v7t6 s0",
+  "frame": "trials/v7_040000/trial6_frames/00000.jpg",
+  "state": [
+   0.959,
+   -100.0,
+   99.458,
+   75.626,
+   39.048,
+   94.062
+  ],
+  "expected": null,
+  "note": "v7 trial 6 step 0"
+ },
+ {
+  "name": "v7t6 s30",
+  "frame": "trials/v7_040000/trial6_frames/00030.jpg",
+  "state": [
+   0.959,
+   -100.0,
+   99.458,
+   77.325,
+   39.096,
+   61.673
+  ],
+  "expected": null,
+  "note": "v7 trial 6 step 30"
+ },
+ {
+  "name": "v7t6 s60",
+  "frame": "trials/v7_040000/trial6_frames/00060.jpg",
+  "state": [
+   0.516,
+   -84.193,
+   98.014,
+   36.391,
+   38.803,
+   60.459
+  ],
+  "expected": null,
+  "note": "v7 trial 6 step 60"
+ },
+ {
+  "name": "v7t6 s90",
+  "frame": "trials/v7_040000/trial6_frames/00090.jpg",
+  "state": [
+   0.516,
+   -37.854,
+   94.312,
+   -25.945,
+   38.755,
+   58.232
+  ],
+  "expected": null,
+  "note": "v7 trial 6 step 90"
+ },
+ {
+  "name": "v7t6 s120",
+  "frame": "trials/v7_040000/trial6_frames/00120.jpg",
+  "state": [
+   5.088,
+   6.323,
+   89.345,
+   -57.792,
+   38.755,
+   49.865
+  ],
+  "expected": null,
+  "note": "v7 trial 6 step 120"
+ },
+ {
+  "name": "v7t6 s150",
+  "frame": "trials/v7_040000/trial6_frames/00150.jpg",
+  "state": [
+   5.973,
+   13.894,
+   80.226,
+   -52.442,
+   38.755,
+   27.26
+  ],
+  "expected": null,
+  "note": "v7 trial 6 step 150"
+ },
+ {
+  "name": "v7t6 s180",
+  "frame": "trials/v7_040000/trial6_frames/00180.jpg",
+  "state": [
+   7.375,
+   -12.978,
+   82.573,
+   -30.616,
+   38.803,
+   17.881
+  ],
+  "expected": null,
+  "note": "v7 trial 6 step 180"
+ },
+ {
+  "name": "v7t6 s210",
+  "frame": "trials/v7_040000/trial6_frames/00210.jpg",
+  "state": [
+   7.08,
+   -42.596,
+   88.081,
+   -11.083,
+   38.95,
+   9.582
+  ],
+  "expected": null,
+  "note": "v7 trial 6 step 210"
+ },
+ {
+  "name": "v7t6 s240",
+  "frame": "trials/v7_040000/trial6_frames/00240.jpg",
+  "state": [
+   6.342,
+   -84.027,
+   99.097,
+   5.138,
+   38.95,
+   9.244
+  ],
+  "expected": null,
+  "note": "v7 trial 6 step 240"
+ },
+ {
+  "name": "v7t6 s270",
+  "frame": "trials/v7_040000/trial6_frames/00270.jpg",
+  "state": [
+   4.499,
+   -99.418,
+   99.549,
+   22.803,
+   38.95,
+   9.244
+  ],
+  "expected": null,
+  "note": "v7 trial 6 step 270"
+ },
+ {
+  "name": "v7t6 s300",
+  "frame": "trials/v7_040000/trial6_frames/00300.jpg",
+  "state": [
+   2.212,
+   -99.418,
+   99.549,
+   29.087,
+   38.95,
+   8.974
+  ],
+  "expected": null,
+  "note": "v7 trial 6 step 300"
+ }
+]
