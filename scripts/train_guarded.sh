@@ -3,7 +3,7 @@
 #
 # The 31 August run died at step 53 000 of 60 000 on a thermal shutdown with no
 # telemetry and a volatile journal; nothing said when or how hot. This wrapper
-# writes tegrastats every 5 s to <output_dir>/tegrastats.log and kills the run
+# writes tegrastats every 5 s to <output_dir>-guard/tegrastats.log and kills the run
 # if the SoC junction temperature stays at or above TJ_MAX for three samples.
 # A killed run resumes from its last checkpoint with --resume=true; a thermal
 # shutdown loses everything since the last checkpoint and possibly the disk.
@@ -19,8 +19,10 @@ set -u
 OUT="$1"; JOB="$2"; shift 2
 TJ_MAX="${TJ_MAX:-92}"
 PY="${PY:-$HOME/.venvs/xlerobot-pro/bin}"
-mkdir -p "$OUT"
-LOG="$OUT/train.log"; TS="$OUT/tegrastats.log"
+# lerobot-train refuses an output_dir that already exists, so the guard's own
+# logs live beside it, not inside it.
+GUARD="${OUT%/}-guard"; mkdir -p "$GUARD"
+LOG="$GUARD/train.log"; TS="$GUARD/tegrastats.log"
 
 tegrastats --interval 5000 > "$TS" 2>&1 &
 TS_PID=$!
