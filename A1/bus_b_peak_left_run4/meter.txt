@@ -1,0 +1,1 @@
+peak_A=1.41 idle_A=0.1475 meter=FNIRSI-2C53T mode=DC-A range=10A leads=COM-board-side,10A-arm-side splice=left arm V wire (3-pin cable), sole supply path verified by opening the splice (servos 1-6 drop off the bus)

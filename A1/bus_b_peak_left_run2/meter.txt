@@ -1,0 +1,1 @@
+meter reading invalid: leads reversed (run1: MIN -6 mA shown) or mA socket (run2-3); same move as run4, keep for the servo register traces only
