@@ -111,8 +111,11 @@ This is a **deployment horizon** problem, not a weights problem:
   for now. `scripts/ensemble_sim.py`: fed the unchanged start observation each
   step, the ensembled lift command starts rising at step 73 (0.01) / 65 (0.05)
   for both v6 and v7 — the dwell does not lock. Mid-reach, every step's fresh
-  chunk sees the bottle still above the jaws and extends the plan. Untested on
-  hardware; inference is 10 ms so it fits 30 Hz.
+  chunk sees the bottle still above the jaws and extends the plan. The runner
+  path was exercised in code against 040000: action shape (1, 6), lift rising
+  from step ~65. A full inference every step costs 47 ms on the Orin Nano, so
+  the loop will run about 21 Hz and the arm about 30 % slower than demonstrated.
+  Untested on hardware.
 
 ## 5. Protocol for the first hardware session (lights on, scene checked)
 
