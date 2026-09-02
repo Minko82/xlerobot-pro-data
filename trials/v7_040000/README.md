@@ -13,3 +13,23 @@ produced a plan aimed at the shelf centre. All trials: grey mask overlay
 | 3 | temporal ensemble 0.01, gripper from newest chunk | undershoot, never closed | reach peaked at lift 13 / elbow 85 at 7.5 s, then hovered at half depth drifting right to pan +19; the averaged plan is shallower than any single plan. Ensembling abandoned |
 | 4 | n-action-steps 100 then 40 once moving | early close at lift -16, retracted, locked | every re-plan from a mid-reach view is biased short; a shorter horizon closes earlier, not later |
 | 5 | n-action-steps 100, aim offset lift +4 / elbow -4 | short, closed at lift 5 / elbow 85, pan drifted to +12.5 | reach far shallower than trial 1 from the same config; bottle position differs from trial 1 (see frames) |
+
+## Conclusion at ~1:30 pm: daylight is the confound
+
+First-chunk plans from the recorded start pose, v7 040000, grey mask, same joint state:
+
+| frame | light | bottle (px) | shoulder_lift at step 80 | step-99 lift / elbow |
+|---|---|---|---|---|
+| trial 5 start | day, blinds | (270,115) | -52.8 | -21 / +93 |
+| trial 1 start | day, blinds | (130,90) | -67.8 | -24 / +82 |
+| ep11 frame 0 | night | (275,153) | -26.9 | +12 / +36 |
+| ep25 frame 0 | night | (158,134) | +3.7 | +36 / +30 |
+| v6 trial 7 start | night | (140,204) | -28.2 | +10 / +78 |
+
+Pan is right in every case; the reach is planned 25–70 units shallower from
+daylight frames. Software brightness / colour matching does not recover it
+(tested: gain, cast, per-channel and Lab statistics, histogram matching). The
+scene itself has to be dark: shelf ≤ ~95, R-B negative, tape brighter than shelf.
+No trial from this morning tests the retrain. Ensembling (trials 2–3) and the
+adaptive horizon (trial 4) were rejected on the same shallow-reach evidence and
+should be re-judged only under night light; the 100-step horizon stays the default.
