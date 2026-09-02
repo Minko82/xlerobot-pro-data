@@ -40,4 +40,4 @@ should be re-judged only under night light; the 100-step horizon stays the defau
 
 The first-chunk comparison above measured reach *speed* over 3.3 s, not final depth
 (trial 1 reached lift 62 after an equally slow first chunk). Withdrawn as evidence.
-| 7 | n-action-steps 100, shaded, bottle far left | miss: crept 6→17 s to lift 44 / elbow 44 at pan -30, closed on nothing | slow approach then an empty close |
+| 7 | n-action-steps 100, shaded, bottle far left | INVALID: the start frame shows no bottle at all — it was placed outside the camera's view. The arm searched left (pan -30), crept, closed on nothing | not a policy result |
