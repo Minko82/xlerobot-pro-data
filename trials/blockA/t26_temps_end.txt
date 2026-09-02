@@ -1,0 +1,1 @@
+shoul=36 shoul=34 elbow=33 wrist=35 wrist=33 gripp=42
