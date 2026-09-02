@@ -56,8 +56,10 @@ class Policy:
 
 def close_step(ch): 
     k = np.where(ch[:, GI] < 50)[0]; return int(k[0]) if len(k) else None
-def onset_step(ch, state, thr=2.0):
-    k = np.where(np.abs(ch[:, 1] - state[1]) > thr)[0]; return int(k[0]) if len(k) else None
+def onset_step(ch, state, thr=4.0):
+    # Upward shoulder_lift motion only: the first planned command can sit a few units
+    # below the -100 floor (it is clamped downstream), which is not a motion.
+    k = np.where(ch[:, 1] - state[1] > thr)[0]; return int(k[0]) if len(k) else None
 def item_rgb(ds, idx):
     it = ds[idx]; return (it["observation.images.top"].permute(1, 2, 0) * 255).round().clamp(0, 255).to(torch.uint8).numpy(), it["observation.state"].numpy()
 
