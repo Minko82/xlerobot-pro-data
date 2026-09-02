@@ -316,3 +316,29 @@ matters for thermal budget.
 reportable if success is statistically indistinguishable from the 10-step baseline.
 Until this runs, **137.7 Hz at steps=2 is a measured latency, not a demonstrated
 capability**. Requires ≥20 grasps per config on the standard object set.
+
+### A1 addendum, 2 September 2026 — Bus B ammeter (Tier 0 #1) DONE
+
+Inline DMM (FNIRSI 2C53T, DC current, 10 A range, MAX hold) spliced into the
+left arm's V wire, verified as the arm's sole supply path (opening the splice
+drops servos 1-6 off the bus). Move: `scripts/bus_b_peak.py`, all six joints
+commanded simultaneously start pose -> lifted/extended/swung pose and back, five
+times, Table III envelope applied (tau 450, accel 40, vmax 100). Logs in
+`A1/bus_b_peak_left_run4/` (runs 1-3 have invalid meter readings: leads reversed
+or mA socket; their servo-register traces are the same move).
+
+| | |
+|---|---|
+| idle, torque off | 0.15 A |
+| **peak during the move (one arm)** | **1.41 A** |
+| both arms synchronised, upper bound | <= 2.8 A (2x single arm) |
+| predicted (Table III) | 4.90 A |
+| fuse | 5 A |
+
+Caveat: a handheld DMM's MAX-hold samples at a few hertz, so a millisecond
+inrush above 1.41 A would be smoothed; for fuse rating that is the relevant
+peak. The servos' own current registers summed to 343 raw units (2.23 A at the
+nominal 6.5 mA/LSB) at the same instant -- 1.6x the meter -- which is the first
+point for Tier 0 #2: the register reads high in nominal units.
+
+Table IV, P2 "Measured": **1.41 A (one arm); <= 2.8 A (both arms, bound)**.
