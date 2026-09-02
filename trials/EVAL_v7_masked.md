@@ -38,6 +38,7 @@ Chunk L1 error over 100 steps, 100 random frames:
 
 | ckpt | pan | lift | elbow | wrist_flex | gripper |
 |---|---|---|---|---|---|
+| v6 040000 (raw frames, 79 frames) | 1.45 | 4.51 | 3.70 | 4.69 | 1.38 |
 | v7 010000 | 2.53 | 9.64 | 7.06 | 10.39 | 4.58 |
 | v7 020000 | 2.34 | 6.60 | 5.64 | 7.11 | 2.41 |
 | v7 030000 | 2.00 | 5.07 | 4.38 | 6.28 | 2.36 |
@@ -48,7 +49,8 @@ mask did not disturb the dwell behaviour. The "never closes from g-90" column
 falling from 35 to 10 means later checkpoints commit to the grasp inside the
 100-step chunk far more often, which is what the deployment horizon needs.
 
-**Pick 040000.** Every metric is best there and the curve had not flattened.
+**Pick 040000.** Every metric is best there and the curve had not flattened. On its
+own frames it matches v6's fit quality within noise while carrying no hand cue.
 
 ## 2. Both policies read the bottle (image-swap ablation)
 

@@ -1,0 +1,764 @@
+{
+ "checkpoint": "outputs/act_glassbottle_pick_v7/checkpoints/020000/pretrained_model",
+ "mask": "calibration/hand_mask_grey88.png",
+ "region": [
+  200,
+  480,
+  0,
+  260
+ ],
+ "dataset": {
+  "shoulder_pan": {
+   "slope": 1.097417787259094,
+   "intercept": 0.660161013724904,
+   "mean_err": 0.6961445212364197,
+   "mean_abs": 2.035750389099121
+  },
+  "shoulder_lift": {
+   "slope": 1.096049102454321,
+   "intercept": -2.831241533076265,
+   "mean_err": 1.615867257118225,
+   "mean_abs": 3.460535764694214
+  },
+  "elbow_flex": {
+   "slope": 1.1066644558813639,
+   "intercept": -4.110291305605398,
+   "mean_err": -0.8752041459083557,
+   "mean_abs": 4.289539337158203
+  },
+  "wrist_flex": {
+   "slope": 1.1029540398515478,
+   "intercept": 3.0276934923594268,
+   "mean_err": -2.67679500579834,
+   "mean_abs": 3.5887365341186523
+  },
+  "close": {
+   "90": {
+    "n": 20,
+    "never": 29,
+    "mean_pred": 85.45
+   },
+   "60": {
+    "n": 46,
+    "never": 3,
+    "mean_pred": 59.15217391304348
+   },
+   "30": {
+    "n": 49,
+    "never": 0,
+    "mean_pred": 28.693877551020407
+   }
+  },
+  "onset": {
+   "pred_mean": 58.816326530612244,
+   "true_mean": 55.6530612244898,
+   "never": 0,
+   "n": 49
+  },
+  "chunk_l1": {
+   "shoulder_pan": 2.3391783237457275,
+   "shoulder_lift": 6.599246978759766,
+   "elbow_flex": 5.635069847106934,
+   "wrist_flex": 7.110283374786377,
+   "wrist_roll": 0.07405580580234528,
+   "gripper": 2.4095473289489746
+  },
+  "chunk_n": 79
+ },
+ "live": [
+  {
+   "name": "trial2 start",
+   "close": null,
+   "pose": [
+    -8.5,
+    0.10000000149011612,
+    89.0,
+    -49.29999923706055
+   ],
+   "onset": 54,
+   "expected": [
+    -12.0,
+    45.7,
+    35.5,
+    -58.9
+   ],
+   "note": "bottle 60 deg off training orientation; expected pose from bottle->grasp regression",
+   "inv_close": null,
+   "inv_max_joint_diff": 45.131134033203125,
+   "raw_close": null,
+   "raw_max_joint_diff": 69.46237182617188,
+   "swap": [
+    {
+     "image": "ep20_right_near_pan+24",
+     "close": null,
+     "pose": [
+      28.100000381469727,
+      0.800000011920929,
+      88.80000305175781,
+      -55.20000076293945
+     ]
+    },
+    {
+     "image": "ep15_left_near_pan-25",
+     "close": null,
+     "pose": [
+      -29.0,
+      5.099999904632568,
+      87.4000015258789,
+      -58.5
+     ]
+    },
+    {
+     "image": "ep45_farleft_far_pan-18_lift+88",
+     "close": null,
+     "pose": [
+      -11.300000190734863,
+      35.900001525878906,
+      -39.79999923706055,
+      26.200000762939453
+     ]
+    },
+    {
+     "image": "ep11_centre_far_pan+6",
+     "close": null,
+     "pose": [
+      7.099999904632568,
+      14.899999618530273,
+      26.100000381469727,
+      -35.400001525878906
+     ]
+    }
+   ]
+  },
+  {
+   "name": "trial5 start",
+   "close": null,
+   "pose": [
+    -3.700000047683716,
+    16.399999618530273,
+    54.599998474121094,
+    -49.5
+   ],
+   "onset": 59,
+   "expected": [
+    -7.4,
+    65.5,
+    -2.1,
+    -52.6
+   ],
+   "note": "bottle top-left; state approximated from the start pose",
+   "inv_close": null,
+   "inv_max_joint_diff": 48.66520309448242,
+   "raw_close": null,
+   "raw_max_joint_diff": 42.45986557006836,
+   "swap": [
+    {
+     "image": "ep20_right_near_pan+24",
+     "close": null,
+     "pose": [
+      28.100000381469727,
+      0.699999988079071,
+      88.80000305175781,
+      -55.20000076293945
+     ]
+    },
+    {
+     "image": "ep15_left_near_pan-25",
+     "close": null,
+     "pose": [
+      -29.299999237060547,
+      5.199999809265137,
+      87.30000305175781,
+      -58.599998474121094
+     ]
+    },
+    {
+     "image": "ep45_farleft_far_pan-18_lift+88",
+     "close": null,
+     "pose": [
+      -11.300000190734863,
+      35.400001525878906,
+      -39.599998474121094,
+      26.899999618530273
+     ]
+    },
+    {
+     "image": "ep11_centre_far_pan+6",
+     "close": null,
+     "pose": [
+      6.900000095367432,
+      14.800000190734863,
+      25.700000762939453,
+      -34.70000076293945
+     ]
+    }
+   ]
+  },
+  {
+   "name": "trial6 start",
+   "close": null,
+   "pose": [
+    -3.9000000953674316,
+    -18.0,
+    84.0,
+    -34.79999923706055
+   ],
+   "onset": 63,
+   "expected": [
+    -8.0,
+    55.9,
+    16.1,
+    -55.7
+   ],
+   "note": "v6 live closed at -2.7/+57.8/+41.9/-83.7 and missed short",
+   "inv_close": null,
+   "inv_max_joint_diff": 47.223716735839844,
+   "raw_close": null,
+   "raw_max_joint_diff": 72.21443176269531,
+   "swap": [
+    {
+     "image": "ep20_right_near_pan+24",
+     "close": null,
+     "pose": [
+      28.100000381469727,
+      0.699999988079071,
+      88.80000305175781,
+      -55.20000076293945
+     ]
+    },
+    {
+     "image": "ep15_left_near_pan-25",
+     "close": null,
+     "pose": [
+      -29.299999237060547,
+      5.199999809265137,
+      87.30000305175781,
+      -58.599998474121094
+     ]
+    },
+    {
+     "image": "ep45_farleft_far_pan-18_lift+88",
+     "close": null,
+     "pose": [
+      -11.300000190734863,
+      35.400001525878906,
+      -39.599998474121094,
+      26.899999618530273
+     ]
+    },
+    {
+     "image": "ep11_centre_far_pan+6",
+     "close": null,
+     "pose": [
+      6.900000095367432,
+      14.800000190734863,
+      25.700000762939453,
+      -34.70000076293945
+     ]
+    }
+   ]
+  },
+  {
+   "name": "trial7 start",
+   "close": null,
+   "pose": [
+    -9.199999809265137,
+    -0.699999988079071,
+    85.5999984741211,
+    -49.599998474121094
+   ],
+   "onset": 60,
+   "expected": [
+    -10.1,
+    48.7,
+    29.7,
+    -58.0
+   ],
+   "note": "v6 live closed at -11.3/+19.5/+69.2/-38.9 (pan -3 offset) below the bottle",
+   "inv_close": null,
+   "inv_max_joint_diff": 29.736454010009766,
+   "raw_close": null,
+   "raw_max_joint_diff": 63.85060501098633,
+   "swap": [
+    {
+     "image": "ep20_right_near_pan+24",
+     "close": null,
+     "pose": [
+      28.100000381469727,
+      0.699999988079071,
+      88.80000305175781,
+      -55.20000076293945
+     ]
+    },
+    {
+     "image": "ep15_left_near_pan-25",
+     "close": null,
+     "pose": [
+      -29.200000762939453,
+      5.099999904632568,
+      87.30000305175781,
+      -58.599998474121094
+     ]
+    },
+    {
+     "image": "ep45_farleft_far_pan-18_lift+88",
+     "close": null,
+     "pose": [
+      -11.300000190734863,
+      35.29999923706055,
+      -39.599998474121094,
+      26.899999618530273
+     ]
+    },
+    {
+     "image": "ep11_centre_far_pan+6",
+     "close": null,
+     "pose": [
+      6.900000095367432,
+      14.800000190734863,
+      25.600000381469727,
+      -34.70000076293945
+     ]
+    }
+   ]
+  },
+  {
+   "name": "trial7 step 90",
+   "close": null,
+   "pose": [
+    -5.699999809265137,
+    25.600000381469727,
+    66.4000015258789,
+    -47.5
+   ],
+   "onset": 7,
+   "expected": [
+    -10.1,
+    48.7,
+    29.7,
+    -58.0
+   ],
+   "note": "mid-approach; v6 planned +26.5/+58.5 here",
+   "inv_close": null,
+   "inv_max_joint_diff": 31.067672729492188,
+   "raw_close": null,
+   "raw_max_joint_diff": 30.681732177734375,
+   "swap": [
+    {
+     "image": "ep20_right_near_pan+24",
+     "close": null,
+     "pose": [
+      25.200000762939453,
+      -0.800000011920929,
+      87.4000015258789,
+      -52.400001525878906
+     ]
+    },
+    {
+     "image": "ep15_left_near_pan-25",
+     "close": null,
+     "pose": [
+      -24.299999237060547,
+      5.300000190734863,
+      84.19999694824219,
+      -60.20000076293945
+     ]
+    },
+    {
+     "image": "ep45_farleft_far_pan-18_lift+88",
+     "close": null,
+     "pose": [
+      -5.699999809265137,
+      10.100000381469727,
+      -8.0,
+      29.700000762939453
+     ]
+    },
+    {
+     "image": "ep11_centre_far_pan+6",
+     "close": null,
+     "pose": [
+      3.299999952316284,
+      10.699999809265137,
+      15.300000190734863,
+      -12.300000190734863
+     ]
+    }
+   ]
+  },
+  {
+   "name": "trial7 step 120",
+   "close": 57,
+   "pose": [
+    -9.199999809265137,
+    22.399999618530273,
+    67.5,
+    -41.70000076293945
+   ],
+   "onset": 0,
+   "expected": [
+    -10.1,
+    48.7,
+    29.7,
+    -58.0
+   ],
+   "note": "v6 planned close at step 47, lift +25.2 -- the short close",
+   "inv_close": null,
+   "inv_max_joint_diff": 36.857452392578125,
+   "raw_close": null,
+   "raw_max_joint_diff": 33.06521224975586,
+   "swap": [
+    {
+     "image": "ep20_right_near_pan+24",
+     "close": 72,
+     "pose": [
+      13.899999618530273,
+      -13.699999809265137,
+      90.4000015258789,
+      -42.400001525878906
+     ]
+    },
+    {
+     "image": "ep15_left_near_pan-25",
+     "close": 82,
+     "pose": [
+      -22.100000381469727,
+      0.10000000149011612,
+      82.19999694824219,
+      -53.29999923706055
+     ]
+    },
+    {
+     "image": "ep45_farleft_far_pan-18_lift+88",
+     "close": null,
+     "pose": [
+      -8.0,
+      18.399999618530273,
+      -4.099999904632568,
+      19.700000762939453
+     ]
+    },
+    {
+     "image": "ep11_centre_far_pan+6",
+     "close": 96,
+     "pose": [
+      0.699999988079071,
+      17.700000762939453,
+      15.899999618530273,
+      -10.399999618530273
+     ]
+    }
+   ]
+  },
+  {
+   "name": "trial8 start",
+   "close": null,
+   "pose": [
+    3.4000000953674316,
+    -6.300000190734863,
+    85.0999984741211,
+    -44.20000076293945
+   ],
+   "onset": 61,
+   "expected": null,
+   "note": "hand patch burned into the frame region; bottle at the near edge, no reliable regression",
+   "inv_close": null,
+   "inv_max_joint_diff": 53.8060417175293,
+   "raw_close": null,
+   "raw_max_joint_diff": 54.673770904541016,
+   "swap": [
+    {
+     "image": "ep20_right_near_pan+24",
+     "close": null,
+     "pose": [
+      28.100000381469727,
+      0.800000011920929,
+      88.69999694824219,
+      -55.20000076293945
+     ]
+    },
+    {
+     "image": "ep15_left_near_pan-25",
+     "close": null,
+     "pose": [
+      -28.799999237060547,
+      5.0,
+      87.4000015258789,
+      -58.400001525878906
+     ]
+    },
+    {
+     "image": "ep45_farleft_far_pan-18_lift+88",
+     "close": null,
+     "pose": [
+      -11.100000381469727,
+      36.099998474121094,
+      -39.900001525878906,
+      25.700000762939453
+     ]
+    },
+    {
+     "image": "ep11_centre_far_pan+6",
+     "close": null,
+     "pose": [
+      7.199999809265137,
+      15.0,
+      26.399999618530273,
+      -35.79999923706055
+     ]
+    }
+   ]
+  },
+  {
+   "name": "trial8 step 150",
+   "close": 10,
+   "pose": [
+    1.399999976158142,
+    54.099998474121094,
+    35.900001525878906,
+    -70.0
+   ],
+   "onset": null,
+   "expected": null,
+   "note": "hovering with the bottle between the jaws (frames), v6+patch closed hesitantly",
+   "inv_close": 52,
+   "inv_max_joint_diff": 11.370407104492188,
+   "raw_close": 54,
+   "raw_max_joint_diff": 11.434772491455078,
+   "swap": [
+    {
+     "image": "ep20_right_near_pan+24",
+     "close": 0,
+     "pose": [
+      13.0,
+      24.600000381469727,
+      44.099998474121094,
+      -41.400001525878906
+     ]
+    },
+    {
+     "image": "ep15_left_near_pan-25",
+     "close": 4,
+     "pose": [
+      1.5,
+      30.600000381469727,
+      41.20000076293945,
+      -45.599998474121094
+     ]
+    },
+    {
+     "image": "ep45_farleft_far_pan-18_lift+88",
+     "close": 4,
+     "pose": [
+      1.2000000476837158,
+      2.200000047683716,
+      42.900001525878906,
+      -17.299999237060547
+     ]
+    },
+    {
+     "image": "ep11_centre_far_pan+6",
+     "close": 14,
+     "pose": [
+      3.4000000953674316,
+      7.099999904632568,
+      25.5,
+      6.599999904632568
+     ]
+    }
+   ]
+  },
+  {
+   "name": "trial9 start",
+   "close": null,
+   "pose": [
+    7.300000190734863,
+    -23.5,
+    91.30000305175781,
+    -35.400001525878906
+   ],
+   "onset": 68,
+   "expected": [
+    10.0,
+    52.7,
+    65.2,
+    -97.3
+   ],
+   "note": "reference = pose that REALLY grasped the bottle in trial 9 (v6 + hand patch)",
+   "inv_close": null,
+   "inv_max_joint_diff": 36.41615295410156,
+   "raw_close": null,
+   "raw_max_joint_diff": 35.85072708129883,
+   "swap": [
+    {
+     "image": "ep20_right_near_pan+24",
+     "close": null,
+     "pose": [
+      28.100000381469727,
+      0.800000011920929,
+      88.69999694824219,
+      -55.20000076293945
+     ]
+    },
+    {
+     "image": "ep15_left_near_pan-25",
+     "close": null,
+     "pose": [
+      -29.0,
+      5.099999904632568,
+      87.4000015258789,
+      -58.5
+     ]
+    },
+    {
+     "image": "ep45_farleft_far_pan-18_lift+88",
+     "close": null,
+     "pose": [
+      -11.199999809265137,
+      35.900001525878906,
+      -39.79999923706055,
+      26.100000381469727
+     ]
+    },
+    {
+     "image": "ep11_centre_far_pan+6",
+     "close": null,
+     "pose": [
+      7.099999904632568,
+      14.899999618530273,
+      26.200000762939453,
+      -35.5
+     ]
+    }
+   ]
+  },
+  {
+   "name": "trial9 step 90",
+   "close": 40,
+   "pose": [
+    7.800000190734863,
+    46.5,
+    64.0,
+    -85.19999694824219
+   ],
+   "onset": 0,
+   "expected": [
+    10.0,
+    52.7,
+    65.2,
+    -97.3
+   ],
+   "note": "reference = real grasp pose",
+   "inv_close": 71,
+   "inv_max_joint_diff": 18.30019760131836,
+   "raw_close": 71,
+   "raw_max_joint_diff": 18.543560028076172,
+   "swap": [
+    {
+     "image": "ep20_right_near_pan+24",
+     "close": 10,
+     "pose": [
+      15.100000381469727,
+      16.600000381469727,
+      70.0999984741211,
+      -56.099998474121094
+     ]
+    },
+    {
+     "image": "ep15_left_near_pan-25",
+     "close": 9,
+     "pose": [
+      3.200000047683716,
+      19.399999618530273,
+      67.4000015258789,
+      -55.79999923706055
+     ]
+    },
+    {
+     "image": "ep45_farleft_far_pan-18_lift+88",
+     "close": 52,
+     "pose": [
+      2.799999952316284,
+      1.399999976158142,
+      42.29999923706055,
+      -16.899999618530273
+     ]
+    },
+    {
+     "image": "ep11_centre_far_pan+6",
+     "close": 33,
+     "pose": [
+      5.900000095367432,
+      -1.2000000476837158,
+      39.900001525878906,
+      -1.7999999523162842
+     ]
+    }
+   ]
+  },
+  {
+   "name": "trial9 step 150",
+   "close": 28,
+   "pose": [
+    8.699999809265137,
+    51.79999923706055,
+    59.0,
+    -88.0999984741211
+   ],
+   "onset": null,
+   "expected": [
+    10.0,
+    52.7,
+    65.2,
+    -97.3
+   ],
+   "note": "hovering at the bottle; a decisive close here is the pass criterion",
+   "inv_close": 61,
+   "inv_max_joint_diff": 15.851810455322266,
+   "raw_close": 61,
+   "raw_max_joint_diff": 15.739753723144531,
+   "swap": [
+    {
+     "image": "ep20_right_near_pan+24",
+     "close": 0,
+     "pose": [
+      15.899999618530273,
+      21.299999237060547,
+      62.5,
+      -58.099998474121094
+     ]
+    },
+    {
+     "image": "ep15_left_near_pan-25",
+     "close": 0,
+     "pose": [
+      5.0,
+      25.899999618530273,
+      59.29999923706055,
+      -58.79999923706055
+     ]
+    },
+    {
+     "image": "ep45_farleft_far_pan-18_lift+88",
+     "close": 9,
+     "pose": [
+      4.300000190734863,
+      -6.099999904632568,
+      60.400001525878906,
+      -25.600000381469727
+     ]
+    },
+    {
+     "image": "ep11_centre_far_pan+6",
+     "close": 14,
+     "pose": [
+      6.300000190734863,
+      -1.2999999523162842,
+      44.400001525878906,
+      -6.0
+     ]
+    }
+   ]
+  }
+ ]
+}
