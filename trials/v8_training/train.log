@@ -1,0 +1,207 @@
+tegrastats -> outputs/act_glassbottle_pick_v8-guard/tegrastats.log (pid 11212)   tj ceiling 92 C   started Wed Sep  2 02:17:44 PM EDT 2026
+WARNING:root:'torchcodec' is not available in your platform, falling back to 'pyav' as a default decoder
+WARNING:root:'torchcodec' is not available in your platform, falling back to 'pyav' as a default decoder
+INFO 2026-09-02 14:17:56 ot_train.py:163 {'batch_size': 4,
+ 'checkpoint_path': None,
+ 'dataset': {'episodes': None,
+             'image_transforms': {'enable': False,
+                                  'max_num_transforms': 3,
+                                  'random_order': False,
+                                  'tfs': {'affine': {'kwargs': {'degrees': [-5.0,
+                                                                            5.0],
+                                                                'translate': [0.05,
+                                                                              0.05]},
+                                                     'type': 'RandomAffine',
+                                                     'weight': 1.0},
+                                          'brightness': {'kwargs': {'brightness': [0.8,
+                                                                                   1.2]},
+                                                         'type': 'ColorJitter',
+                                                         'weight': 1.0},
+                                          'contrast': {'kwargs': {'contrast': [0.8,
+                                                                               1.2]},
+                                                       'type': 'ColorJitter',
+                                                       'weight': 1.0},
+                                          'hue': {'kwargs': {'hue': [-0.05,
+                                                                     0.05]},
+                                                  'type': 'ColorJitter',
+                                                  'weight': 1.0},
+                                          'saturation': {'kwargs': {'saturation': [0.5,
+                                                                                   1.5]},
+                                                         'type': 'ColorJitter',
+                                                         'weight': 1.0},
+                                          'sharpness': {'kwargs': {'sharpness': [0.5,
+                                                                                 1.5]},
+                                                        'type': 'SharpnessJitter',
+                                                        'weight': 1.0}}},
+             'repo_id': 'local/glassbottle_pick_v8_frozen',
+             'revision': None,
+             'root': None,
+             'streaming': False,
+             'use_imagenet_stats': True,
+             'video_backend': 'pyav'},
+ 'env': None,
+ 'eval': {'batch_size': 50, 'n_episodes': 50, 'use_async_envs': False},
+ 'eval_freq': 20000,
+ 'job_name': 'act_glassbottle_pick_v8',
+ 'log_freq': 200,
+ 'num_workers': 2,
+ 'optimizer': {'betas': [0.9, 0.999],
+               'eps': 1e-08,
+               'grad_clip_norm': 10.0,
+               'lr': 1e-05,
+               'type': 'adamw',
+               'weight_decay': 0.0001},
+ 'output_dir': 'outputs/act_glassbottle_pick_v8',
+ 'policy': {'chunk_size': 100,
+            'device': 'cuda',
+            'dim_feedforward': 3200,
+            'dim_model': 512,
+            'dropout': 0.1,
+            'feedforward_activation': 'relu',
+            'input_features': {},
+            'kl_weight': 10.0,
+            'latent_dim': 32,
+            'license': None,
+            'n_action_steps': 100,
+            'n_decoder_layers': 1,
+            'n_encoder_layers': 4,
+            'n_heads': 8,
+            'n_obs_steps': 1,
+            'n_vae_encoder_layers': 4,
+            'normalization_mapping': {'ACTION': <NormalizationMode.MEAN_STD: 'MEAN_STD'>,
+                                      'STATE': <NormalizationMode.MEAN_STD: 'MEAN_STD'>,
+                                      'VISUAL': <NormalizationMode.MEAN_STD: 'MEAN_STD'>},
+            'optimizer_lr': 1e-05,
+            'optimizer_lr_backbone': 1e-05,
+            'optimizer_weight_decay': 0.0001,
+            'output_features': {},
+            'pre_norm': False,
+            'pretrained_backbone_weights': 'ResNet18_Weights.IMAGENET1K_V1',
+            'pretrained_path': None,
+            'private': None,
+            'push_to_hub': False,
+            'replace_final_stride_with_dilation': False,
+            'repo_id': None,
+            'tags': None,
+            'temporal_ensemble_coeff': None,
+            'type': 'act',
+            'use_amp': False,
+            'use_vae': True,
+            'vision_backbone': 'resnet18'},
+ 'rename_map': {},
+ 'resume': False,
+ 'save_checkpoint': True,
+ 'save_freq': 10000,
+ 'scheduler': None,
+ 'seed': 1000,
+ 'steps': 30000,
+ 'use_policy_training_preset': True,
+ 'wandb': {'disable_artifact': False,
+           'enable': False,
+           'entity': None,
+           'mode': None,
+           'notes': None,
+           'project': 'lerobot',
+           'run_id': None}}
+INFO 2026-09-02 14:17:56 ot_train.py:171 Logs will be saved locally.
+INFO 2026-09-02 14:17:56 ot_train.py:183 Creating dataset
+INFO 2026-09-02 14:17:56 ot_train.py:202 Creating policy
+INFO 2026-09-02 14:17:57 ot_train.py:247 Creating optimizer and scheduler
+INFO 2026-09-02 14:17:57 ot_train.py:259 Output dir: outputs/act_glassbottle_pick_v8
+INFO 2026-09-02 14:17:57 ot_train.py:262 cfg.steps=30000 (30K)
+INFO 2026-09-02 14:17:57 ot_train.py:263 dataset.num_frames=21261 (21K)
+INFO 2026-09-02 14:17:57 ot_train.py:264 dataset.num_episodes=49
+INFO 2026-09-02 14:17:57 ot_train.py:267 Effective batch size: 4 x 1 = 4
+INFO 2026-09-02 14:17:57 ot_train.py:268 num_learnable_params=51597190 (52M)
+INFO 2026-09-02 14:17:57 ot_train.py:269 num_total_params=51597190 (52M)
+INFO 2026-09-02 14:17:57 ot_train.py:324 Start offline training on a fixed dataset
+/home/xle/.venvs/xlerobot-pro/lib/python3.10/site-packages/torchvision/io/_video_deprecation_warning.py:9: UserWarning: The video decoding and encoding capabilities of torchvision are deprecated from version 0.22 and will be removed in version 0.24. We recommend that you migrate to TorchCodec, where we'll consolidate the future decoding/encoding capabilities of PyTorch: https://github.com/pytorch/torchcodec
+  warnings.warn(
+/home/xle/.venvs/xlerobot-pro/lib/python3.10/site-packages/torchvision/io/_video_deprecation_warning.py:9: UserWarning: The video decoding and encoding capabilities of torchvision are deprecated from version 0.22 and will be removed in version 0.24. We recommend that you migrate to TorchCodec, where we'll consolidate the future decoding/encoding capabilities of PyTorch: https://github.com/pytorch/torchcodec
+  warnings.warn(
+INFO 2026-09-02 14:19:12 ot_train.py:351 step:200 smpl:800 ep:2 epch:0.04 loss:7.995 grdn:219.186 lr:1.0e-05 updt_s:0.364 data_s:0.006
+INFO 2026-09-02 14:20:20 ot_train.py:351 step:400 smpl:2K ep:4 epch:0.08 loss:3.487 grdn:124.764 lr:1.0e-05 updt_s:0.338 data_s:0.004
+INFO 2026-09-02 14:21:28 ot_train.py:351 step:600 smpl:2K ep:6 epch:0.11 loss:2.850 grdn:107.797 lr:1.0e-05 updt_s:0.336 data_s:0.003
+INFO 2026-09-02 14:22:38 ot_train.py:351 step:800 smpl:3K ep:7 epch:0.15 loss:2.461 grdn:98.342 lr:1.0e-05 updt_s:0.340 data_s:0.004
+INFO 2026-09-02 14:23:45 ot_train.py:351 step:1K smpl:4K ep:9 epch:0.19 loss:2.270 grdn:91.944 lr:1.0e-05 updt_s:0.334 data_s:0.003
+INFO 2026-09-02 14:24:54 ot_train.py:351 step:1K smpl:5K ep:11 epch:0.23 loss:2.158 grdn:89.556 lr:1.0e-05 updt_s:0.338 data_s:0.004
+INFO 2026-09-02 14:26:02 ot_train.py:351 step:1K smpl:6K ep:13 epch:0.26 loss:2.019 grdn:85.128 lr:1.0e-05 updt_s:0.338 data_s:0.003
+INFO 2026-09-02 14:27:11 ot_train.py:351 step:2K smpl:6K ep:15 epch:0.30 loss:1.823 grdn:80.092 lr:1.0e-05 updt_s:0.338 data_s:0.004
+INFO 2026-09-02 14:28:20 ot_train.py:351 step:2K smpl:7K ep:17 epch:0.34 loss:1.706 grdn:78.434 lr:1.0e-05 updt_s:0.340 data_s:0.004
+INFO 2026-09-02 14:29:29 ot_train.py:351 step:2K smpl:8K ep:18 epch:0.38 loss:1.615 grdn:76.623 lr:1.0e-05 updt_s:0.339 data_s:0.004
+INFO 2026-09-02 14:30:38 ot_train.py:351 step:2K smpl:9K ep:20 epch:0.41 loss:1.478 grdn:72.061 lr:1.0e-05 updt_s:0.339 data_s:0.004
+INFO 2026-09-02 14:31:47 ot_train.py:351 step:2K smpl:10K ep:22 epch:0.45 loss:1.372 grdn:68.792 lr:1.0e-05 updt_s:0.341 data_s:0.004
+INFO 2026-09-02 14:32:56 ot_train.py:351 step:3K smpl:10K ep:24 epch:0.49 loss:1.305 grdn:67.448 lr:1.0e-05 updt_s:0.341 data_s:0.004
+INFO 2026-09-02 14:34:05 ot_train.py:351 step:3K smpl:11K ep:26 epch:0.53 loss:1.205 grdn:63.311 lr:1.0e-05 updt_s:0.339 data_s:0.004
+INFO 2026-09-02 14:35:14 ot_train.py:351 step:3K smpl:12K ep:28 epch:0.56 loss:1.129 grdn:61.095 lr:1.0e-05 updt_s:0.340 data_s:0.004
+INFO 2026-09-02 14:36:23 ot_train.py:351 step:3K smpl:13K ep:30 epch:0.60 loss:1.053 grdn:59.143 lr:1.0e-05 updt_s:0.342 data_s:0.004
+INFO 2026-09-02 14:37:31 ot_train.py:351 step:3K smpl:14K ep:31 epch:0.64 loss:0.964 grdn:56.025 lr:1.0e-05 updt_s:0.337 data_s:0.003
+INFO 2026-09-02 14:38:40 ot_train.py:351 step:4K smpl:14K ep:33 epch:0.68 loss:0.910 grdn:53.814 lr:1.0e-05 updt_s:0.338 data_s:0.004
+INFO 2026-09-02 14:39:49 ot_train.py:351 step:4K smpl:15K ep:35 epch:0.71 loss:0.845 grdn:52.689 lr:1.0e-05 updt_s:0.338 data_s:0.004
+INFO 2026-09-02 14:40:57 ot_train.py:351 step:4K smpl:16K ep:37 epch:0.75 loss:0.781 grdn:49.243 lr:1.0e-05 updt_s:0.336 data_s:0.003
+INFO 2026-09-02 14:42:06 ot_train.py:351 step:4K smpl:17K ep:39 epch:0.79 loss:0.735 grdn:47.119 lr:1.0e-05 updt_s:0.340 data_s:0.004
+INFO 2026-09-02 14:43:14 ot_train.py:351 step:4K smpl:18K ep:41 epch:0.83 loss:0.682 grdn:46.060 lr:1.0e-05 updt_s:0.336 data_s:0.004
+INFO 2026-09-02 14:44:23 ot_train.py:351 step:5K smpl:18K ep:42 epch:0.87 loss:0.660 grdn:44.338 lr:1.0e-05 updt_s:0.339 data_s:0.003
+INFO 2026-09-02 14:45:31 ot_train.py:351 step:5K smpl:19K ep:44 epch:0.90 loss:0.603 grdn:41.763 lr:1.0e-05 updt_s:0.338 data_s:0.004
+INFO 2026-09-02 14:46:40 ot_train.py:351 step:5K smpl:20K ep:46 epch:0.94 loss:0.568 grdn:40.544 lr:1.0e-05 updt_s:0.339 data_s:0.004
+INFO 2026-09-02 14:47:49 ot_train.py:351 step:5K smpl:21K ep:48 epch:0.98 loss:0.539 grdn:39.408 lr:1.0e-05 updt_s:0.339 data_s:0.004
+/home/xle/.venvs/xlerobot-pro/lib/python3.10/site-packages/torchvision/io/_video_deprecation_warning.py:9: UserWarning: The video decoding and encoding capabilities of torchvision are deprecated from version 0.22 and will be removed in version 0.24. We recommend that you migrate to TorchCodec, where we'll consolidate the future decoding/encoding capabilities of PyTorch: https://github.com/pytorch/torchcodec
+  warnings.warn(
+/home/xle/.venvs/xlerobot-pro/lib/python3.10/site-packages/torchvision/io/_video_deprecation_warning.py:9: UserWarning: The video decoding and encoding capabilities of torchvision are deprecated from version 0.22 and will be removed in version 0.24. We recommend that you migrate to TorchCodec, where we'll consolidate the future decoding/encoding capabilities of PyTorch: https://github.com/pytorch/torchcodec
+  warnings.warn(
+INFO 2026-09-02 14:48:59 ot_train.py:351 step:5K smpl:22K ep:50 epch:1.02 loss:0.521 grdn:38.998 lr:1.0e-05 updt_s:0.345 data_s:0.006
+INFO 2026-09-02 14:50:08 ot_train.py:351 step:6K smpl:22K ep:52 epch:1.05 loss:0.485 grdn:36.959 lr:1.0e-05 updt_s:0.338 data_s:0.004
+INFO 2026-09-02 14:51:17 ot_train.py:351 step:6K smpl:23K ep:53 epch:1.09 loss:0.465 grdn:35.095 lr:1.0e-05 updt_s:0.338 data_s:0.004
+INFO 2026-09-02 14:52:25 ot_train.py:351 step:6K smpl:24K ep:55 epch:1.13 loss:0.440 grdn:34.132 lr:1.0e-05 updt_s:0.338 data_s:0.003
+INFO 2026-09-02 14:53:34 ot_train.py:351 step:6K smpl:25K ep:57 epch:1.17 loss:0.411 grdn:32.858 lr:1.0e-05 updt_s:0.338 data_s:0.004
+INFO 2026-09-02 14:54:43 ot_train.py:351 step:6K smpl:26K ep:59 epch:1.20 loss:0.387 grdn:31.658 lr:1.0e-05 updt_s:0.339 data_s:0.003
+INFO 2026-09-02 14:55:51 ot_train.py:351 step:7K smpl:26K ep:61 epch:1.24 loss:0.389 grdn:31.310 lr:1.0e-05 updt_s:0.336 data_s:0.003
+INFO 2026-09-02 14:56:58 ot_train.py:351 step:7K smpl:27K ep:63 epch:1.28 loss:0.382 grdn:30.815 lr:1.0e-05 updt_s:0.334 data_s:0.003
+INFO 2026-09-02 14:58:07 ot_train.py:351 step:7K smpl:28K ep:65 epch:1.32 loss:0.358 grdn:29.700 lr:1.0e-05 updt_s:0.338 data_s:0.003
+INFO 2026-09-02 14:59:15 ot_train.py:351 step:7K smpl:29K ep:66 epch:1.35 loss:0.343 grdn:28.784 lr:1.0e-05 updt_s:0.337 data_s:0.003
+INFO 2026-09-02 15:00:23 ot_train.py:351 step:7K smpl:30K ep:68 epch:1.39 loss:0.343 grdn:28.653 lr:1.0e-05 updt_s:0.335 data_s:0.003
+INFO 2026-09-02 15:01:32 ot_train.py:351 step:8K smpl:30K ep:70 epch:1.43 loss:0.323 grdn:27.322 lr:1.0e-05 updt_s:0.341 data_s:0.004
+INFO 2026-09-02 15:02:41 ot_train.py:351 step:8K smpl:31K ep:72 epch:1.47 loss:0.317 grdn:26.993 lr:1.0e-05 updt_s:0.337 data_s:0.003
+INFO 2026-09-02 15:03:49 ot_train.py:351 step:8K smpl:32K ep:74 epch:1.51 loss:0.316 grdn:26.594 lr:1.0e-05 updt_s:0.337 data_s:0.004
+INFO 2026-09-02 15:04:57 ot_train.py:351 step:8K smpl:33K ep:76 epch:1.54 loss:0.305 grdn:26.404 lr:1.0e-05 updt_s:0.337 data_s:0.004
+INFO 2026-09-02 15:06:06 ot_train.py:351 step:8K smpl:34K ep:77 epch:1.58 loss:0.291 grdn:25.744 lr:1.0e-05 updt_s:0.339 data_s:0.004
+INFO 2026-09-02 15:07:15 ot_train.py:351 step:9K smpl:34K ep:79 epch:1.62 loss:0.283 grdn:24.712 lr:1.0e-05 updt_s:0.338 data_s:0.003
+INFO 2026-09-02 15:08:23 ot_train.py:351 step:9K smpl:35K ep:81 epch:1.66 loss:0.287 grdn:24.660 lr:1.0e-05 updt_s:0.337 data_s:0.004
+INFO 2026-09-02 15:09:32 ot_train.py:351 step:9K smpl:36K ep:83 epch:1.69 loss:0.278 grdn:24.334 lr:1.0e-05 updt_s:0.338 data_s:0.004
+INFO 2026-09-02 15:10:41 ot_train.py:351 step:9K smpl:37K ep:85 epch:1.73 loss:0.273 grdn:23.584 lr:1.0e-05 updt_s:0.341 data_s:0.004
+INFO 2026-09-02 15:11:50 ot_train.py:351 step:9K smpl:38K ep:87 epch:1.77 loss:0.268 grdn:23.372 lr:1.0e-05 updt_s:0.341 data_s:0.004
+INFO 2026-09-02 15:12:59 ot_train.py:351 step:10K smpl:38K ep:89 epch:1.81 loss:0.257 grdn:22.747 lr:1.0e-05 updt_s:0.339 data_s:0.004
+INFO 2026-09-02 15:14:07 ot_train.py:351 step:10K smpl:39K ep:90 epch:1.84 loss:0.246 grdn:22.529 lr:1.0e-05 updt_s:0.336 data_s:0.004
+INFO 2026-09-02 15:15:16 ot_train.py:351 step:10K smpl:40K ep:92 epch:1.88 loss:0.245 grdn:22.365 lr:1.0e-05 updt_s:0.338 data_s:0.003
+INFO 2026-09-02 15:15:16 ot_train.py:361 Checkpoint policy after step 10000
+INFO 2026-09-02 15:16:32 ot_train.py:351 step:10K smpl:41K ep:94 epch:1.92 loss:0.238 grdn:21.508 lr:1.0e-05 updt_s:0.338 data_s:0.032
+INFO 2026-09-02 15:17:42 ot_train.py:351 step:10K smpl:42K ep:96 epch:1.96 loss:0.242 grdn:21.728 lr:1.0e-05 updt_s:0.348 data_s:0.003
+INFO 2026-09-02 15:19:13 ot_train.py:351 step:11K smpl:42K ep:98 epch:1.99 loss:0.236 grdn:21.315 lr:1.0e-05 updt_s:0.446 data_s:0.008
+/home/xle/.venvs/xlerobot-pro/lib/python3.10/site-packages/torchvision/io/_video_deprecation_warning.py:9: UserWarning: The video decoding and encoding capabilities of torchvision are deprecated from version 0.22 and will be removed in version 0.24. We recommend that you migrate to TorchCodec, where we'll consolidate the future decoding/encoding capabilities of PyTorch: https://github.com/pytorch/torchcodec
+  warnings.warn(
+/home/xle/.venvs/xlerobot-pro/lib/python3.10/site-packages/torchvision/io/_video_deprecation_warning.py:9: UserWarning: The video decoding and encoding capabilities of torchvision are deprecated from version 0.22 and will be removed in version 0.24. We recommend that you migrate to TorchCodec, where we'll consolidate the future decoding/encoding capabilities of PyTorch: https://github.com/pytorch/torchcodec
+  warnings.warn(
+INFO 2026-09-02 15:20:49 ot_train.py:351 step:11K smpl:43K ep:100 epch:2.03 loss:0.232 grdn:21.381 lr:1.0e-05 updt_s:0.465 data_s:0.011
+INFO 2026-09-02 15:21:58 ot_train.py:351 step:11K smpl:44K ep:101 epch:2.07 loss:0.226 grdn:20.728 lr:1.0e-05 updt_s:0.339 data_s:0.003
+INFO 2026-09-02 15:23:06 ot_train.py:351 step:11K smpl:45K ep:103 epch:2.11 loss:0.225 grdn:20.244 lr:1.0e-05 updt_s:0.337 data_s:0.003
+INFO 2026-09-02 15:24:17 ot_train.py:351 step:11K smpl:46K ep:105 epch:2.14 loss:0.222 grdn:20.469 lr:1.0e-05 updt_s:0.349 data_s:0.003
+INFO 2026-09-02 15:25:24 ot_train.py:351 step:12K smpl:46K ep:107 epch:2.18 loss:0.222 grdn:19.827 lr:1.0e-05 updt_s:0.332 data_s:0.003
+INFO 2026-09-02 15:26:32 ot_train.py:351 step:12K smpl:47K ep:109 epch:2.22 loss:0.217 grdn:19.651 lr:1.0e-05 updt_s:0.337 data_s:0.004
+INFO 2026-09-02 15:27:41 ot_train.py:351 step:12K smpl:48K ep:111 epch:2.26 loss:0.214 grdn:19.653 lr:1.0e-05 updt_s:0.337 data_s:0.004
+INFO 2026-09-02 15:28:49 ot_train.py:351 step:12K smpl:49K ep:112 epch:2.30 loss:0.219 grdn:19.600 lr:1.0e-05 updt_s:0.340 data_s:0.003
+INFO 2026-09-02 15:29:59 ot_train.py:351 step:12K smpl:50K ep:114 epch:2.33 loss:0.215 grdn:19.174 lr:1.0e-05 updt_s:0.345 data_s:0.003
+INFO 2026-09-02 15:31:07 ot_train.py:351 step:13K smpl:50K ep:116 epch:2.37 loss:0.207 grdn:19.237 lr:1.0e-05 updt_s:0.334 data_s:0.003
+INFO 2026-09-02 15:32:15 ot_train.py:351 step:13K smpl:51K ep:118 epch:2.41 loss:0.203 grdn:19.241 lr:1.0e-05 updt_s:0.335 data_s:0.003
+INFO 2026-09-02 15:33:24 ot_train.py:351 step:13K smpl:52K ep:120 epch:2.45 loss:0.197 grdn:18.354 lr:1.0e-05 updt_s:0.339 data_s:0.004
+INFO 2026-09-02 15:34:32 ot_train.py:351 step:13K smpl:53K ep:122 epch:2.48 loss:0.193 grdn:18.553 lr:1.0e-05 updt_s:0.337 data_s:0.003
+INFO 2026-09-02 15:35:42 ot_train.py:351 step:13K smpl:54K ep:124 epch:2.52 loss:0.197 grdn:18.460 lr:1.0e-05 updt_s:0.344 data_s:0.003
+INFO 2026-09-02 15:36:51 ot_train.py:351 step:14K smpl:54K ep:125 epch:2.56 loss:0.190 grdn:17.500 lr:1.0e-05 updt_s:0.340 data_s:0.003
+INFO 2026-09-02 15:38:01 ot_train.py:351 step:14K smpl:55K ep:127 epch:2.60 loss:0.189 grdn:17.744 lr:1.0e-05 updt_s:0.345 data_s:0.003
+INFO 2026-09-02 15:39:09 ot_train.py:351 step:14K smpl:56K ep:129 epch:2.63 loss:0.186 grdn:17.799 lr:1.0e-05 updt_s:0.337 data_s:0.003
+INFO 2026-09-02 15:40:20 ot_train.py:351 step:14K smpl:57K ep:131 epch:2.67 loss:0.197 grdn:17.419 lr:1.0e-05 updt_s:0.349 data_s:0.003
+INFO 2026-09-02 15:41:28 ot_train.py:351 step:14K smpl:58K ep:133 epch:2.71 loss:0.184 grdn:17.162 lr:1.0e-05 updt_s:0.338 data_s:0.003
+INFO 2026-09-02 15:42:37 ot_train.py:351 step:15K smpl:58K ep:135 epch:2.75 loss:0.191 grdn:17.005 lr:1.0e-05 updt_s:0.338 data_s:0.003
+INFO 2026-09-02 15:43:45 ot_train.py:351 step:15K smpl:59K ep:136 epch:2.78 loss:0.181 grdn:16.834 lr:1.0e-05 updt_s:0.335 data_s:0.003
+INFO 2026-09-02 15:44:53 ot_train.py:351 step:15K smpl:60K ep:138 epch:2.82 loss:0.184 grdn:16.987 lr:1.0e-05 updt_s:0.335 data_s:0.003
+INFO 2026-09-02 15:46:00 ot_train.py:351 step:15K smpl:61K ep:140 epch:2.86 loss:0.183 grdn:17.216 lr:1.0e-05 updt_s:0.334 data_s:0.003
+INFO 2026-09-02 15:47:10 ot_train.py:351 step:15K smpl:62K ep:142 epch:2.90 loss:0.174 grdn:16.495 lr:1.0e-05 updt_s:0.341 data_s:0.004
