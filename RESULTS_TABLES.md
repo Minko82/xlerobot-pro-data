@@ -201,43 +201,49 @@ arm; left arm is the unloaded paired control. Measured on `right_shoulder_lift`.
 
 ## B1 — Dynamic payload under motion
 
-**NOT RUN.**
+**RUN, 2026-08-05** (base) and **August** (arm slews). Data in `B1/official/`
+(base ramps, `run_info.json` present) and `B1/slew_*` (nine exploratory slew
+runs, periods recovered from the logs). Payload 366 g grasped (500 ml bottle),
+tau 450, wheel accel register 20, ambient 24.4 °C, battery only. Realised
+acceleration is delta-v over the ramp segment from wheel odometry (no IMU on
+this platform); slip is `grip_dev` in encoder counts.
 
 | Motion profile | Realized accel (m/s²) | Max mass, no slip (g) | First-slip mass (g) | n |
 |---|---|---|---|---|
-| Base 0.25 m/s² | — | — | — | — |
-| Base 0.5 m/s² | — | — | — | — |
-| Base 1.0 m/s² | — | — | — | — |
-| Arm slew (high) | — | — | — | — |
+| Base 0.25 m/s² | **0.151** (0.147–0.154 per leg; Eq. 3 predicts 0.152) | 366 (only mass run) | not reached | 6 legs |
+| Base 0.5 m/s² | **0.136** — register saturates, command cannot be realised | 366 | not reached | 6 legs |
+| Base 1.0 m/s² | — (not run; 0.5 already saturates) | — | — | — |
+| Arm slew (high) | peak 0.242 m/s² (2.5 % g); pan tracks 0.97–1.00, elbow 0.36→0.59 (8→3 s), shoulder lift 0.87 unloaded → 0.00 loaded | 366 | not reached | 9 runs |
 
-Gates and deviations to record:
+Gripper travel was zero in every run. The binding limit at this mass is grasp
+geometry, not dynamics: a 475 g can could not be enclosed and a thin-walled can
+deformed at grip load 38 before any motion. Paper: Sec. VI-B.
 
-- Base has never been driven; `slew_payload_test.py` is untested.
-- **Gated on shoulder-joint health** after the 1 kg mechanical failures.
-- Protocol asks for **IMU** acceleration; this platform has a **D435 without IMU**.
-  Use wheel-encoder odometry and state the substitution.
-- B1 requires an actual **grasp** (thread suspension is invalid — slip is the
-  measurement). The gripper already failed to close on a 475 g can, so the
-  achievable range may be bounded by grasp geometry rather than dynamics.
+## C1 — End-to-end learned-policy manipulation
 
----
-
-## C1 — End-to-end learned-policy mobile manipulation
-
-**NOT RUN — stack-blocked.**
+**Grasp stage RUN, 2026-09-02 (Block A).** Transit and place NOT RUN: the
+drive-bus adapter was unavailable and no further tests are planned. Data in
+`trials/blockA/` (`results.csv`, per-trial trajectories, plans, frames,
+temperatures, `tegrastats.log`). Policy `act_glassbottle_pick_v8` checkpoint
+010000: ACT, 49 kinesthetic demonstrations, frozen first-frame observation,
+trained and run on the Orin, untethered. End-to-end — no detector, IK or
+scripted stage between the neck-camera image and the joint targets.
 
 | Stage | Attempts | Successes | Failures | Failure share (%) |
 |---|---|---|---|---|
-| Navigate | — | — | — | — |
-| Perceive | — | — | — | — |
-| Pick / grasp | — | — | — | — |
-| Place | — | — | — | — |
-| **Overall** | — | — | — | — |
+| Navigate | — (not run) | — | — | — |
+| Perceive | 50 | 50 | 0 | 0 |
+| Pick / grasp | 50 | 49 | 1 (t43: acquired, dropped at lift) | 100 |
+| Place | — (not run) | — | — | — |
+| **Overall** | **50** | **49 (98 %, Wilson 89.5–99.6 %)** | **1** | |
 
-RTAB-Map and Nav2 are **not installed**; this platform runs FAST-LIO + Livox.
-Also requires a task-specific trained checkpoint and 100 trials.
-
----
+50 consecutive trials at one marked position, no cooldown, ~2 min per cycle.
+No system failures (latch / reset / abort). Success did not decay with trial
+index. Shoulder lift 34–36 °C at every trial start; gripper 37→44 °C. Realised
+28.60 ± 0.03 Hz, chunk inference 104.5 ± 3.2 ms, VDD_IN 6.27 W mean / 7.80 W
+peak. Paper: Sec. VI-E, Table V. Before the block, four trials at two other
+positions gave 2/4 (one miss with the bottle body under the grey hand mask,
+one 10 pan units off).
 
 ## C2 — Inference optimization & control-rate characterization
 

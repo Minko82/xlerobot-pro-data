@@ -1,4 +1,22 @@
-# Test plan — what the paper still needs
+# Test plan — CLOSED 2026-09-02
+
+**No further tests are planned.** The paper (v5, `~/Desktop/XLeRobot-Pro-Paper/v5/`)
+carries every measured result and states the rest as limitations. Status of
+the items below:
+
+| # | Item | Status |
+|---|---|---|
+| 1 | Bus B ammeter | **done** 2 Sep — 1.41 A one arm, Table IV P2 filled |
+| 2 | Register calibration | not run; one point from #1 (register reads 1.6x the meter). alpha_th stated as unidentified; Table IV P4 uses fitted asymptotes |
+| 3–4 | 3–5 tau holds, the 700 g question | not run; 700 g stays a censored bound |
+| 5 | n = 3 at 700 / 800 g | not run; stated in Limitations |
+| 6 | Unsized failure | not run; Naive column stays a computed counterfactual |
+| 7 | Closed-loop policy | **done** 2 Sep — Block A 49/50, Sec. VI-E; transit/place and drive-bus concurrency not run, stated |
+| 8 | Second actuator class | not run; stated |
+
+The original plan follows for the record.
+
+---
 
 Rewritten 2026-08-19 against the current draft. Supersedes the earlier version,
 which predated the data audit.
